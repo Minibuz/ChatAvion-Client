@@ -1,47 +1,51 @@
 package fr.chatavion.client.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material.Colors
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.darkColors
-import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
 
-private val DarkColorPalette = darkColors(
+private val DarkColorPalette = Colors(
     primary = Black,
     onPrimary = White,
     primaryVariant = Blue,
 
-    secondary = White,
+    secondary = Blue,
     onSecondary = White,
+    secondaryVariant = Blue,
 
     background = BlackBackground,
     onBackground = White,
-    onSurface = White,
-    surface = White,
 
-    error = Red
+    surface = White,
+    onSurface = White,
+
+    error = Red,
+    onError = Red,
+
+    isLight = false
 )
 
-private val LightColorPalette = lightColors(
-    background = White,
-//    primary = White,
+private val LightColorPalette = Colors(
+    primary = White,
     onPrimary = Black,
+    primaryVariant = Gray,
+
+    secondary = Gray,
+    onSecondary = White,
+    secondaryVariant = Gray,
+
+    background = White,
     onBackground = Black,
+
+    surface = Black,
     onSurface = Black,
 
-    primaryVariant = Gray,
-    secondary = Black,
-    surface = Black,
-    onSecondary = Black,
-)
+    error = Red,
+    onError = Red,
 
-/* Other colors to overwrite :
-    primaryVariant,
-    secondary,
-    surface,
-    onSecondary,
-    ...
- */
+    isLight = false
+)
 
 @Composable
 fun ChatavionTheme(

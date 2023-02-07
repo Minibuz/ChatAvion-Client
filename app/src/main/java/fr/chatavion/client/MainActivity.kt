@@ -125,9 +125,11 @@ fun FullPage() {
             painter = painterResource(id = R.drawable.chatavion_logo),
             contentDescription = "Chatavion logo"
         )
-        Column(modifier = Modifier
-            .weight(1f / 3f)
-            .align(Alignment.CenterHorizontally)) {
+        Column(
+            modifier = Modifier
+                .weight(1f / 3f)
+                .align(Alignment.CenterHorizontally)
+        ) {
             Text(
                 "Id de communauté",
                 style = TextStyle(fontWeight = FontWeight.Bold),
@@ -155,13 +157,13 @@ fun FullPage() {
         Button(
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
-                .background(MaterialTheme.colors.primaryVariant)
                 .weight(1f / 3f),
             onClick = {
                 Log.d("FullPage", "Button pushed by $pseudo on $id")
-            }
+            },
+            colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.secondary)
         ) {
-            Text("Rejoindre", color = Gray)
+            Text("Rejoindre", color = MaterialTheme.colors.onSecondary)
         }
     }
 }
