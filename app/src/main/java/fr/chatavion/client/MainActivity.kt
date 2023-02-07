@@ -6,6 +6,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -52,6 +54,7 @@ fun MainPage() {
         Column(
             modifier = Modifier
                 .weight(1f / 3f)
+                .verticalScroll(rememberScrollState())
                 .align(Alignment.CenterHorizontally)
         ) {
             Text(
