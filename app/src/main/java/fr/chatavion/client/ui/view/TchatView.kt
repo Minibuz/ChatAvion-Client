@@ -14,7 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -85,7 +85,7 @@ class TchatView {
                         onValueChange = { msg = it },
                         label = {},
                         textStyle = TextStyle(fontSize = 16.sp),
-                        modifier = Modifier.fillMaxSize()
+//                        modifier = Modifier.fillMaxSize() // TODO - fix this
                     )
                     Button(
                         colors = ButtonDefaults.buttonColors(MaterialTheme.colors.background),
@@ -117,16 +117,32 @@ class TchatView {
 
     @Composable
     fun DisplayCenterText(text: String, pseudo: String) {
-        Text(
-            text = text,
-            color = MaterialTheme.colors.onPrimary,
-//        fontSize = 20.sp,
-//        fontWeight = FontWeight.Normal,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(30.dp)
-                .wrapContentHeight(),
-            textAlign = TextAlign.Center
-        )
+        Card(
+            modifier = Modifier.padding(start = 12.dp, 5.dp),
+            backgroundColor = MaterialTheme.colors.background,
+        ) {
+//            Text(
+//                text = pseudo,
+//                color = MaterialTheme.colors.onPrimary,
+//                fontWeight = FontWeight.Bold,
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .wrapContentWidth(Alignment.Start)
+//                    .height(30.dp)
+//                    .wrapContentHeight()
+//            )
+            Spacer(modifier = Modifier.height(10.dp).padding(5.dp))
+            Text(
+                text = text,
+                color = MaterialTheme.colors.onPrimary,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentWidth(Alignment.Start)
+//                    .height(30.dp)
+//                    .wrapContentHeight()
+//                .padding(start = 12.dp)
+//            textAlign = TextAlign.Center,
+            )
+        }
     }
 }
