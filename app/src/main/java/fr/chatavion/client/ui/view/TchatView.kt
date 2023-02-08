@@ -114,19 +114,19 @@ class TchatView {
             }
         }
     }
-}
 
-@Composable
-fun DisplayCenterText(text: String, pseudo: String) {
-    Text(
-        text = text,
-        color = MaterialTheme.colors.onPrimary,
+    @Composable
+    fun DisplayCenterText(text: String, pseudo: String) {
+        Text(
+            text = text,
+            color = MaterialTheme.colors.onPrimary,
 //        fontSize = 20.sp,
 //        fontWeight = FontWeight.Normal,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(30.dp)
-            .wrapContentHeight(),
-        textAlign = TextAlign.Center
-    )
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(30.dp)
+                .wrapContentHeight(),
+            textAlign = TextAlign.Center
+        )
+    }
 }
