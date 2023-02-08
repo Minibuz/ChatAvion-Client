@@ -18,6 +18,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import fr.chatavion.client.ui.theme.Black
+import fr.chatavion.client.ui.theme.White
 
 class TchatView {
 
@@ -76,6 +78,8 @@ class TchatView {
                 }
             },
             bottomBar = {
+                // TODO - fix this
+//                Divider(color = White , thickness = 1.dp)
                 BottomAppBar(
                     cutoutShape = MaterialTheme.shapes.small.copy(CornerSize(percent = 50)),
                     backgroundColor = MaterialTheme.colors.background
@@ -85,7 +89,9 @@ class TchatView {
                         onValueChange = { msg = it },
                         label = {},
                         textStyle = TextStyle(fontSize = 16.sp),
-//                        modifier = Modifier.fillMaxSize() // TODO - fix this
+                        placeholder  = { Text(text = "Message text...") },
+                        // TODO - fix this
+//                        modifier = Modifier.fillMaxSize()
                     )
                     Button(
                         colors = ButtonDefaults.buttonColors(MaterialTheme.colors.background),
@@ -101,6 +107,7 @@ class TchatView {
                 }
             }
         ) { innerTag ->
+            Divider(color = White , thickness = 1.dp)
             Column(Modifier.padding(innerTag)) {
                 LazyColumn(
                     Modifier
@@ -121,6 +128,7 @@ class TchatView {
             modifier = Modifier.padding(start = 12.dp, 5.dp),
             backgroundColor = MaterialTheme.colors.background,
         ) {
+            // TODO - fix this
 //            Text(
 //                text = pseudo,
 //                color = MaterialTheme.colors.onPrimary,
@@ -131,17 +139,15 @@ class TchatView {
 //                    .height(30.dp)
 //                    .wrapContentHeight()
 //            )
-            Spacer(modifier = Modifier.height(10.dp).padding(5.dp))
+            Spacer(modifier = Modifier
+                .height(10.dp)
+                .padding(5.dp))
             Text(
                 text = text,
                 color = MaterialTheme.colors.onPrimary,
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentWidth(Alignment.Start)
-//                    .height(30.dp)
-//                    .wrapContentHeight()
-//                .padding(start = 12.dp)
-//            textAlign = TextAlign.Center,
             )
         }
     }
