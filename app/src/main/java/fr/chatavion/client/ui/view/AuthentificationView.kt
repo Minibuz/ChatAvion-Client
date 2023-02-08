@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -18,6 +19,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import fr.chatavion.client.R
+import fr.chatavion.client.ui.theme.Gray
+import fr.chatavion.client.ui.theme.White
 
 class AuthentificationView {
 
@@ -26,7 +29,9 @@ class AuthentificationView {
     fun AuthentificationView(navController: NavController) {
         var id by remember { mutableStateOf("") }
         var pseudo by remember { mutableStateOf("") }
-
+        var isRegisterOk = false
+        if (pseudo != "" && id != "")
+            isRegisterOk = true
         Column(modifier = Modifier.fillMaxSize()) {
             Image(
                 modifier = Modifier
@@ -50,7 +55,7 @@ class AuthentificationView {
                 TextField(
                     value = id,
                     onValueChange = { id = it },
-                    label = {},
+                    placeholder  = { Text(text = "communauté@IPserveur") },
                     textStyle = TextStyle(fontSize = 16.sp)
                 )
                 Spacer(modifier = Modifier.padding(vertical = 10.dp))
@@ -62,7 +67,7 @@ class AuthentificationView {
                 TextField(
                     value = pseudo,
                     onValueChange = { pseudo = it },
-                    label = {},
+                    placeholder  = { Text(text = "chienjet") },
                     textStyle = TextStyle(fontSize = 16.sp)
                 )
             }
@@ -73,17 +78,21 @@ class AuthentificationView {
             ) {
                 Card(Modifier.weight(2f / 5f)) {}
                 Button(
+                    shape = RoundedCornerShape(30.dp),
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
                         .weight(1f / 3f)
                         .width(200.dp),
                     onClick = {
-                        navController.navigate("tchat_page")
                         Log.d("FullPage", "Button pushed by $pseudo on $id")
+                        if (isRegisterOk)
+                            navController.navigate("tchat_page")
                     },
                     colors = ButtonDefaults.buttonColors(MaterialTheme.colors.secondary)
                 ) {
-                    Text("Rejoindre", color = MaterialTheme.colors.onSecondary)
+                    val color = if (isRegisterOk) MaterialTheme.colors.secondaryVariant
+                    else MaterialTheme.colors.primaryVariant
+                    Text("Rejoindre", color = color)
                 }
                 Card(Modifier.weight(2f / 3f)) {}
             }
