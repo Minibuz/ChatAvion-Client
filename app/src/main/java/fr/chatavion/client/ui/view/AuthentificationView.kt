@@ -44,7 +44,7 @@ class AuthentificationView {
             isRegisterOk = true
         }
         if (isConnectionOk) {
-            navController.navigate("tchat_page")
+            navController.navigate("tchat_page/${pseudo}/${community}/${address}")
             isConnectionOk = false
         }
         Column(modifier = Modifier.fillMaxSize()) {
@@ -138,9 +138,14 @@ class AuthentificationView {
         ).show()
     }
 
-    private fun sendHistorique(sender: DnsResolver) {
+    private fun sendHistorique(
+        sender: DnsResolver,
+        community: String,
+        address: String,
+        nbToRetrieve: String
+    ) {
         CoroutineScope(Dispatchers.IO).launch {
-            sender.requestHistorique("default", "1")
+            sender.requestHistorique(community, address, nbToRetrieve)
         }
     }
 

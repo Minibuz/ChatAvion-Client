@@ -101,7 +101,7 @@ public class DnsResolver {
         return false;
     }
 
-    public void requestHistorique(String cmt, String number, String address) throws IOException {
+    public void requestHistorique(String cmt, String address, String number) throws IOException {
         String cmtB32 = this.converter32.encodeAsString(cmt.getBytes(StandardCharsets.UTF_8));
         int nbMsgHistorique = 1;
         try {
