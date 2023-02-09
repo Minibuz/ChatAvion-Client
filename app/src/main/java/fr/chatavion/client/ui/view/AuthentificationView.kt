@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -19,19 +20,28 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import fr.chatavion.client.R
-import fr.chatavion.client.ui.theme.Gray
-import fr.chatavion.client.ui.theme.White
+import fr.chatavion.client.connection.DnsResolver
+import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.IO
 
 class AuthentificationView {
 
     @Composable
     @SuppressLint("NotConstructor")
     fun AuthentificationView(navController: NavController) {
+        val sender = DnsResolver()
+
         var id by remember { mutableStateOf("") }
         var pseudo by remember { mutableStateOf("") }
-        var isRegisterOk = false
-        if (pseudo != "" && id != "")
+        var isRegisterOk by remember { mutableStateOf(false) }
+        var isConnectionOk by remember { mutableStateOf(false) }
+        if (pseudo != "" && id != "") {
             isRegisterOk = true
+        }
+        if (isConnectionOk) {
+            navController.navigate("tchat_page")
+            isConnectionOk = false
+        }
         Column(modifier = Modifier.fillMaxSize()) {
             Image(
                 modifier = Modifier
@@ -55,7 +65,7 @@ class AuthentificationView {
                 TextField(
                     value = id,
                     onValueChange = { id = it },
-                    placeholder  = { Text(text = "communauté@IPserveur") },
+                    placeholder = { Text(text = "communauté@IPserveur") },
                     textStyle = TextStyle(fontSize = 16.sp)
                 )
                 Spacer(modifier = Modifier.padding(vertical = 10.dp))
@@ -67,7 +77,7 @@ class AuthentificationView {
                 TextField(
                     value = pseudo,
                     onValueChange = { pseudo = it },
-                    placeholder  = { Text(text = "chienjet") },
+                    placeholder = { Text(text = "chienjet") },
                     textStyle = TextStyle(fontSize = 16.sp)
                 )
             }
@@ -85,8 +95,11 @@ class AuthentificationView {
                         .width(200.dp),
                     onClick = {
                         Log.d("FullPage", "Button pushed by $pseudo on $id")
-                        if (isRegisterOk)
-                            navController.navigate("tchat_page")
+                        if (isRegisterOk) {
+                            CoroutineScope(IO).launch {
+                                isConnectionOk = sendButtonConnexion(sender)
+                            }
+                        }
                     },
                     colors = ButtonDefaults.buttonColors(MaterialTheme.colors.secondary)
                 ) {
@@ -98,4 +111,37 @@ class AuthentificationView {
             }
         }
     }
+
+    private fun sendHistorique(sender: DnsResolver) {
+        CoroutineScope(Dispatchers.IO).launch {
+            sender.requestHistorique("default", "1")
+        }
+    }
+
+    private suspend fun sendButtonConnexion(sender: DnsResolver): Boolean {
+        var returnVal: Boolean
+        withContext(IO) {
+            returnVal = sender.findType()
+        }
+        if (returnVal)
+            Log.i("Connexion", "Finished")
+        else
+            Log.i("Connexion", "Error")
+        return returnVal
+    }
+
+    private fun sendButtonPushed(
+        text: String,
+        words: SnapshotStateList<String>,
+        sender: DnsResolver
+    ) {
+        CoroutineScope(Dispatchers.IO).launch {
+            withContext(Dispatchers.IO) {
+                sender.sendMessage("default", "leo", text)
+            }
+            words.add(text)
+        }
+        Log.i("Test community and add text", "Finished")
+    }
+
 }
