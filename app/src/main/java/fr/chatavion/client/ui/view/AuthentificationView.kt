@@ -2,8 +2,6 @@ package fr.chatavion.client.ui.view
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -105,12 +103,19 @@ class AuthentificationView {
                         if (isRegisterOk) {
                             val count = id.count { it == '@' }
                             if (count == 1) {
-                                parseCommunityAddress(id)
+                                val list = id.split("@")
+                                community = list[0]
+                                address = list[1]
+                                Log.i("Community", community)
+                                Log.i("Address", address)
                                 CoroutineScope(IO).launch {
-                                    isConnectionOk = sendButtonConnexion(sender)
+                                    isConnectionOk = sendButtonConnexion(sender, address)
                                 }
                             } else {
-                                showToast("L'id de communauté doit contenir un \"@\" séparant le nom de communauté de l'adresse du serveur", context)
+                                showToast(
+                                    "L'id de communauté doit contenir un \"@\" séparant le nom de communauté de l'adresse du serveur",
+                                    context
+                                )
                             }
                         }
                     },
@@ -133,22 +138,19 @@ class AuthentificationView {
         ).show()
     }
 
-    private fun parseCommunityAddress(id: String) {
-        var list = id.split("@")
-        list.forEach { s -> Log.i("List$", s) }
-//        Log.i("List", "${list.get(0)}")
-    }
-
     private fun sendHistorique(sender: DnsResolver) {
         CoroutineScope(Dispatchers.IO).launch {
             sender.requestHistorique("default", "1")
         }
     }
 
-    private suspend fun sendButtonConnexion(sender: DnsResolver): Boolean {
+    private suspend fun sendButtonConnexion(
+        sender: DnsResolver,
+        address: String
+    ): Boolean {
         var returnVal: Boolean
         withContext(IO) {
-            returnVal = sender.findType()
+            returnVal = sender.findType(address)
         }
         if (returnVal)
             Log.i("Connexion", "Finished")
@@ -157,18 +159,17 @@ class AuthentificationView {
         return returnVal
     }
 
-    private fun sendButtonPushed(
+    private suspend fun sendMessage(
         text: String,
+        pseudo: String,
+        community: String,
+        address: String,
         words: SnapshotStateList<String>,
         sender: DnsResolver
     ) {
-        CoroutineScope(Dispatchers.IO).launch {
-            withContext(Dispatchers.IO) {
-                sender.sendMessage("default", "leo", text)
-            }
-            words.add(text)
+        withContext(Dispatchers.IO) {
+            sender.sendMessage(community, address, pseudo, text)
         }
-        Log.i("Test community and add text", "Finished")
+        words.add(text)
     }
-
 }

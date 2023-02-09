@@ -38,21 +38,22 @@ public class DnsResolver {
         this.converter32 = new Base32();
     }
 
-    public Boolean findType() throws IOException {
+    public Boolean findType(String address) throws IOException {
         ResolverResult<? extends Data> result;
-        result = ResolverApi.INSTANCE.resolve("chat.chatavion.com", TXT.class);
+        address = "chat." + address;
+        result = ResolverApi.INSTANCE.resolve(address, TXT.class);
         if (result.wasSuccessful() && !result.getAnswers().isEmpty()) {
             logger.info(result.getAnswers().toArray()[0].toString());
             type = TXT.class;
             return true;
         }
-        result = ResolverApi.INSTANCE.resolve("chat.chatavion.com", AAAA.class);
+        result = ResolverApi.INSTANCE.resolve(address, AAAA.class);
         if (result.wasSuccessful() && !result.getAnswers().isEmpty()) {
             logger.info(result.getAnswers().toArray()[0].toString());
             type = AAAA.class;
             return true;
         }
-        result = ResolverApi.INSTANCE.resolve("chat.chatavion.com", A.class);
+        result = ResolverApi.INSTANCE.resolve(address, A.class);
         if (result.wasSuccessful() && !result.getAnswers().isEmpty()) {
             logger.info(result.getAnswers().toArray()[0].toString());
             type = A.class;
@@ -61,9 +62,8 @@ public class DnsResolver {
         return false;
     }
 
-    public void communityDetection(String community) throws IOException {
-
-        ResolverResult<A> e = ResolverApi.INSTANCE.resolve(community + ".connexion.chatavion.com", A.class);
+    public void communityDetection(String community, String address) throws IOException {
+        ResolverResult<A> e = ResolverApi.INSTANCE.resolve(community + ".connexion." + address, A.class);
         if (!e.wasSuccessful()) {
             logger.info(() -> "HELP");
             return;
@@ -74,20 +74,19 @@ public class DnsResolver {
         }
     }
 
-    public boolean sendMessage(String cmt, String user, String msg) throws IOException {
-
-        byte[] msgAsBytes = msg.getBytes(StandardCharsets.UTF_8);
+    public boolean sendMessage(String community, String address, String pseudo, String message) throws IOException {
+        byte[] msgAsBytes = message.getBytes(StandardCharsets.UTF_8);
         if (msgAsBytes.length > 35) {
             logger.warning("Message cannot be more than 35 character as UTF_8 byte array.");
             return false;
         }
         String msgB32 = this.converter32.encodeAsString(msgAsBytes);
-        String cmtB32 = this.converter32.encodeAsString(cmt.getBytes(StandardCharsets.UTF_8));
-        String userB32 = this.converter32.encodeAsString(user.getBytes(StandardCharsets.UTF_8));
+        String cmtB32 = this.converter32.encodeAsString(community.getBytes(StandardCharsets.UTF_8));
+        String userB32 = this.converter32.encodeAsString(pseudo.getBytes(StandardCharsets.UTF_8));
 
         for (int retries = 0; retries < NUMBER_OF_RETRIES; retries++) {
             ResolverResult<A> result = ResolverApi.INSTANCE.resolve(
-                    cmtB32 + "." + userB32 + "." + msgB32 + ".message.chatavion.com", A.class);
+                    cmtB32 + "." + userB32 + "." + msgB32 + ".message." + address, A.class);
 
             if (!result.wasSuccessful()) {
                 logger.info(() -> result.getResponseCode().name());
@@ -102,7 +101,7 @@ public class DnsResolver {
         return false;
     }
 
-    public void requestHistorique(String cmt, String number) throws IOException {
+    public void requestHistorique(String cmt, String number, String address) throws IOException {
         String cmtB32 = this.converter32.encodeAsString(cmt.getBytes(StandardCharsets.UTF_8));
         int nbMsgHistorique = 1;
         try {
@@ -114,7 +113,7 @@ public class DnsResolver {
         for (int i = 0; i < nbMsgHistorique; i++) {
             String request = type == A.class ? "m" + id : type == AAAA.class ? "m" + id + "o0" : "m" + id + "n0";
 
-            ResolverResult<? extends Data> result = ResolverApi.INSTANCE.resolve(request + "-" + cmtB32 + ".historique.chatavion.com", type);
+            ResolverResult<? extends Data> result = ResolverApi.INSTANCE.resolve(request + "-" + cmtB32 + ".historique." + address, type);
             if (!result.wasSuccessful()) {
                 logger.warning(() -> "Problem with recovering history.");
             }
