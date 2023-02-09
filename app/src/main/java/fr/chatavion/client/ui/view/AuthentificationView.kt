@@ -1,7 +1,11 @@
 package fr.chatavion.client.ui.view
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -12,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -30,9 +35,11 @@ class AuthentificationView {
     @SuppressLint("NotConstructor")
     fun AuthentificationView(navController: NavController) {
         val sender = DnsResolver()
-
+        val context = LocalContext.current
         var id by remember { mutableStateOf("") }
         var pseudo by remember { mutableStateOf("") }
+        var community by remember { mutableStateOf("") }
+        var address by remember { mutableStateOf("") }
         var isRegisterOk by remember { mutableStateOf(false) }
         var isConnectionOk by remember { mutableStateOf(false) }
         if (pseudo != "" && id != "") {
@@ -96,8 +103,14 @@ class AuthentificationView {
                     onClick = {
                         Log.d("FullPage", "Button pushed by $pseudo on $id")
                         if (isRegisterOk) {
-                            CoroutineScope(IO).launch {
-                                isConnectionOk = sendButtonConnexion(sender)
+                            val count = id.count { it == '@' }
+                            if (count == 1) {
+                                parseCommunityAddress(id)
+                                CoroutineScope(IO).launch {
+                                    isConnectionOk = sendButtonConnexion(sender)
+                                }
+                            } else {
+                                showToast("L'id de communauté doit contenir un \"@\" séparant le nom de communauté de l'adresse du serveur", context)
                             }
                         }
                     },
@@ -110,6 +123,20 @@ class AuthentificationView {
                 Card(Modifier.weight(2f / 3f)) {}
             }
         }
+    }
+
+    private fun showToast(text: String, context: Context) {
+        Toast.makeText(
+            context,
+            text,
+            Toast.LENGTH_SHORT
+        ).show()
+    }
+
+    private fun parseCommunityAddress(id: String) {
+        var list = id.split("@")
+        list.forEach { s -> Log.i("List$", s) }
+//        Log.i("List", "${list.get(0)}")
     }
 
     private fun sendHistorique(sender: DnsResolver) {
