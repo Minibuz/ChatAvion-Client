@@ -11,7 +11,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -109,7 +108,7 @@ class AuthentificationView {
                                 Log.i("Community", community)
                                 Log.i("Address", address)
                                 CoroutineScope(IO).launch {
-                                    isConnectionOk = sendButtonConnexion(sender, address)
+                                    isConnectionOk = sendButtonConnexion(sender, address, community)
                                 }
                             } else {
                                 showToast(
@@ -151,11 +150,13 @@ class AuthentificationView {
 
     private suspend fun sendButtonConnexion(
         sender: DnsResolver,
-        address: String
+        address: String,
+        community: String
     ): Boolean {
         var returnVal: Boolean
         withContext(IO) {
-            returnVal = sender.findType(address)
+            sender.findType(address)
+            returnVal = sender.communityDetection(community, address)
         }
         if (returnVal)
             Log.i("Connexion", "Success")
