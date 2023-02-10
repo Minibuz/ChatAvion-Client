@@ -24,9 +24,13 @@ class TchatView {
 
     @Composable
     @SuppressLint("NotConstructor")
-    fun TchatView(navController: NavController) {
+    fun TchatView(
+        navController: NavController,
+        pseudo: String,
+        community: String,
+        address: String
+    ) {
         val messages = remember { mutableStateListOf<String>() }
-        val pseudo = "Leo"
         var msg by remember { mutableStateOf("") }
         Scaffold(
             topBar = {
@@ -127,20 +131,11 @@ class TchatView {
                         Icon(Icons.Filled.Send, "send")
                     }
                 }
-    fun TchatView(
-        navController: NavController,
-        pseudo: String,
-        community: String,
-        address: String
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = "Hello $pseudo !\nWelcome to the serveur $community@$address")
-            Button(onClick = { navController.navigate("auth_page") }) {
-                Icon(Icons.Filled.ArrowBack, "Go back home")
             }
         ) { innerTag ->
             Divider(color = White, thickness = 1.dp)
-            Column(Modifier.padding(innerTag)) {
+            Column(Modifier.padding(innerTag))
+            {
                 LazyColumn(
                     Modifier
                         .fillMaxWidth()
@@ -155,7 +150,7 @@ class TchatView {
     }
 
     @Composable
-    fun DisplayCenterTexte(text: String, pseudo: String) {
+    fun DisplayCenterText(text: String, pseudo: String) {
         Box(
             modifier = Modifier
                 .padding(start = 12.dp, 5.dp)
@@ -174,3 +169,113 @@ class TchatView {
         }
     }
 }
+
+//
+//fun TchatView(
+//    navController: NavController,
+//    pseudo: String,
+//    community: String,
+//    address: String
+//) {
+//    val messages = remember { mutableStateListOf<String>() }
+//    var msg by remember { mutableStateOf("") }
+//    Scaffold(
+//        topBar = {
+//            TopAppBar(
+//                backgroundColor = MaterialTheme.colors.background,
+//                modifier = Modifier.fillMaxWidth()
+//            ) {
+//                Column(
+//                    Modifier
+//                        .weight(1f / 3f)
+//                        .background(MaterialTheme.colors.background)
+//                ) {
+//                    Button(
+//                        colors = ButtonDefaults.buttonColors(MaterialTheme.colors.background),
+//                        elevation = ButtonDefaults.elevation(
+//                            defaultElevation = 0.dp,
+//                            pressedElevation = 0.dp,
+//                            disabledElevation = 0.dp
+//                        ),
+//                        onClick = {
+//                            Log.i("menu", "Menu pushed")
+//                        }) {
+//                        Icon(Icons.Filled.Menu, "menu")
+//                    }
+//                }
+//                Column(Modifier.weight(1f / 3f)) {
+//                    Text(
+//                        text = "Communauté",
+//                        modifier = Modifier.align(Alignment.CenterHorizontally),
+//                        color = MaterialTheme.colors.onPrimary
+//                    )
+//                }
+//                Row(Modifier.weight(1f / 3f)) {
+//                    Column(Modifier.weight(1f / 2f)) {
+//                        Button(
+//                            colors = ButtonDefaults.buttonColors(MaterialTheme.colors.background),
+//                            elevation = ButtonDefaults.elevation(
+//                                defaultElevation = 0.dp,
+//                                pressedElevation = 0.dp,
+//                                disabledElevation = 0.dp
+//                            ),
+//                            onClick = {
+//                                Log.i("expandMore", "ExpandMore pushed")
+//                            }) {
+//                            Icon(Icons.Filled.ExpandMore, "expandMore")
+//                        }
+//                    }
+//                    Column(Modifier.weight(1f / 2f)) {
+//                        Button(
+//                            colors = ButtonDefaults.buttonColors(MaterialTheme.colors.background),
+//                            elevation = ButtonDefaults.elevation(
+//                                defaultElevation = 0.dp,
+//                                pressedElevation = 0.dp,
+//                                disabledElevation = 0.dp
+//                            ),
+//                            onClick = {
+//                                Log.i("wifi", "Wifi pushed")
+//                            }) {
+//                            Icon(Icons.Filled.Wifi, "wifi")
+//                        }
+//                    }
+//                }
+//            }
+//        },
+//        bottomBar = {
+//            BottomAppBar(
+//                cutoutShape = MaterialTheme.shapes.small.copy(CornerSize(percent = 50)),
+//                backgroundColor = MaterialTheme.colors.background
+//            ) {
+//                Box(
+//                    Modifier
+//                        .align(Alignment.CenterVertically)
+//                        .fillMaxWidth(0.8f)
+//                ) {
+//                    TextField(
+//                        value = msg,
+//                        onValueChange = { msg = it },
+//                        label = {},
+//                        textStyle = TextStyle(fontSize = 16.sp),
+//                        placeholder = { Text(text = "Message text...") },
+//                        colors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.background),
+//                    )
+//                }
+//                Button(
+//                    colors = ButtonDefaults.buttonColors(MaterialTheme.colors.background),
+//                    elevation = ButtonDefaults.elevation(
+//                        defaultElevation = 0.dp,
+//                        pressedElevation = 0.dp,
+//                        disabledElevation = 0.dp
+//                    ),
+//                    onClick = {
+//                        if (msg != "") {
+//                            messages.add(msg)
+//                            Log.i("Send", "Msg sent : $msg")
+//                            msg = ""
+//                        }
+//                    }) {
+//                    Icon(Icons.Filled.Send, "send")
+//                }
+//            }
+//        } innerTag ->
