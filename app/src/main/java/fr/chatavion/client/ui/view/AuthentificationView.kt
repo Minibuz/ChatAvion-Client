@@ -11,7 +11,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -23,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import fr.chatavion.client.R
-import fr.chatavion.client.connection.DnsResolver
+import fr.chatavion.client.connection.dns.DnsResolver
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 
@@ -68,7 +67,7 @@ class AuthentificationView {
                     modifier = Modifier.padding(vertical = 16.dp)
                 )
                 TextField(
-                    value = id,
+                    value = id.replace("\n", ""),
                     onValueChange = { id = it },
                     placeholder = { Text(text = "communauté@IPserveur") },
                     textStyle = TextStyle(fontSize = 16.sp)
@@ -80,7 +79,7 @@ class AuthentificationView {
                     modifier = Modifier.padding(vertical = 16.dp)
                 )
                 TextField(
-                    value = pseudo,
+                    value = pseudo.replace("\n", ""),
                     onValueChange = { pseudo = it },
                     placeholder = { Text(text = "chienjet") },
                     textStyle = TextStyle(fontSize = 16.sp)
@@ -101,6 +100,7 @@ class AuthentificationView {
                     onClick = {
                         Log.d("FullPage", "Button pushed by $pseudo on $id")
                         if (isRegisterOk) {
+                            id = id.trim()
                             val count = id.count { it == '@' }
                             if (count == 1) {
                                 val list = id.split("@")
@@ -109,7 +109,7 @@ class AuthentificationView {
                                 Log.i("Community", community)
                                 Log.i("Address", address)
                                 CoroutineScope(IO).launch {
-                                    isConnectionOk = sendButtonConnexion(sender, address)
+                                    isConnectionOk = sendButtonConnexion(sender, address, community)
                                 }
                             } else {
                                 showToast(
@@ -138,43 +138,20 @@ class AuthentificationView {
         ).show()
     }
 
-    private fun sendHistorique(
-        sender: DnsResolver,
-        community: String,
-        address: String,
-        nbToRetrieve: String
-    ) {
-        CoroutineScope(Dispatchers.IO).launch {
-            sender.requestHistorique(community, address, nbToRetrieve)
-        }
-    }
-
     private suspend fun sendButtonConnexion(
         sender: DnsResolver,
-        address: String
+        address: String,
+        community: String
     ): Boolean {
         var returnVal: Boolean
         withContext(IO) {
-            returnVal = sender.findType(address)
+            sender.findType(address)
+            returnVal = sender.communityDetection(community, address)
         }
         if (returnVal)
-            Log.i("Connexion", "Finished")
+            Log.i("Connexion", "Success")
         else
             Log.i("Connexion", "Error")
         return returnVal
-    }
-
-    private suspend fun sendMessage(
-        text: String,
-        pseudo: String,
-        community: String,
-        address: String,
-        words: SnapshotStateList<String>,
-        sender: DnsResolver
-    ) {
-        withContext(Dispatchers.IO) {
-            sender.sendMessage(community, address, pseudo, text)
-        }
-        words.add(text)
     }
 }
