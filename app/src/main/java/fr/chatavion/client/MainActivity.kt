@@ -40,7 +40,17 @@ fun NavigationBasicsApp() {
     val tchatView = TchatView()
 
     NavHost(navController = navController, startDestination = "auth_page") {
-        composable("auth_page") { authView.AuthentificationView(navController) }
-        composable("tchat_page") { tchatView.TchatView(navController) }
+        composable("auth_page") {
+            authView.AuthentificationView(navController)
+        }
+
+        composable("tchat_page/{pseudo}/{community}/{address}") { backStackEntry ->
+            val pseudo = backStackEntry.arguments?.getString("pseudo")
+            val community = backStackEntry.arguments?.getString("community")
+            val address = backStackEntry.arguments?.getString("address")
+            if (pseudo != null && community != null && address != null) {
+                tchatView.TchatView(navController, pseudo, community, address)
+            }
+        }
     }
 }

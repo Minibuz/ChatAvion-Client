@@ -127,6 +127,16 @@ class TchatView {
                         Icon(Icons.Filled.Send, "send")
                     }
                 }
+    fun TchatView(
+        navController: NavController,
+        pseudo: String,
+        community: String,
+        address: String
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(text = "Hello $pseudo !\nWelcome to the serveur $community@$address")
+            Button(onClick = { navController.navigate("auth_page") }) {
+                Icon(Icons.Filled.ArrowBack, "Go back home")
             }
         ) { innerTag ->
             Divider(color = White, thickness = 1.dp)
@@ -145,7 +155,7 @@ class TchatView {
     }
 
     @Composable
-    fun DisplayCenterText(text: String, pseudo: String) {
+    fun DisplayCenterTexte(text: String, pseudo: String) {
         Box(
             modifier = Modifier
                 .padding(start = 12.dp, 5.dp)
