@@ -124,7 +124,7 @@ class TchatView {
                             .fillMaxWidth(0.8f)
                     ) {
                         TextField(
-                            value = msg,
+                            value = msg.replace("\n", ""),
                             onValueChange = { msg = it },
                             label = {},
                             textStyle = TextStyle(fontSize = 16.sp),
@@ -183,7 +183,7 @@ class TchatView {
 //                text = "$pseudo: $text",
                 text = text,
                 color = MaterialTheme.colors.onPrimary,
-                fontWeight = FontWeight.Bold,
+//                fontWeight = FontWeight.Bold,
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentWidth(Alignment.Start)

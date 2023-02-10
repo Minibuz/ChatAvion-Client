@@ -67,7 +67,7 @@ class AuthentificationView {
                     modifier = Modifier.padding(vertical = 16.dp)
                 )
                 TextField(
-                    value = id,
+                    value = id.replace("\n", ""),
                     onValueChange = { id = it },
                     placeholder = { Text(text = "communauté@IPserveur") },
                     textStyle = TextStyle(fontSize = 16.sp)
@@ -79,7 +79,7 @@ class AuthentificationView {
                     modifier = Modifier.padding(vertical = 16.dp)
                 )
                 TextField(
-                    value = pseudo,
+                    value = pseudo.replace("\n", ""),
                     onValueChange = { pseudo = it },
                     placeholder = { Text(text = "chienjet") },
                     textStyle = TextStyle(fontSize = 16.sp)
@@ -100,6 +100,7 @@ class AuthentificationView {
                     onClick = {
                         Log.d("FullPage", "Button pushed by $pseudo on $id")
                         if (isRegisterOk) {
+                            id = id.trim()
                             val count = id.count { it == '@' }
                             if (count == 1) {
                                 val list = id.split("@")
