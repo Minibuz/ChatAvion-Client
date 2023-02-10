@@ -23,9 +23,7 @@ public class DnsResolver {
 
     private static final Logger logger = Logger.getLogger(DnsResolver.class.getName());
     private static final int NUMBER_OF_RETRIES = 1;
-
     private final Base32 converter32 = new Base32();
-
     private Class<? extends Data> type = A.class;
     private final List<String> list = new ArrayList<>();
     private int id = 0;
@@ -36,23 +34,35 @@ public class DnsResolver {
     public boolean findType(String address) throws IOException {
         ResolverResult<? extends Data> result;
         address = "chat." + address;
-        result = ResolverApi.INSTANCE.resolve(address, TXT.class);
-        if (result.wasSuccessful() && !result.getAnswers().isEmpty()) {
-            logger.info(result.getAnswers().toArray()[0].toString());
-            type = TXT.class;
-            return true;
+        try {
+            result = ResolverApi.INSTANCE.resolve(address, TXT.class);
+            if (result.wasSuccessful() && !result.getAnswers().isEmpty()) {
+                logger.info(result.getAnswers().toArray()[0].toString());
+                type = TXT.class;
+                return true;
+            }
+        } catch (IOException e) {
+            logger.warning(() -> "TXT bug.");
         }
-        result = ResolverApi.INSTANCE.resolve(address, AAAA.class);
-        if (result.wasSuccessful() && !result.getAnswers().isEmpty()) {
-            logger.info(result.getAnswers().toArray()[0].toString());
-            type = AAAA.class;
-            return true;
+        try {
+            result = ResolverApi.INSTANCE.resolve(address, AAAA.class);
+            if (result.wasSuccessful() && !result.getAnswers().isEmpty()) {
+                logger.info(result.getAnswers().toArray()[0].toString());
+                type = AAAA.class;
+                return true;
+            }
+        } catch (IOException e) {
+            logger.warning(() -> "AAAA bug.");
         }
-        result = ResolverApi.INSTANCE.resolve(address, A.class);
-        if (result.wasSuccessful() && !result.getAnswers().isEmpty()) {
-            logger.info(result.getAnswers().toArray()[0].toString());
-            type = A.class;
-            return true;
+        try {
+            result = ResolverApi.INSTANCE.resolve(address, A.class);
+            if (result.wasSuccessful() && !result.getAnswers().isEmpty()) {
+                logger.info(result.getAnswers().toArray()[0].toString());
+                type = A.class;
+                return true;
+            }
+        } catch (IOException e) {
+            logger.warning(() -> "A bug.");
         }
         return false;
     }
@@ -95,7 +105,7 @@ public class DnsResolver {
     }
 
     public List<String> requestHistorique(String cmt, String address, int number) throws IOException {
-        if(number < 1 || number > 10) {
+        if (number < 1 || number > 10) {
             throw new IllegalArgumentException("Cannot get less than 1 message from history or more than 10.");
         }
         String cmtB32 = this.converter32.encodeAsString(cmt.getBytes(StandardCharsets.UTF_8));
