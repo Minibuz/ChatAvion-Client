@@ -2,7 +2,9 @@ package fr.chatavion.client.ui.view
 
 import android.annotation.SuppressLint
 import android.util.Log
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -13,12 +15,19 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import fr.chatavion.client.ui.theme.White
+import fr.chatavion.client.util.Util
+
 
 class TchatView {
 
@@ -108,9 +117,9 @@ class TchatView {
                         TextField(
                             value = msg,
                             onValueChange = { msg = it },
-                            label = {},
+                            label = {Text(text = "Message text...")},
                             textStyle = TextStyle(fontSize = 16.sp),
-                            placeholder = { Text(text = "Message text...") },
+                            //placeholder = { Text(text = "Message text...") },
                             colors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.background),
                         )
                     }
@@ -137,9 +146,12 @@ class TchatView {
             Column(Modifier.padding(innerTag))
             {
                 LazyColumn(
+                    modifier =
                     Modifier
                         .fillMaxWidth()
                         .background(color = MaterialTheme.colors.background)
+                        .padding(PaddingValues(horizontal = 25.dp, vertical = 15.dp)),
+                    verticalArrangement = Arrangement.spacedBy(15.dp)
                 ) {
                     items(messages) { message ->
                         DisplayCenterText(message, pseudo)
@@ -149,8 +161,35 @@ class TchatView {
         }
     }
 
+
     @Composable
     fun DisplayCenterText(text: String, pseudo: String) {
+        Column(
+            horizontalAlignment = Alignment.Start,
+            modifier = Modifier
+        )
+        {
+            Text(
+                text = "$pseudo",
+                color = MaterialTheme.colors.onPrimary,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.ExtraBold,
+                modifier = Modifier
+                    .fillMaxWidth()
+
+            )
+            Spacer(modifier = Modifier.size(3.dp))
+            Text(
+                text ="$text",
+                color = MaterialTheme.colors.onPrimary,
+                fontSize = 14.sp,
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+        }
+    }
+    @Composable
+    fun DisplayCenterText1(text: String, pseudo: String) {
         Box(
             modifier = Modifier
                 .padding(start = 12.dp, 5.dp)
