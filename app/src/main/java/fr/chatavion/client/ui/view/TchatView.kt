@@ -11,6 +11,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
@@ -18,7 +19,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import fr.chatavion.client.connection.DnsResolver
 import fr.chatavion.client.ui.theme.White
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class TchatView {
 
@@ -26,10 +30,12 @@ class TchatView {
     @SuppressLint("NotConstructor")
     fun TchatView(
         navController: NavController,
+//        sender: DnsResolver,
         pseudo: String,
         community: String,
         address: String
     ) {
+        val sender = DnsResolver()
         val messages = remember { mutableStateListOf<String>() }
         var msg by remember { mutableStateOf("") }
         Scaffold(
@@ -168,114 +174,25 @@ class TchatView {
             )
         }
     }
-}
 
-//
-//fun TchatView(
-//    navController: NavController,
-//    pseudo: String,
-//    community: String,
-//    address: String
-//) {
-//    val messages = remember { mutableStateListOf<String>() }
-//    var msg by remember { mutableStateOf("") }
-//    Scaffold(
-//        topBar = {
-//            TopAppBar(
-//                backgroundColor = MaterialTheme.colors.background,
-//                modifier = Modifier.fillMaxWidth()
-//            ) {
-//                Column(
-//                    Modifier
-//                        .weight(1f / 3f)
-//                        .background(MaterialTheme.colors.background)
-//                ) {
-//                    Button(
-//                        colors = ButtonDefaults.buttonColors(MaterialTheme.colors.background),
-//                        elevation = ButtonDefaults.elevation(
-//                            defaultElevation = 0.dp,
-//                            pressedElevation = 0.dp,
-//                            disabledElevation = 0.dp
-//                        ),
-//                        onClick = {
-//                            Log.i("menu", "Menu pushed")
-//                        }) {
-//                        Icon(Icons.Filled.Menu, "menu")
-//                    }
-//                }
-//                Column(Modifier.weight(1f / 3f)) {
-//                    Text(
-//                        text = "Communauté",
-//                        modifier = Modifier.align(Alignment.CenterHorizontally),
-//                        color = MaterialTheme.colors.onPrimary
-//                    )
-//                }
-//                Row(Modifier.weight(1f / 3f)) {
-//                    Column(Modifier.weight(1f / 2f)) {
-//                        Button(
-//                            colors = ButtonDefaults.buttonColors(MaterialTheme.colors.background),
-//                            elevation = ButtonDefaults.elevation(
-//                                defaultElevation = 0.dp,
-//                                pressedElevation = 0.dp,
-//                                disabledElevation = 0.dp
-//                            ),
-//                            onClick = {
-//                                Log.i("expandMore", "ExpandMore pushed")
-//                            }) {
-//                            Icon(Icons.Filled.ExpandMore, "expandMore")
-//                        }
-//                    }
-//                    Column(Modifier.weight(1f / 2f)) {
-//                        Button(
-//                            colors = ButtonDefaults.buttonColors(MaterialTheme.colors.background),
-//                            elevation = ButtonDefaults.elevation(
-//                                defaultElevation = 0.dp,
-//                                pressedElevation = 0.dp,
-//                                disabledElevation = 0.dp
-//                            ),
-//                            onClick = {
-//                                Log.i("wifi", "Wifi pushed")
-//                            }) {
-//                            Icon(Icons.Filled.Wifi, "wifi")
-//                        }
-//                    }
-//                }
-//            }
-//        },
-//        bottomBar = {
-//            BottomAppBar(
-//                cutoutShape = MaterialTheme.shapes.small.copy(CornerSize(percent = 50)),
-//                backgroundColor = MaterialTheme.colors.background
-//            ) {
-//                Box(
-//                    Modifier
-//                        .align(Alignment.CenterVertically)
-//                        .fillMaxWidth(0.8f)
-//                ) {
-//                    TextField(
-//                        value = msg,
-//                        onValueChange = { msg = it },
-//                        label = {},
-//                        textStyle = TextStyle(fontSize = 16.sp),
-//                        placeholder = { Text(text = "Message text...") },
-//                        colors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.background),
-//                    )
-//                }
-//                Button(
-//                    colors = ButtonDefaults.buttonColors(MaterialTheme.colors.background),
-//                    elevation = ButtonDefaults.elevation(
-//                        defaultElevation = 0.dp,
-//                        pressedElevation = 0.dp,
-//                        disabledElevation = 0.dp
-//                    ),
-//                    onClick = {
-//                        if (msg != "") {
-//                            messages.add(msg)
-//                            Log.i("Send", "Msg sent : $msg")
-//                            msg = ""
-//                        }
-//                    }) {
-//                    Icon(Icons.Filled.Send, "send")
-//                }
-//            }
-//        } innerTag ->
+    private suspend fun sendMessage(
+        text: String,
+        pseudo: String,
+        community: String,
+        address: String,
+        words: SnapshotStateList<String>,
+        sender: DnsResolver
+    ): Boolean {
+        var returnVal: Boolean
+        withContext(Dispatchers.IO) {
+            returnVal = sender.sendMessage(community, address, pseudo, text)
+        }
+        if (returnVal) {
+            words.add(text)
+            Log.i("Message", "Success")
+        }
+        else
+            Log.i("Message", "Error")
+        return returnVal
+    }
+}

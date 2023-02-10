@@ -45,6 +45,7 @@ fun NavigationBasicsApp() {
         }
 
         composable("tchat_page/{pseudo}/{community}/{address}") { backStackEntry ->
+//            val sender = backStackEntry.arguments?.getBundle("sender")
             val pseudo = backStackEntry.arguments?.getString("pseudo")
             val community = backStackEntry.arguments?.getString("community")
             val address = backStackEntry.arguments?.getString("address")
