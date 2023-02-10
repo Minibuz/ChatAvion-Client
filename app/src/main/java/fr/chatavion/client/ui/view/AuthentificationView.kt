@@ -1,7 +1,9 @@
 package fr.chatavion.client.ui.view
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -9,8 +11,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -19,19 +23,30 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import fr.chatavion.client.R
-import fr.chatavion.client.ui.theme.Gray
-import fr.chatavion.client.ui.theme.White
+import fr.chatavion.client.connection.DnsResolver
+import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.IO
 
 class AuthentificationView {
 
     @Composable
     @SuppressLint("NotConstructor")
     fun AuthentificationView(navController: NavController) {
+        val sender = DnsResolver()
+        val context = LocalContext.current
         var id by remember { mutableStateOf("") }
         var pseudo by remember { mutableStateOf("") }
-        var isRegisterOk = false
-        if (pseudo != "" && id != "")
+        var community by remember { mutableStateOf("") }
+        var address by remember { mutableStateOf("") }
+        var isRegisterOk by remember { mutableStateOf(false) }
+        var isConnectionOk by remember { mutableStateOf(false) }
+        if (pseudo != "" && id != "") {
             isRegisterOk = true
+        }
+        if (isConnectionOk) {
+            navController.navigate("tchat_page/${pseudo}/${community}/${address}")
+            isConnectionOk = false
+        }
         Column(modifier = Modifier.fillMaxSize()) {
             Image(
                 modifier = Modifier
@@ -55,7 +70,7 @@ class AuthentificationView {
                 TextField(
                     value = id,
                     onValueChange = { id = it },
-                    placeholder  = { Text(text = "communauté@IPserveur") },
+                    placeholder = { Text(text = "communauté@IPserveur") },
                     textStyle = TextStyle(fontSize = 16.sp)
                 )
                 Spacer(modifier = Modifier.padding(vertical = 10.dp))
@@ -67,7 +82,7 @@ class AuthentificationView {
                 TextField(
                     value = pseudo,
                     onValueChange = { pseudo = it },
-                    placeholder  = { Text(text = "chienjet") },
+                    placeholder = { Text(text = "chienjet") },
                     textStyle = TextStyle(fontSize = 16.sp)
                 )
             }
@@ -85,8 +100,24 @@ class AuthentificationView {
                         .width(200.dp),
                     onClick = {
                         Log.d("FullPage", "Button pushed by $pseudo on $id")
-                        if (isRegisterOk)
-                            navController.navigate("tchat_page")
+                        if (isRegisterOk) {
+                            val count = id.count { it == '@' }
+                            if (count == 1) {
+                                val list = id.split("@")
+                                community = list[0]
+                                address = list[1]
+                                Log.i("Community", community)
+                                Log.i("Address", address)
+                                CoroutineScope(IO).launch {
+                                    isConnectionOk = sendButtonConnexion(sender, address)
+                                }
+                            } else {
+                                showToast(
+                                    "L'id de communauté doit contenir un \"@\" séparant le nom de communauté de l'adresse du serveur",
+                                    context
+                                )
+                            }
+                        }
                     },
                     colors = ButtonDefaults.buttonColors(MaterialTheme.colors.secondary)
                 ) {
@@ -97,5 +128,53 @@ class AuthentificationView {
                 Card(Modifier.weight(2f / 3f)) {}
             }
         }
+    }
+
+    private fun showToast(text: String, context: Context) {
+        Toast.makeText(
+            context,
+            text,
+            Toast.LENGTH_SHORT
+        ).show()
+    }
+
+    private fun sendHistorique(
+        sender: DnsResolver,
+        community: String,
+        address: String,
+        nbToRetrieve: String
+    ) {
+        CoroutineScope(Dispatchers.IO).launch {
+            sender.requestHistorique(community, address, nbToRetrieve)
+        }
+    }
+
+    private suspend fun sendButtonConnexion(
+        sender: DnsResolver,
+        address: String
+    ): Boolean {
+        var returnVal: Boolean
+        withContext(IO) {
+            returnVal = sender.findType(address)
+        }
+        if (returnVal)
+            Log.i("Connexion", "Finished")
+        else
+            Log.i("Connexion", "Error")
+        return returnVal
+    }
+
+    private suspend fun sendMessage(
+        text: String,
+        pseudo: String,
+        community: String,
+        address: String,
+        words: SnapshotStateList<String>,
+        sender: DnsResolver
+    ) {
+        withContext(Dispatchers.IO) {
+            sender.sendMessage(community, address, pseudo, text)
+        }
+        words.add(text)
     }
 }

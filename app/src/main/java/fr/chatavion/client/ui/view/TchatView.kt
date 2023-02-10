@@ -15,9 +15,14 @@ class TchatView {
 
     @Composable
     @SuppressLint("NotConstructor")
-    fun TchatView(navController: NavController) {
+    fun TchatView(
+        navController: NavController,
+        pseudo: String,
+        community: String,
+        address: String
+    ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = "Hello Tchat !")
+            Text(text = "Hello $pseudo !\nWelcome to the serveur $community@$address")
             Button(onClick = { navController.navigate("auth_page") }) {
                 Icon(Icons.Filled.ArrowBack, "Go back home")
             }
