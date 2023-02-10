@@ -158,23 +158,9 @@ class AuthentificationView {
             returnVal = sender.findType(address)
         }
         if (returnVal)
-            Log.i("Connexion", "Finished")
+            Log.i("Connexion", "Success")
         else
             Log.i("Connexion", "Error")
         return returnVal
-    }
-
-    private suspend fun sendMessage(
-        text: String,
-        pseudo: String,
-        community: String,
-        address: String,
-        words: SnapshotStateList<String>,
-        sender: DnsResolver
-    ) {
-        withContext(Dispatchers.IO) {
-            sender.sendMessage(community, address, pseudo, text)
-        }
-        words.add(text)
     }
 }
