@@ -1,4 +1,4 @@
-package fr.chatavion.client.connection;
+package fr.chatavion.client.connection.dns;
 
 import org.apache.commons.codec.binary.Base32;
 import org.apache.commons.lang3.ArrayUtils;
@@ -12,7 +12,6 @@ import org.minidns.record.TXT;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -23,22 +22,18 @@ import java.util.stream.Collectors;
 public class DnsResolver {
 
     private static final Logger logger = Logger.getLogger(DnsResolver.class.getName());
-
     private static final int NUMBER_OF_RETRIES = 1;
 
-    private final Base32 converter32;
+    private final Base32 converter32 = new Base32();
 
     private Class<? extends Data> type = A.class;
-
+    private final List<String> list = new ArrayList<>();
     private int id = 0;
 
-    private final List<String> list = new ArrayList<>();
-
     public DnsResolver() {
-        this.converter32 = new Base32();
     }
 
-    public Boolean findType(String address) throws IOException {
+    public boolean findType(String address) throws IOException {
         ResolverResult<? extends Data> result;
         address = "chat." + address;
         result = ResolverApi.INSTANCE.resolve(address, TXT.class);
@@ -62,22 +57,20 @@ public class DnsResolver {
         return false;
     }
 
-    public void communityDetection(String community, String address) throws IOException {
-        ResolverResult<A> e = ResolverApi.INSTANCE.resolve(community + ".connexion." + address, A.class);
+    public boolean communityDetection(String community, String address) throws IOException {
+        ResolverResult<? extends Data> e = ResolverApi.INSTANCE.resolve(community + ".connexion." + address, type);
         if (!e.wasSuccessful()) {
-            logger.info(() -> "HELP");
-            return;
+            logger.warning(() -> "That community doesn't exist for the given server.");
+            return false;
         }
-        Set<A> answers = e.getAnswers();
-        for (A a : answers) {
-            logger.info(() -> a.getInetAddress().toString());
-        }
+        // TODO Change the return of server to get the id of the latest message receive based on the server log
+        return !e.getAnswers().isEmpty();
     }
 
     public boolean sendMessage(String community, String address, String pseudo, String message) throws IOException {
         byte[] msgAsBytes = message.getBytes(StandardCharsets.UTF_8);
         if (msgAsBytes.length > 35) {
-            logger.warning("Message cannot be more than 35 character as UTF_8 byte array.");
+            logger.warning(() -> "Message cannot be more than 35 character as UTF_8 byte array.");
             return false;
         }
         String msgB32 = this.converter32.encodeAsString(msgAsBytes);
@@ -85,32 +78,30 @@ public class DnsResolver {
         String userB32 = this.converter32.encodeAsString(pseudo.getBytes(StandardCharsets.UTF_8));
 
         for (int retries = 0; retries < NUMBER_OF_RETRIES; retries++) {
-            ResolverResult<A> result = ResolverApi.INSTANCE.resolve(
-                    cmtB32 + "." + userB32 + "." + msgB32 + ".message." + address, A.class);
+            ResolverResult<? extends Data> result = ResolverApi.INSTANCE.resolve(
+                    cmtB32 + "." + userB32 + "." + msgB32 + ".message." + address, type);
 
             if (!result.wasSuccessful()) {
-                logger.info(() -> result.getResponseCode().name());
-                return false;
-            } else if (result.getAnswers().contains(new A("42.42.42.42"))) {
+                logger.info(() -> "Server hasn't received the message.\nResending the message.");
+                continue;
+            }
+
+            if (result.getAnswers().size() == 1) {
                 logger.info(() -> "Server received the message.");
                 return true;
-            } else {
-                logger.info(() -> "Server hasn't received the message.");
             }
         }
         return false;
     }
 
-    public void requestHistorique(String cmt, String address, String number) throws IOException {
-        String cmtB32 = this.converter32.encodeAsString(cmt.getBytes(StandardCharsets.UTF_8));
-        int nbMsgHistorique = 1;
-        try {
-            nbMsgHistorique = Integer.parseInt(number);
-        } catch (NumberFormatException e) {
-            // don't do anything
+    public List<String> requestHistorique(String cmt, String address, int number) throws IOException {
+        if(number < 1 || number > 10) {
+            throw new IllegalArgumentException("Cannot get less than 1 message from history or more than 10.");
         }
+        String cmtB32 = this.converter32.encodeAsString(cmt.getBytes(StandardCharsets.UTF_8));
 
-        for (int i = 0; i < nbMsgHistorique; i++) {
+        list.clear();
+        for (int i = 0; i < number; i++) {
             String request = type == A.class ? "m" + id : type == AAAA.class ? "m" + id + "o0" : "m" + id + "n0";
 
             ResolverResult<? extends Data> result = ResolverApi.INSTANCE.resolve(request + "-" + cmtB32 + ".historique." + address, type);
@@ -119,7 +110,7 @@ public class DnsResolver {
             }
             if (result.getAnswers().isEmpty()) {
                 logger.info(() -> "No message with this id to retrieve. Stopping message recovery.");
-                return;
+                return list;
             }
 
             List<Byte> msg = new ArrayList<>();
@@ -133,19 +124,11 @@ public class DnsResolver {
                 Set<TXT> answers = (Set<TXT>) result.getAnswers();
                 mergeResultTypeTXT(answers, msg);
             }
-            logger.info(() -> Arrays.toString(msg.toArray()));
             String message = new String(converter32.decode(ArrayUtils.toPrimitive(msg.toArray(new Byte[0]))));
-
-            if ("".equals(message)) {
-                return;
-            }
             id++;
             list.add(message);
         }
-
-        for (String l : list) {
-            logger.info(() -> l);
-        }
+        return list;
     }
 
     private static void mergeResultTypeA(Set<A> results, List<Byte> msg) {

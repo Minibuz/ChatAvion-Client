@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import fr.chatavion.client.R
-import fr.chatavion.client.connection.DnsResolver
+import fr.chatavion.client.connection.dns.DnsResolver
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 
@@ -142,7 +142,7 @@ class AuthentificationView {
         sender: DnsResolver,
         community: String,
         address: String,
-        nbToRetrieve: String
+        nbToRetrieve: Int
     ) {
         CoroutineScope(Dispatchers.IO).launch {
             sender.requestHistorique(community, address, nbToRetrieve)
