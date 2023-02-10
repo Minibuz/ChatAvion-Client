@@ -21,7 +21,10 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import fr.chatavion.client.connection.dns.DnsResolver
 import fr.chatavion.client.ui.theme.White
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class TchatView {
@@ -94,6 +97,15 @@ class TchatView {
                                 ),
                                 onClick = {
                                     Log.i("wifi", "Wifi pushed")
+                                    CoroutineScope(IO).launch {
+                                        messages.addAll(
+                                            sender.requestHistorique(
+                                                community,
+                                                address,
+                                                1
+                                            )
+                                        )
+                                    }
                                 }) {
                                 Icon(Icons.Filled.Wifi, "wifi")
                             }
@@ -129,9 +141,13 @@ class TchatView {
                         ),
                         onClick = {
                             if (msg != "") {
-                                messages.add(msg)
-                                Log.i("Send", "Msg sent : $msg")
-                                msg = ""
+                                // TODO - send message to
+                                CoroutineScope(IO).launch {
+                                    sender.sendMessage(community, address, pseudo, msg)
+                                    messages.add(msg)
+                                    Log.i("Send", "Msg sent : $msg")
+                                    msg = ""
+                                }
                             }
                         }) {
                         Icon(Icons.Filled.Send, "send")
@@ -164,7 +180,8 @@ class TchatView {
         )
         {
             Text(
-                text = "$pseudo: $text",
+//                text = "$pseudo: $text",
+                text = text,
                 color = MaterialTheme.colors.onPrimary,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
@@ -174,6 +191,18 @@ class TchatView {
             )
         }
     }
+
+    private fun sendHistorique(
+        sender: DnsResolver,
+        community: String,
+        address: String,
+        nbToRetrieve: Int
+    ) {
+        CoroutineScope(Dispatchers.IO).launch {
+            sender.requestHistorique(community, address, nbToRetrieve)
+        }
+    }
+
 
     private suspend fun sendMessage(
         text: String,
@@ -190,8 +219,7 @@ class TchatView {
         if (returnVal) {
             words.add(text)
             Log.i("Message", "Success")
-        }
-        else
+        } else
             Log.i("Message", "Error")
         return returnVal
     }
