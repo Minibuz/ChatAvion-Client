@@ -137,17 +137,6 @@ class AuthentificationView {
         ).show()
     }
 
-    private fun sendHistorique(
-        sender: DnsResolver,
-        community: String,
-        address: String,
-        nbToRetrieve: Int
-    ) {
-        CoroutineScope(Dispatchers.IO).launch {
-            sender.requestHistorique(community, address, nbToRetrieve)
-        }
-    }
-
     private suspend fun sendButtonConnexion(
         sender: DnsResolver,
         address: String,
