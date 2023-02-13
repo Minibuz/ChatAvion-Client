@@ -168,7 +168,7 @@ class TchatView {
                     verticalArrangement = Arrangement.spacedBy(15.dp)
                 ) {
                     items(messages) { message ->
-                        DisplayCenterText(message, pseudo)
+                        DisplayCenterText(message)
                     }
                 }
             }
@@ -178,24 +178,25 @@ class TchatView {
 
 
     @Composable
-    fun DisplayCenterText(text: String, pseudo: String) {
+    fun DisplayCenterText(text: String) {
         Column(
             horizontalAlignment = Alignment.Start,
             modifier = Modifier
         )
         {
+            val parts: List<String> = text.split(":")
+
             Text(
-                text = pseudo,
+                text = parts[0].trim(),
                 color = MaterialTheme.colors.onPrimary,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.ExtraBold,
                 modifier = Modifier
                     .fillMaxWidth()
-
             )
             Spacer(modifier = Modifier.size(3.dp))
             Text(
-                text = text,
+                text = parts[1].trim(),
                 color = MaterialTheme.colors.onPrimary,
                 fontSize = 14.sp,
                 modifier = Modifier
