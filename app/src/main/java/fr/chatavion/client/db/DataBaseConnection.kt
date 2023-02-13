@@ -4,15 +4,22 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import fr.chatavion.client.db.dao.CommunityDAO
+import fr.chatavion.client.db.dao.MessageDAO
+import fr.chatavion.client.db.dao.ParameterDAO
+import fr.chatavion.client.db.entity.Community
+import fr.chatavion.client.db.entity.Message
+import fr.chatavion.client.db.entity.Parameter
 
 @Database(
     version = 1,
-//    entities = [Plant::class]
+    entities = [Community::class, Message::class, Parameter::class]
 )
 
-//@TypeConverters(Converters::class)
 abstract class DataBaseConnection : RoomDatabase() {
-//    abstract fun plantDao(): PlantDAO
+    abstract fun MessageDao(): MessageDAO
+    abstract fun CommunityDao(): CommunityDAO
+    abstract fun ParameterDao(): ParameterDAO
 
     companion object {
         // For Singleton instantiation

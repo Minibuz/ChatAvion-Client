@@ -1,4 +1,7 @@
 package fr.chatavion.client.db.dao;
 
-public class MessageDAO {
+import androidx.room.Dao;
+
+@Dao
+public interface MessageDAO {
 }

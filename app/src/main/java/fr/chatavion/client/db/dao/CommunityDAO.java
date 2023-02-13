@@ -1,4 +1,7 @@
 package fr.chatavion.client.db.dao;
 
-public class CommunityDAO {
+import androidx.room.Dao;
+
+@Dao
+public interface CommunityDAO {
 }
