@@ -171,23 +171,31 @@ class TchatView {
         }
     }
 
+
+
     @Composable
     fun DisplayCenterText(text: String, pseudo: String) {
-        Box(
+        Column(
+            horizontalAlignment = Alignment.Start,
             modifier = Modifier
-                .padding(start = 12.dp, 5.dp)
-                .height(35.dp)
         )
         {
             Text(
-//                text = "$pseudo: $text",
-                text = text,
+                text = "$pseudo",
                 color = MaterialTheme.colors.onPrimary,
-//                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.ExtraBold,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .wrapContentWidth(Alignment.Start)
-                    .height(20.dp)
+
+            )
+            Spacer(modifier = Modifier.size(3.dp))
+            Text(
+                text ="$text",
+                color = MaterialTheme.colors.onPrimary,
+                fontSize = 14.sp,
+                modifier = Modifier
+                    .fillMaxWidth()
             )
         }
     }
