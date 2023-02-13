@@ -126,9 +126,8 @@ class TchatView {
                         TextField(
                             value = msg.replace("\n", ""),
                             onValueChange = { msg = it },
-                            label = {},
+                            label = {Text(text = "Message text...")},
                             textStyle = TextStyle(fontSize = 16.sp),
-                            placeholder = { Text(text = "Message text...") },
                             colors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.background),
                         )
                     }
@@ -162,6 +161,8 @@ class TchatView {
                     Modifier
                         .fillMaxWidth()
                         .background(color = MaterialTheme.colors.background)
+                        .padding(PaddingValues(horizontal = 25.dp, vertical = 15.dp)),
+                    verticalArrangement = Arrangement.spacedBy(15.dp)
                 ) {
                     items(messages) { message ->
                         DisplayCenterText(message, pseudo)
