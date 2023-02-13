@@ -3,6 +3,7 @@ package fr.chatavion.client.ui.view
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -36,7 +37,8 @@ class TchatView {
 //        sender: DnsResolver,
         pseudo: String,
         community: String,
-        address: String
+        address: String,
+        openDrawer: () -> Unit
     ) {
         val sender = DnsResolver()
         val messages = remember { mutableStateListOf<String>() }
@@ -61,6 +63,7 @@ class TchatView {
                             ),
                             onClick = {
                                 Log.i("menu", "Menu pushed")
+                                openDrawer()
                             }) {
                             Icon(Icons.Filled.Menu, "menu")
                         }
@@ -165,7 +168,7 @@ class TchatView {
                     verticalArrangement = Arrangement.spacedBy(15.dp)
                 ) {
                     items(messages) { message ->
-                        DisplayCenterText(message, pseudo)
+                        DisplayCenterText(message)
                     }
                 }
             }
@@ -175,30 +178,93 @@ class TchatView {
 
 
     @Composable
-    fun DisplayCenterText(text: String, pseudo: String) {
+    fun DisplayCenterText(text: String) {
         Column(
             horizontalAlignment = Alignment.Start,
             modifier = Modifier
         )
         {
+            val parts: List<String> = text.split(":")
+
             Text(
-                text = "$pseudo",
+                text = parts[0].trim(),
                 color = MaterialTheme.colors.onPrimary,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.ExtraBold,
                 modifier = Modifier
                     .fillMaxWidth()
-
             )
             Spacer(modifier = Modifier.size(3.dp))
             Text(
-                text ="$text",
+                text = parts[1].trim(),
                 color = MaterialTheme.colors.onPrimary,
                 fontSize = 14.sp,
                 modifier = Modifier
                     .fillMaxWidth()
             )
         }
+    }
+
+    @Composable
+    fun DrawerAppComponent(
+        navController: NavController,
+//        sender: DnsResolver,
+        pseudo: String,
+        community: String,
+        address: String
+    ) {
+        val drawerState = rememberDrawerState(DrawerValue.Closed)
+        val coroutineScope = rememberCoroutineScope()
+
+        ModalDrawer(
+            drawerState = drawerState,
+            gesturesEnabled = drawerState.isOpen,
+            drawerContent = {
+                DrawerContentComponent(
+                    closeDrawer = { coroutineScope.launch { drawerState.close() } }
+                )
+            }
+        ) {
+            TchatView(navController, pseudo, community, address
+            ) { coroutineScope.launch { drawerState.open() } }
+        }
+    }
+
+    @Composable
+    fun DrawerContentComponent(
+        closeDrawer: () -> Unit
+    ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            for (index in Parameters.values().indices) {
+                val screen = getScreenBasedOnIndex(index)
+                Column(Modifier.clickable(onClick = {
+                    closeDrawer()
+                }), content = {
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = MaterialTheme.colors.background
+                    ) {
+                        Text(text = "param", modifier = Modifier.padding(16.dp))
+                    }
+                })
+            }
+        }
+    }
+
+    /**
+     * Returns the corresponding DrawerAppScreen based on the index passed to it.
+     */
+    fun getScreenBasedOnIndex(index: Int) = when (index) {
+        0 -> Parameters.Param1
+        1 -> Parameters.Param2
+        2 -> Parameters.Param3
+        else -> Parameters.Param1
+    }
+
+    enum class Parameters {
+        Param1,
+        Param2,
+        Param3
     }
 
     private fun sendHistorique(
