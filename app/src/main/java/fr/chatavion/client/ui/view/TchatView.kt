@@ -146,7 +146,7 @@ class TchatView {
                                 // TODO - send message to
                                 CoroutineScope(IO).launch {
                                     sender.sendMessage(community, address, pseudo, msg)
-                                    messages.add(msg)
+                                    messages.add("$pseudo : $msg")
                                     Log.i("Send", "Msg sent : $msg")
                                     msg = ""
                                 }
