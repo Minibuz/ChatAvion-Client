@@ -8,8 +8,8 @@ const opts = {
   port: 4723,
   capabilities: {
     platformName: "Android",
-    platformVersion: "8.1",
-    deviceName: "advtest",
+    platformVersion: "8.0", // Change this if needed
+    deviceName: "pixelpro 1", // Change this if needed
     appPackage: "fr.chatavion.client",
     appActivity: ".MainActivity",
     automationName: "UiAutomator2"
