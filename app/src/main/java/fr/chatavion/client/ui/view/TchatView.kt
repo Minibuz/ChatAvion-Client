@@ -23,15 +23,20 @@ import androidx.navigation.NavController
 import fr.chatavion.client.connection.dns.DnsResolver
 import fr.chatavion.client.ui.theme.White
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class TchatView {
 
+    // Never stops so can be a problem if we swap community
+    // TODO : make a singleton
+    var historySender by mutableStateOf(true)
+    var retrieve by mutableStateOf(true)
+
     @Composable
-    @SuppressLint("NotConstructor")
+    @SuppressLint("NotConstructor", "CoroutineCreationDuringComposition")
     fun TchatView(
         navController: NavController,
 //        sender: DnsResolver,
@@ -43,6 +48,23 @@ class TchatView {
         val sender = DnsResolver()
         val messages = remember { mutableStateListOf<String>() }
         var msg by remember { mutableStateOf("") }
+
+        if(historySender) {
+            historySender = false
+            CoroutineScope(IO).launch {
+                while(retrieve) {
+                    messages.addAll(
+                        sender.requestHistorique(
+                            community,
+                            address,
+                            10
+                        )
+                    )
+                    delay(10000L)
+                }
+            }
+        }
+
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -99,16 +121,16 @@ class TchatView {
                                     disabledElevation = 0.dp
                                 ),
                                 onClick = {
-                                    Log.i("wifi", "Wifi pushed")
-                                    CoroutineScope(IO).launch {
-                                        messages.addAll(
-                                            sender.requestHistorique(
-                                                community,
-                                                address,
-                                                1
-                                            )
-                                        )
-                                    }
+//                                    Log.i("wifi", "Wifi pushed")
+//                                    CoroutineScope(IO).launch {
+//                                        messages.addAll(
+//                                            sender.requestHistorique(
+//                                                community,
+//                                                address,
+//                                                10
+//                                            )
+//                                        )
+//                                    }
                                 }) {
                                 Icon(Icons.Filled.Wifi, "wifi")
                             }
@@ -129,7 +151,7 @@ class TchatView {
                         TextField(
                             value = msg.replace("\n", ""),
                             onValueChange = { msg = it },
-                            label = {Text(text = "Message text...")},
+                            label = { Text(text = "Message text...") },
                             textStyle = TextStyle(fontSize = 16.sp),
                             colors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.background),
                         )
@@ -173,7 +195,6 @@ class TchatView {
     }
 
 
-
     @Composable
     fun DisplayCenterText(text: String) {
         Column(
@@ -211,7 +232,6 @@ class TchatView {
     ) {
         val drawerState = rememberDrawerState(DrawerValue.Closed)
         val coroutineScope = rememberCoroutineScope()
-
         ModalDrawer(
             drawerState = drawerState,
             gesturesEnabled = drawerState.isOpen,
@@ -221,7 +241,8 @@ class TchatView {
                 )
             }
         ) {
-            TchatView(navController, pseudo, community, address
+            TchatView(
+                navController, pseudo, community, address
             ) { coroutineScope.launch { drawerState.open() } }
         }
     }
@@ -263,23 +284,12 @@ class TchatView {
         Param3
     }
 
-    private fun sendHistorique(
-        sender: DnsResolver,
-        community: String,
-        address: String,
-        nbToRetrieve: Int
-    ) {
-        CoroutineScope(IO).launch {
-            sender.requestHistorique(community, address, nbToRetrieve)
-        }
-    }
-
     private suspend fun sendMessage(
         text: String,
         pseudo: String,
         community: String,
         address: String,
-        words: SnapshotStateList<String>,
+        messages: SnapshotStateList<String>,
         sender: DnsResolver
     ): Boolean {
         var returnVal: Boolean
@@ -287,7 +297,7 @@ class TchatView {
             returnVal = sender.sendMessage(community, address, pseudo, text)
         }
         if (returnVal) {
-            words.add("$pseudo : $text")
+            messages.add("$pseudo : $text")
             Log.i("Message", "Success")
         } else
             Log.i("Message", "Error")
