@@ -27,11 +27,11 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 
 class AuthentificationView {
+    private val sender = DnsResolver()
 
     @Composable
     @SuppressLint("NotConstructor")
     fun AuthentificationView(navController: NavController) {
-        val sender = DnsResolver()
         val context = LocalContext.current
         var id by remember { mutableStateOf("") }
         var pseudo by remember { mutableStateOf("") }
@@ -50,14 +50,14 @@ class AuthentificationView {
             Image(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f / 3f)
+                    .weight(1f / 4f)
                     .height(Dp(500F)),
                 painter = painterResource(id = R.drawable.chatavion_logo),
                 contentDescription = "Chatavion logo"
             )
             Column(
                 modifier = Modifier
-                    .weight(1f / 3f)
+                    .weight(2f / 4f)
                     .verticalScroll(rememberScrollState())
                     .align(Alignment.CenterHorizontally)
             ) {
@@ -80,17 +80,16 @@ class AuthentificationView {
                 )
                 TextField(
                     value = pseudo.replace("\n", ""),
-                    onValueChange = { pseudo = it },
-                    placeholder = { Text(text = R.string.default_pseudo.toString()) },
+                    onValueChange = { if (it.length <= 35) pseudo = it },
+                    placeholder = { Text(text = R.string.default_pseudo.toString())) }
                     textStyle = TextStyle(fontSize = 16.sp)
                 )
             }
             Column(
                 Modifier
                     .align(Alignment.CenterHorizontally)
-                    .weight(1f / 3f)
+                    .weight(1f / 4f)
             ) {
-                Card(Modifier.weight(2f / 5f)) {}
                 Button(
                     shape = RoundedCornerShape(30.dp),
                     modifier = Modifier
@@ -109,7 +108,7 @@ class AuthentificationView {
                                 Log.i("Community", community)
                                 Log.i("Address", address)
                                 CoroutineScope(IO).launch {
-                                    isConnectionOk = sendButtonConnexion(sender, address, community)
+                                    isConnectionOk = sendButtonConnexion(address, community)
                                 }
                             } else {
                                 showToast(
@@ -139,7 +138,6 @@ class AuthentificationView {
     }
 
     private suspend fun sendButtonConnexion(
-        sender: DnsResolver,
         address: String,
         community: String
     ): Boolean {
