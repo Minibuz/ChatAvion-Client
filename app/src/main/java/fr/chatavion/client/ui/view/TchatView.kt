@@ -110,15 +110,6 @@ class TchatView {
                         IconButton(
                             onClick = {
                                 Log.i("wifi", "Wifi pushed")
-                                CoroutineScope(IO).launch {
-                                    messages.addAll(
-                                        sender.requestHistorique(
-                                            community,
-                                            address,
-                                            1
-                                        )
-                                    )
-                                }
                             }) {
                             Icon(Icons.Filled.Wifi, "wifi")
                         }
