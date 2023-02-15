@@ -50,14 +50,14 @@ class AuthentificationView {
             Image(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f / 3f)
+                    .weight(1f / 4f)
                     .height(Dp(500F)),
                 painter = painterResource(id = R.drawable.chatavion_logo),
                 contentDescription = "Chatavion logo"
             )
             Column(
                 modifier = Modifier
-                    .weight(1f / 3f)
+                    .weight(2f / 4f)
                     .verticalScroll(rememberScrollState())
                     .align(Alignment.CenterHorizontally)
             ) {
@@ -88,9 +88,8 @@ class AuthentificationView {
             Column(
                 Modifier
                     .align(Alignment.CenterHorizontally)
-                    .weight(1f / 3f)
+                    .weight(1f / 4f)
             ) {
-                Card(Modifier.weight(2f / 5f)) {}
                 Button(
                     shape = RoundedCornerShape(30.dp),
                     modifier = Modifier
