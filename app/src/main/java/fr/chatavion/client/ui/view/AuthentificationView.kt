@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -62,26 +63,26 @@ class AuthentificationView {
                     .align(Alignment.CenterHorizontally)
             ) {
                 Text(
-                    "Id de communauté",
+                    stringResource(R.string.id_community),
                     style = TextStyle(fontWeight = FontWeight.Bold),
                     modifier = Modifier.padding(vertical = 16.dp)
                 )
                 TextField(
                     value = id.replace("\n", ""),
                     onValueChange = { id = it },
-                    placeholder = { Text(text = "communauté@IPserveur") },
+                    placeholder = { Text(text = stringResource(R.string.communityAtIpServ)) },
                     textStyle = TextStyle(fontSize = 16.sp)
                 )
                 Spacer(modifier = Modifier.padding(vertical = 10.dp))
                 Text(
-                    "Pseudo",
+                    stringResource(R.string.pseudo),
                     style = TextStyle(fontWeight = FontWeight.Bold),
                     modifier = Modifier.padding(vertical = 16.dp)
                 )
                 TextField(
                     value = pseudo.replace("\n", ""),
                     onValueChange = { if (it.length <= 35) pseudo = it },
-                    placeholder = { Text(text = "chienjet") },
+                    placeholder = { Text(text = stringResource(R.string.default_pseudo)) },
                     textStyle = TextStyle(fontSize = 16.sp)
                 )
             }
@@ -112,7 +113,7 @@ class AuthentificationView {
                                 }
                             } else {
                                 showToast(
-                                    "L'id de communauté doit contenir un \"@\" séparant le nom de communauté de l'adresse du serveur",
+                                    "Il doit y avoir un et un seul @",
                                     context
                                 )
                             }
@@ -122,7 +123,7 @@ class AuthentificationView {
                 ) {
                     val color = if (isRegisterOk) MaterialTheme.colors.secondaryVariant
                     else MaterialTheme.colors.primaryVariant
-                    Text("Rejoindre", color = color)
+                    Text(R.string.join_community.toString(), color = color)
                 }
                 Card(Modifier.weight(2f / 3f)) {}
             }

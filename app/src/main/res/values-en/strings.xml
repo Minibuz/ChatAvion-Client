@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="id_community">Community Id</string>
+    <string name="communityAtIpServ">community@IPserver</string>
+    <string name="pseudo">Pseudo</string>
+    <string name="community_id_must_have_one_At">The community Id must contain one \\\"@\\\"</string>
+    <string name="join_community">Join</string>
+    <string name="parameters">Parameters</string>
+    <string name="theme">Theme</string>
+    <string name="langue">Language</string>
+    <string name="notifications">Notifications</string>
+    <string name="advanced_parameters">Advanced parameters</string>
+    <string name="messages">Messages</string>
+    <string name="network_connection">Network Connection</string>
+    <string name="back_main_screen">Return to main screen</string>
+    <string name="actual_pseudo">Actual pseudo</string>
+    <string name="explication_pseudo_community">This is the name that appears in the header of messages you send to the community</string>
+    <string name="transaction_type_dns">DNS transaction type</string>
+    <string name="protocol_choice">Protocol choice</string>
+    <string name="french">French</string>
+    <string name="english">English</string>
+    <string name="refresh_time">Refresh time</string>
+    <string name="loading_history">Loading history</string>
+    <string name="encoding">Encoding</string>
+    <string name="light">Light</string>
+    <string name="dark">Dark</string>
+</resources>
