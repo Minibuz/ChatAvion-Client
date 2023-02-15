@@ -344,7 +344,7 @@ class TchatView {
             returnVal = sender.sendMessage(community, address, pseudo, text)
         }
         if (returnVal) {
-            messages.add("$pseudo : $text")
+            messages.add("$pseudo:::$text")
             Log.i("Message", "Success")
         } else
             Log.i("Message", "Error")
