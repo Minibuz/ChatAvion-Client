@@ -123,7 +123,7 @@ class AuthentificationView {
                 ) {
                     val color = if (isRegisterOk) MaterialTheme.colors.secondaryVariant
                     else MaterialTheme.colors.primaryVariant
-                    Text(R.string.join_community.toString(), color = color)
+                    Text(stringResource(R.string.join_community), color = color)
                 }
                 Card(Modifier.weight(2f / 3f)) {}
             }
