@@ -17,6 +17,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -137,7 +138,7 @@ class TchatView {
                                 remainingCharacter =
                                     35 - msg.toByteArray(StandardCharsets.UTF_8).size
                             },
-                            label = { Text(text = R.string.message_text.toString()) },
+                            label = { Text(text = stringResource(R.string.message_text)) },
                             textStyle = TextStyle(fontSize = 16.sp),
                             colors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.background),
                             modifier = Modifier.fillMaxSize(0.8f)

@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -62,26 +63,26 @@ class AuthentificationView {
                     .align(Alignment.CenterHorizontally)
             ) {
                 Text(
-                    R.string.id_community.toString(),
+                    stringResource(R.string.id_community),
                     style = TextStyle(fontWeight = FontWeight.Bold),
                     modifier = Modifier.padding(vertical = 16.dp)
                 )
                 TextField(
                     value = id.replace("\n", ""),
                     onValueChange = { id = it },
-                    placeholder = { Text(text = R.string.communityAtIpServ.toString()) },
+                    placeholder = { Text(text = stringResource(R.string.communityAtIpServ)) },
                     textStyle = TextStyle(fontSize = 16.sp)
                 )
                 Spacer(modifier = Modifier.padding(vertical = 10.dp))
                 Text(
-                    R.string.pseudo.toString(),
+                    stringResource(R.string.pseudo),
                     style = TextStyle(fontWeight = FontWeight.Bold),
                     modifier = Modifier.padding(vertical = 16.dp)
                 )
                 TextField(
                     value = pseudo.replace("\n", ""),
                     onValueChange = { if (it.length <= 35) pseudo = it },
-                    placeholder = { Text(text = R.string.default_pseudo.toString()) },
+                    placeholder = { Text(text = stringResource(R.string.default_pseudo)) },
                     textStyle = TextStyle(fontSize = 16.sp)
                 )
             }
@@ -112,7 +113,7 @@ class AuthentificationView {
                                 }
                             } else {
                                 showToast(
-                                    R.string.community_id_must_have_one_At.toString(),
+                                    "Il doit y avoir un et un seul @",
                                     context
                                 )
                             }
