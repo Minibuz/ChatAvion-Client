@@ -13,7 +13,12 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -29,6 +34,7 @@ import kotlinx.coroutines.withContext
 
 class TchatView {
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     @SuppressLint("NotConstructor")
     fun TchatView(
@@ -46,6 +52,7 @@ class TchatView {
                 TopAppBar(
                     backgroundColor = MaterialTheme.colors.background,
                     modifier = Modifier.fillMaxWidth()
+                        .semantics {testTagsAsResourceId = true}
                 ) {
                     Column(
                         Modifier
@@ -57,8 +64,9 @@ class TchatView {
                             elevation = ButtonDefaults.elevation(
                                 defaultElevation = 0.dp,
                                 pressedElevation = 0.dp,
-                                disabledElevation = 0.dp
+                                disabledElevation = 0.dp,
                             ),
+                            modifier = Modifier.testTag("paramSwitch"),
                             onClick = {
                                 Log.i("menu", "Menu pushed")
                             }) {
@@ -81,6 +89,7 @@ class TchatView {
                                     pressedElevation = 0.dp,
                                     disabledElevation = 0.dp
                                 ),
+                                modifier = Modifier.testTag("commDropDown"),
                                 onClick = {
                                     Log.i("expandMore", "ExpandMore pushed")
                                 }) {
@@ -95,6 +104,7 @@ class TchatView {
                                     pressedElevation = 0.dp,
                                     disabledElevation = 0.dp
                                 ),
+                                modifier = Modifier.testTag("connectionSwitch"),
                                 onClick = {
                                     Log.i("wifi", "Wifi pushed")
                                     CoroutineScope(IO).launch {
@@ -129,6 +139,9 @@ class TchatView {
                             label = {Text(text = "Message text...")},
                             textStyle = TextStyle(fontSize = 16.sp),
                             colors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.background),
+                            modifier = Modifier.semantics{
+                                testTagsAsResourceId = true
+                                }.testTag("msgEditField")
                         )
                     }
                     Button(
@@ -138,6 +151,9 @@ class TchatView {
                             pressedElevation = 0.dp,
                             disabledElevation = 0.dp
                         ),
+                        modifier = Modifier.semantics{
+                            testTagsAsResourceId = true}
+                            .testTag("sendBtn"),
                         onClick = {
                             if (msg != "") {
                                 // TODO - send message to
