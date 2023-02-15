@@ -16,30 +16,29 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.DpOffset
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import fr.chatavion.client.connection.dns.DnsResolver
-import fr.chatavion.client.ui.theme.Blue
-import fr.chatavion.client.ui.theme.Red
 import fr.chatavion.client.ui.theme.White
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class TchatView {
 
+    // Never stops so can be a problem if we swap community
+    // TODO : make a singleton
+    var historySender by mutableStateOf(true)
+    var retrieve by mutableStateOf(true)
+
     @Composable
-    @SuppressLint("NotConstructor")
+    @SuppressLint("NotConstructor", "CoroutineCreationDuringComposition")
     fun TchatView(
         navController: NavController,
 //        sender: DnsResolver,
@@ -51,6 +50,23 @@ class TchatView {
         val sender = DnsResolver()
         val messages = remember { mutableStateListOf<String>() }
         var msg by remember { mutableStateOf("") }
+
+        if (historySender) {
+            historySender = false
+            CoroutineScope(IO).launch {
+                while (retrieve) {
+                    messages.addAll(
+                        sender.requestHistorique(
+                            community,
+                            address,
+                            10
+                        )
+                    )
+                    delay(10000L)
+                }
+            }
+        }
+
         var displayBurgerMenu by remember { mutableStateOf(false) }
 
         Scaffold(
@@ -106,7 +122,8 @@ class TchatView {
                             }) {
                             Icon(Icons.Filled.Wifi, "wifi")
                         }
-                    })
+                    }
+                )
             },
             bottomBar = {
                 BottomAppBar(
@@ -121,7 +138,7 @@ class TchatView {
                         TextField(
                             value = msg.replace("\n", ""),
                             onValueChange = { msg = it },
-                            label = {Text(text = "Message text...")},
+                            label = { Text(text = "Message text...") },
                             textStyle = TextStyle(fontSize = 16.sp),
                             colors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.background),
                         )
@@ -165,7 +182,6 @@ class TchatView {
     }
 
 
-
     @Composable
     fun DisplayCenterText(text: String) {
         Column(
@@ -203,7 +219,6 @@ class TchatView {
     ) {
         val drawerState = rememberDrawerState(DrawerValue.Closed)
         val coroutineScope = rememberCoroutineScope()
-
         ModalDrawer(
             drawerState = drawerState,
             gesturesEnabled = drawerState.isOpen,
@@ -213,7 +228,8 @@ class TchatView {
                 )
             }
         ) {
-            TchatView(navController, pseudo, community, address
+            TchatView(
+                navController, pseudo, community, address
             ) { coroutineScope.launch { drawerState.open() } }
         }
     }
@@ -263,24 +279,24 @@ class TchatView {
         val context = LocalContext.current
 
         DropdownMenu(
-                expanded = displayMenu,
-                onDismissRequest = { onDismiss() },
-                modifier = Modifier
-                    .fillMaxWidth(3/5f)
-                    .background(MaterialTheme.colors.background)
-            ) {
-                for (i in 1..3) {
-                    DropdownMenuItem(
-                        onClick = {
-                            Toast.makeText(context, "$i", Toast.LENGTH_SHORT).show()
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    ) {
-                        Text(text = "Communauté $i")
-                    }
+            expanded = displayMenu,
+            onDismissRequest = { onDismiss() },
+            modifier = Modifier
+                .fillMaxWidth(3 / 5f)
+                .background(MaterialTheme.colors.background)
+        ) {
+            for (i in 1..3) {
+                DropdownMenuItem(
+                    onClick = {
+                        Toast.makeText(context, "$i", Toast.LENGTH_SHORT).show()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    Text(text = "Communauté $i")
                 }
             }
+        }
     }
 
     private fun sendHistorique(
@@ -299,7 +315,7 @@ class TchatView {
         pseudo: String,
         community: String,
         address: String,
-        words: SnapshotStateList<String>,
+        messages: SnapshotStateList<String>,
         sender: DnsResolver
     ): Boolean {
         var returnVal: Boolean
@@ -307,7 +323,7 @@ class TchatView {
             returnVal = sender.sendMessage(community, address, pseudo, text)
         }
         if (returnVal) {
-            words.add("$pseudo : $text")
+            messages.add("$pseudo : $text")
             Log.i("Message", "Success")
         } else
             Log.i("Message", "Error")
