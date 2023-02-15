@@ -18,7 +18,10 @@ const opts = {
 };
 
 
+//NEED TO HAVE
 
+//EMULATOR UP BUT NOT ON THE APP YOU WANT TO TEST
+//APIUM SERVER RUNNING ON THE SPECIFIED PORT IN THE opts CONSTANT
 
 async function main () {
 
