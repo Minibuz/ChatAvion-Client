@@ -151,7 +151,7 @@ class TchatView {
                             ) {
                                 Text(
                                     text = "$remainingCharacter/35",
-                                    color = if (remainingCharacter < 0) Color.Red else Color.Gray,
+                                    color = if (remainingCharacter < 0) MaterialTheme.colors.error else MaterialTheme.colors.primaryVariant,
                                     textAlign = TextAlign.Center,
                                     modifier = Modifier.wrapContentSize()
                                 )
