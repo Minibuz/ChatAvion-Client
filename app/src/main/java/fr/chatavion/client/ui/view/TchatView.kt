@@ -145,9 +145,6 @@ class TchatView {
                             if (msg != "") {
                                 CoroutineScope(IO).launch {
                                     sendMessage(msg, pseudo, community, address, messages, sender)
-//                                    sender.sendMessage(community, address, pseudo, msg)
-//                                    messages.add("$pseudo : $msg")
-//                                    Log.i("Send", "Msg sent : $msg")
                                     msg = ""
                                 }
                             }
