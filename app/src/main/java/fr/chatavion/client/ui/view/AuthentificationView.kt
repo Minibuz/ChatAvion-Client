@@ -27,11 +27,11 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 
 class AuthentificationView {
+    private val sender = DnsResolver()
 
     @Composable
     @SuppressLint("NotConstructor")
     fun AuthentificationView(navController: NavController) {
-        val sender = DnsResolver()
         val context = LocalContext.current
         var id by remember { mutableStateOf("") }
         var pseudo by remember { mutableStateOf("") }
@@ -108,7 +108,7 @@ class AuthentificationView {
                                 Log.i("Community", community)
                                 Log.i("Address", address)
                                 CoroutineScope(IO).launch {
-                                    isConnectionOk = sendButtonConnexion(sender, address, community)
+                                    isConnectionOk = sendButtonConnexion(address, community)
                                 }
                             } else {
                                 showToast(
@@ -138,7 +138,6 @@ class AuthentificationView {
     }
 
     private suspend fun sendButtonConnexion(
-        sender: DnsResolver,
         address: String,
         community: String
     ): Boolean {
