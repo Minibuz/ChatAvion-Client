@@ -62,26 +62,26 @@ class AuthentificationView {
                     .align(Alignment.CenterHorizontally)
             ) {
                 Text(
-                    "Id de communauté",
+                    R.string.id_community.toString(),
                     style = TextStyle(fontWeight = FontWeight.Bold),
                     modifier = Modifier.padding(vertical = 16.dp)
                 )
                 TextField(
                     value = id.replace("\n", ""),
                     onValueChange = { id = it },
-                    placeholder = { Text(text = "communauté@IPserveur") },
+                    placeholder = { Text(text = R.string.communityAtIpServ.toString()) },
                     textStyle = TextStyle(fontSize = 16.sp)
                 )
                 Spacer(modifier = Modifier.padding(vertical = 10.dp))
                 Text(
-                    "Pseudo",
+                    R.string.pseudo.toString(),
                     style = TextStyle(fontWeight = FontWeight.Bold),
                     modifier = Modifier.padding(vertical = 16.dp)
                 )
                 TextField(
                     value = pseudo.replace("\n", ""),
                     onValueChange = { pseudo = it },
-                    placeholder = { Text(text = "chienjet") },
+                    placeholder = { Text(text = R.string.default_pseudo.toString()) },
                     textStyle = TextStyle(fontSize = 16.sp)
                 )
             }
@@ -113,7 +113,7 @@ class AuthentificationView {
                                 }
                             } else {
                                 showToast(
-                                    "L'id de communauté doit contenir un \"@\" séparant le nom de communauté de l'adresse du serveur",
+                                    R.string.community_id_must_have_one_At.toString(),
                                     context
                                 )
                             }
@@ -123,7 +123,7 @@ class AuthentificationView {
                 ) {
                     val color = if (isRegisterOk) MaterialTheme.colors.secondaryVariant
                     else MaterialTheme.colors.primaryVariant
-                    Text("Rejoindre", color = color)
+                    Text(R.string.join_community.toString(), color = color)
                 }
                 Card(Modifier.weight(2f / 3f)) {}
             }

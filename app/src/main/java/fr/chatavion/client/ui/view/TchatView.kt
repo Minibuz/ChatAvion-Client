@@ -22,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import fr.chatavion.client.R
 import fr.chatavion.client.connection.dns.DnsResolver
 import fr.chatavion.client.ui.theme.White
 import kotlinx.coroutines.CoroutineScope
@@ -129,7 +130,7 @@ class TchatView {
                         TextField(
                             value = msg.replace("\n", ""),
                             onValueChange = { msg = it },
-                            label = { Text(text = "Message text...") },
+                            label = { Text(text = R.string.message_text.toString()) },
                             textStyle = TextStyle(fontSize = 16.sp),
                             colors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.background),
                         )
