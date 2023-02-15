@@ -135,11 +135,8 @@ class TchatView {
                         ),
                         onClick = {
                             if (msg != "") {
-                                // TODO - send message to
                                 CoroutineScope(IO).launch {
-                                    sender.sendMessage(community, address, pseudo, msg)
-                                    messages.add(msg)
-                                    Log.i("Send", "Msg sent : $msg")
+                                    sendMessage(msg, pseudo, community, address, messages, sender)
                                     msg = ""
                                 }
                             }
@@ -177,7 +174,6 @@ class TchatView {
         )
         {
             val parts: List<String> = text.split(":")
-
             Text(
                 text = parts[0].trim(),
                 color = MaterialTheme.colors.onPrimary,
@@ -246,7 +242,7 @@ class TchatView {
     /**
      * Returns the corresponding DrawerAppScreen based on the index passed to it.
      */
-    fun getScreenBasedOnIndex(index: Int) = when (index) {
+    private fun getScreenBasedOnIndex(index: Int) = when (index) {
         0 -> Parameters.Param1
         1 -> Parameters.Param2
         2 -> Parameters.Param3
@@ -293,11 +289,10 @@ class TchatView {
         address: String,
         nbToRetrieve: Int
     ) {
-        CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(IO).launch {
             sender.requestHistorique(community, address, nbToRetrieve)
         }
     }
-
 
     private suspend fun sendMessage(
         text: String,
@@ -308,11 +303,11 @@ class TchatView {
         sender: DnsResolver
     ): Boolean {
         var returnVal: Boolean
-        withContext(Dispatchers.IO) {
+        withContext(IO) {
             returnVal = sender.sendMessage(community, address, pseudo, text)
         }
         if (returnVal) {
-            words.add(text)
+            words.add("$pseudo : $text")
             Log.i("Message", "Success")
         } else
             Log.i("Message", "Error")
