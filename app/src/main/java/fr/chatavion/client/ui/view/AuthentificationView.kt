@@ -80,7 +80,7 @@ class AuthentificationView {
                 )
                 TextField(
                     value = pseudo.replace("\n", ""),
-                    onValueChange = { pseudo = it },
+                    onValueChange = { if (it.length <= 35) pseudo = it },
                     placeholder = { Text(text = "chienjet") },
                     textStyle = TextStyle(fontSize = 16.sp)
                 )
