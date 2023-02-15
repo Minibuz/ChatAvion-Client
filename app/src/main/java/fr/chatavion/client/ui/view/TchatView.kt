@@ -70,7 +70,7 @@ class TchatView {
                     }
                     Column(Modifier.weight(1f / 3f)) {
                         Text(
-                            text = "Communauté",
+                            text = community,
                             modifier = Modifier.align(Alignment.CenterHorizontally),
                             color = MaterialTheme.colors.onPrimary
                         )
