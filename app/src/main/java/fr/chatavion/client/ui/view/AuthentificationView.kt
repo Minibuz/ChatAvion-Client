@@ -81,7 +81,7 @@ class AuthentificationView {
                 TextField(
                     value = pseudo.replace("\n", ""),
                     onValueChange = { if (it.length <= 35) pseudo = it },
-                    placeholder = { Text(text = R.string.default_pseudo.toString())) }
+                    placeholder = { Text(text = R.string.default_pseudo.toString()) },
                     textStyle = TextStyle(fontSize = 16.sp)
                 )
             }
