@@ -2,6 +2,7 @@ package fr.chatavion.client.ui.view
 
 import android.annotation.SuppressLint
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -15,12 +16,19 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import fr.chatavion.client.connection.dns.DnsResolver
+import fr.chatavion.client.ui.theme.Blue
+import fr.chatavion.client.ui.theme.Red
 import fr.chatavion.client.ui.theme.White
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
@@ -64,53 +72,45 @@ class TchatView {
                 }
             }
         }
+        
+        var displayBurgerMenu by remember { mutableStateOf(false) }
 
         Scaffold(
             topBar = {
                 TopAppBar(
                     backgroundColor = MaterialTheme.colors.background,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(
-                        Modifier
-                            .weight(1f / 3f)
-                            .background(MaterialTheme.colors.background)
-                    ) {
-                        Button(
-                            colors = ButtonDefaults.buttonColors(MaterialTheme.colors.background),
-                            elevation = ButtonDefaults.elevation(
-                                defaultElevation = 0.dp,
-                                pressedElevation = 0.dp,
-                                disabledElevation = 0.dp
-                            ),
-                            onClick = {
-                                Log.i("menu", "Menu pushed")
-                                openDrawer()
-                            }) {
-                            Icon(Icons.Filled.Menu, "menu")
+                    modifier = Modifier.fillMaxWidth(),
+                    elevation = 4.dp,
+                    title = {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .fillMaxSize(4 / 5f)
+                        ) {
+                            Text(
+                                text = "$community",
+                                color = MaterialTheme.colors.onPrimary,
+                                modifier = Modifier
+                                    .wrapContentHeight()
+                            )
                         }
-                    }
-                    Column(Modifier.weight(1f / 3f)) {
-                        Text(
-                            text = community,
-                            modifier = Modifier.align(Alignment.CenterHorizontally),
-                            color = MaterialTheme.colors.onPrimary
-                        )
-                    }
-                    Row(Modifier.weight(1f / 3f)) {
-                        Column(Modifier.weight(1f / 2f)) {
-                            Button(
-                                colors = ButtonDefaults.buttonColors(MaterialTheme.colors.background),
-                                elevation = ButtonDefaults.elevation(
-                                    defaultElevation = 0.dp,
-                                    pressedElevation = 0.dp,
-                                    disabledElevation = 0.dp
-                                ),
-                                onClick = {
-                                    Log.i("expandMore", "ExpandMore pushed")
-                                }) {
-                                Icon(Icons.Filled.ExpandMore, "expandMore")
-                            }
+                        burgerMenuCommunity(displayBurgerMenu) {
+                            displayBurgerMenu = !displayBurgerMenu
+                        }
+                        IconButton(
+                            onClick = {
+                                Log.i("expandMore", "ExpandMore pushed")
+                                displayBurgerMenu = !displayBurgerMenu
+                            }) {
+                            Icon(Icons.Filled.ExpandMore, "expandMore")
+                        }
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = {
+                            Log.i("menu", "Menu pushed")
+                            openDrawer()
+                        }) {
+                            Icon(Icons.Filled.Menu, "menu")
                         }
                         Column(Modifier.weight(1f / 2f)) {
                             Button(
@@ -134,9 +134,23 @@ class TchatView {
                                 }) {
                                 Icon(Icons.Filled.Wifi, "wifi")
                             }
+                    }, actions = {
+                        IconButton(
+                            onClick = {
+                                Log.i("wifi", "Wifi pushed")
+                                CoroutineScope(IO).launch {
+                                    messages.addAll(
+                                        sender.requestHistorique(
+                                            community,
+                                            address,
+                                            1
+                                        )
+                                    )
+                                }
+                            }) {
+                            Icon(Icons.Filled.Wifi, "wifi")
                         }
-                    }
-                }
+                    })
             },
             bottomBar = {
                 BottomAppBar(
@@ -282,6 +296,45 @@ class TchatView {
         Param1,
         Param2,
         Param3
+    }
+
+    @Composable
+    fun burgerMenuCommunity(
+        displayMenu: Boolean,
+        onDismiss: () -> Unit
+    ) {
+        val context = LocalContext.current
+
+        DropdownMenu(
+                expanded = displayMenu,
+                onDismissRequest = { onDismiss() },
+                modifier = Modifier
+                    .fillMaxWidth(3/5f)
+                    .background(MaterialTheme.colors.background)
+            ) {
+                for (i in 1..3) {
+                    DropdownMenuItem(
+                        onClick = {
+                            Toast.makeText(context, "$i", Toast.LENGTH_SHORT).show()
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+                        Text(text = "Communauté $i")
+                    }
+                }
+            }
+    }
+
+    private fun sendHistorique(
+        sender: DnsResolver,
+        community: String,
+        address: String,
+        nbToRetrieve: Int
+    ) {
+        CoroutineScope(IO).launch {
+            sender.requestHistorique(community, address, nbToRetrieve)
+        }
     }
 
     private suspend fun sendMessage(
