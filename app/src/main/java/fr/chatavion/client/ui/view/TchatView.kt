@@ -16,9 +16,11 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -29,6 +31,7 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.nio.charset.StandardCharsets
 
 class TchatView {
 
@@ -50,6 +53,7 @@ class TchatView {
         val sender = DnsResolver()
         val messages = remember { mutableStateListOf<String>() }
         var msg by remember { mutableStateOf("") }
+        var remainingCharacter by remember { mutableStateOf(35) }
 
         if (historySender) {
             historySender = false
@@ -126,31 +130,59 @@ class TchatView {
                             .align(Alignment.CenterVertically)
                             .fillMaxWidth(0.8f)
                     ) {
-                        TextField(
-                            value = msg.replace("\n", ""),
-                            onValueChange = { msg = it },
-                            label = { Text(text = "Message text...") },
-                            textStyle = TextStyle(fontSize = 16.sp),
-                            colors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.background),
-                        )
-                    }
-                    Button(
-                        colors = ButtonDefaults.buttonColors(MaterialTheme.colors.background),
-                        elevation = ButtonDefaults.elevation(
-                            defaultElevation = 0.dp,
-                            pressedElevation = 0.dp,
-                            disabledElevation = 0.dp
-                        ),
-                        onClick = {
-                            if (msg != "") {
-                                CoroutineScope(IO).launch {
-                                    sendMessage(msg, pseudo, community, address, messages, sender)
-                                    msg = ""
+                            TextField(
+                                value = msg.replace("\n", ""),
+                                onValueChange = {
+                                    msg = it
+                                    remainingCharacter =
+                                        35 - msg.toByteArray(StandardCharsets.UTF_8).size
+                                },
+                                label = { Text(text = "Message text...") },
+                                textStyle = TextStyle(fontSize = 16.sp),
+                                colors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.background),
+                                modifier = Modifier.fillMaxSize(0.8f)
+                            )
+                        }
+                        Column(
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxHeight(0.3f).fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    text = "$remainingCharacter/35",
+                                    color = if (remainingCharacter < 0) Color.Red else Color.Gray,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.wrapContentSize()
+                                )
+                            }
+                            Row() {
+                                Button(
+                                    colors = ButtonDefaults.buttonColors(MaterialTheme.colors.background),
+                                    elevation = ButtonDefaults.elevation(
+                                        defaultElevation = 0.dp,
+                                        pressedElevation = 0.dp,
+                                        disabledElevation = 0.dp
+                                    ),
+                                    onClick = {
+                                        if (msg != "") {
+                                            CoroutineScope(IO).launch {
+                                                sendMessage(
+                                                    msg,
+                                                    pseudo,
+                                                    community,
+                                                    address,
+                                                    messages,
+                                                    sender
+                                                )
+                                                msg = ""
+                                            }
+                                        }
+                                    }) {
+                                    Icon(Icons.Filled.Send, "send")
                                 }
                             }
-                        }) {
-                        Icon(Icons.Filled.Send, "send")
-                    }
+                        }
                 }
             }
         ) { innerTag ->
