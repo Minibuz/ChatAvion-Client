@@ -47,8 +47,8 @@ class SettingsRepositoryTest {
     @Test
     fun testGetAndSetProtocolChoice() = runBlocking {
         val testProtocolChoice = SettingsRepository.Protocol.Http
-        repository.setProtocolChoice(testProtocolChoice)
-        val protocolChoice = repository.protocolChoice.first()
+        repository.setProtocol(testProtocolChoice)
+        val protocolChoice = repository.protocol.first()
         assertEquals(testProtocolChoice, protocolChoice)
     }
 

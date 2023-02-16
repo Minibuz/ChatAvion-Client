@@ -19,7 +19,7 @@ class SettingsRepository(context: Context) {
         val THEME_KEY = stringPreferencesKey("theme")
         val PSEUDO_KEY = stringPreferencesKey("pseudo")
         val DNS_TYPE_TRANSACTION_KEY = stringPreferencesKey("dns_type_transaction")
-        val PROTOCOL_CHOICE_KEY = stringPreferencesKey("protocol_choice")
+        val PROTOCOL_KEY = stringPreferencesKey("protocol")
         val LANGUAGE_KEY = stringPreferencesKey("language")
         val REFRESH_TIME_KEY = longPreferencesKey("refresh_time")
         val HISTORY_LOADING_KEY = intPreferencesKey("history_loading")
@@ -91,7 +91,7 @@ class SettingsRepository(context: Context) {
         }
     }
 
-    val protocolChoice: Flow<Protocol>
+    val protocol: Flow<Protocol>
         get() = dataStore.data.catch { exception ->
             if (exception is IOException) {
                 emit(emptyPreferences())
@@ -99,13 +99,13 @@ class SettingsRepository(context: Context) {
                 throw exception
             }
         }.map { preferences ->
-            val protocolName = preferences[PROTOCOL_CHOICE_KEY] ?: Protocol.Dns.name
+            val protocolName = preferences[PROTOCOL_KEY] ?: Protocol.Dns.name
             Protocol.valueOf(protocolName)
         }
 
-    suspend fun setProtocolChoice(protocolChoice: Protocol) {
+    suspend fun setProtocol(protocol: Protocol) {
         dataStore.edit { preferences ->
-            preferences[PROTOCOL_CHOICE_KEY] = protocolChoice.name
+            preferences[PROTOCOL_KEY] = protocol.name
         }
     }
 
