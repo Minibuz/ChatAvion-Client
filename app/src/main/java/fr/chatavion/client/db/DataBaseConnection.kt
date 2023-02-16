@@ -13,7 +13,6 @@ import fr.chatavion.client.db.entity.Message
     version = 1,
     entities = [Community::class, Message::class]
 )
-
 abstract class DataBaseConnection : RoomDatabase() {
     abstract fun messageDao(): MessageDAO
     abstract fun communityDao(): CommunityDAO
