@@ -9,5 +9,5 @@ data class CommunityWithMessages(
         parentColumn = "communityId",
         entityColumn = "communityId"
     )
-    val playlists: List<Message>
+    val messages: List<Message>
 )
