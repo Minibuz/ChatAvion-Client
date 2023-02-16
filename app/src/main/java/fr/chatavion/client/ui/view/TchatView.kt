@@ -17,6 +17,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -283,18 +284,77 @@ class TchatView {
         closeDrawer: () -> Unit
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            for (index in Parameters.values().indices) {
-                val screen = getScreenBasedOnIndex(index)
-                Column(Modifier.clickable(onClick = {
-                    closeDrawer()
-                }), content = {
-                    Surface(
-                        modifier = Modifier.fillMaxWidth(),
-                        color = MaterialTheme.colors.background
-                    ) {
-                        Text(text = "param", modifier = Modifier.padding(16.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.15f)
+            ) {
+                Surface(
+                    color = MaterialTheme.colors.onBackground,
+                    modifier = Modifier
+                        .fillMaxSize()
+                ) {
+                    Row() {
+                        Icon(
+                            Icons.Filled.Menu,
+                            "menu",
+                            tint = MaterialTheme.colors.background,
+                            modifier = Modifier
+                                .fillMaxWidth(0.2f)
+                                .align(Alignment.CenterVertically)
+                        )
+                        Text(
+                            text = "Paramètres",
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .align(Alignment.CenterVertically),
+                            color = MaterialTheme.colors.background
+                        )
                     }
-                })
+                }
+            }
+            Divider(
+                color = MaterialTheme.colors.background,
+                thickness = 2.dp,
+            )
+            Box(
+                modifier = Modifier.fillMaxHeight(2/4f)
+            ) {
+                Column {
+                    for (index in Parameters.values().indices) {
+                        val screen = getScreenBasedOnIndex(index).name
+                        Column(
+                            modifier = Modifier.clickable(onClick = {
+                                closeDrawer()
+                            }), content = {
+                                Surface(
+                                    modifier = Modifier
+                                        .fillMaxWidth(),
+                                    color = MaterialTheme.colors.onBackground
+                                ) {
+                                    Button(
+                                        content = {
+                                            Text(
+                                                text = screen,
+                                                color = MaterialTheme.colors.background,
+                                                textAlign = TextAlign.Center
+                                            )
+                                        },
+                                        modifier = Modifier.padding(8.dp),
+                                        colors = ButtonDefaults.buttonColors(MaterialTheme.colors.onBackground),
+                                        onClick = {
+                                            Log.i("Parameters", "Parameters")
+                                        }
+                                    )
+                                    Divider(
+                                        color = MaterialTheme.colors.background,
+                                        thickness = 1.dp,
+                                        startIndent = (1/5f).dp
+                                    )
+                                }
+                            })
+                    }
+                }
             }
         }
     }
@@ -303,16 +363,23 @@ class TchatView {
      * Returns the corresponding DrawerAppScreen based on the index passed to it.
      */
     private fun getScreenBasedOnIndex(index: Int) = when (index) {
-        0 -> Parameters.Param1
-        1 -> Parameters.Param2
-        2 -> Parameters.Param3
-        else -> Parameters.Param1
+        0 -> Parameters.Pseudo
+        1 -> Parameters.Theme
+        2 -> Parameters.Langue
+        3 -> Parameters.Notifications
+        else -> Parameters.Pseudo
     }
 
     enum class Parameters {
-        Param1,
-        Param2,
-        Param3
+        Pseudo,
+        Theme,
+        Langue,
+        Notifications
+    }
+
+    enum class AdvanceParameters {
+        Messages,
+        Connexion
     }
 
     @Composable
