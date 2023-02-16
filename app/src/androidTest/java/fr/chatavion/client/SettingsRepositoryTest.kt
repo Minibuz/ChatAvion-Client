@@ -83,6 +83,5 @@ class SettingsRepositoryTest {
         val encoding = repository.encoding.first()
         assertEquals(testEncoding, encoding)
     }
-
 }
 
