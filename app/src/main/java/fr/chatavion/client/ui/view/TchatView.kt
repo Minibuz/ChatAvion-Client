@@ -20,8 +20,6 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Canvas
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -288,7 +286,6 @@ class TchatView {
                     .fillMaxHeight(0.15f)
             ) {
                 Surface(
-                    color = MaterialTheme.colors.onBackground,
                     modifier = Modifier
                         .fillMaxSize()
                 ) {
@@ -296,7 +293,6 @@ class TchatView {
                         Icon(
                             Icons.Filled.Menu,
                             "menu",
-                            tint = MaterialTheme.colors.background,
                             modifier = Modifier
                                 .fillMaxWidth(0.2f)
                                 .align(Alignment.CenterVertically)
@@ -305,14 +301,12 @@ class TchatView {
                             text = "Paramètres",
                             modifier = Modifier
                                 .padding(16.dp)
-                                .align(Alignment.CenterVertically),
-                            color = MaterialTheme.colors.background
+                                .align(Alignment.CenterVertically)
                         )
                     }
                 }
             }
             Divider(
-                color = MaterialTheme.colors.background,
                 thickness = 2.dp,
             )
             Box(
@@ -327,25 +321,21 @@ class TchatView {
                             }), content = {
                                 Surface(
                                     modifier = Modifier
-                                        .fillMaxWidth(),
-                                    color = MaterialTheme.colors.onBackground
+                                        .fillMaxWidth()
                                 ) {
                                     Button(
                                         content = {
                                             Text(
                                                 text = screen,
-                                                color = MaterialTheme.colors.background,
                                                 textAlign = TextAlign.Center
                                             )
                                         },
                                         modifier = Modifier.padding(8.dp),
-                                        colors = ButtonDefaults.buttonColors(MaterialTheme.colors.onBackground),
                                         onClick = {
                                             Log.i("Parameters", "Parameters")
                                         }
                                     )
                                     Divider(
-                                        color = MaterialTheme.colors.background,
                                         thickness = 1.dp,
                                         startIndent = (1/5f).dp
                                     )
