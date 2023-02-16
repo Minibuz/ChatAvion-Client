@@ -224,6 +224,7 @@ class TchatView {
                 text = parts[1].trim(),
                 color = MaterialTheme.colors.onPrimary,
                 fontSize = 14.sp,
+                softWrap = true,
                 modifier = Modifier
                     .fillMaxWidth()
             )
