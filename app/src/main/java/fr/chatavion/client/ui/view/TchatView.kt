@@ -11,7 +11,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -23,7 +26,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import fr.chatavion.client.R
 import fr.chatavion.client.connection.dns.DnsResolver
 import fr.chatavion.client.ui.theme.White
@@ -38,14 +40,12 @@ class TchatView {
 
     // Never stops so can be a problem if we swap community
     // TODO : make a singleton
-    var historySender by mutableStateOf(true)
-    var retrieve by mutableStateOf(true)
+    private var historySender by mutableStateOf(true)
+    private var retrieve by mutableStateOf(true)
 
     @Composable
     @SuppressLint("NotConstructor", "CoroutineCreationDuringComposition")
     fun TchatView(
-        navController: NavController,
-//        sender: DnsResolver,
         pseudo: String,
         community: String,
         address: String,
@@ -87,13 +87,13 @@ class TchatView {
                                 .fillMaxSize(4 / 5f)
                         ) {
                             Text(
-                                text = "$community",
+                                text = community,
                                 color = MaterialTheme.colors.onPrimary,
                                 modifier = Modifier
                                     .wrapContentHeight()
                             )
                         }
-                        burgerMenuCommunity(displayBurgerMenu) {
+                        BurgerMenuCommunity(displayBurgerMenu) {
                             displayBurgerMenu = !displayBurgerMenu
                         }
                         IconButton(
@@ -126,7 +126,7 @@ class TchatView {
                     cutoutShape = MaterialTheme.shapes.small.copy(CornerSize(percent = 50)),
                     backgroundColor = MaterialTheme.colors.background
                 ) {
-                    Column (
+                    Column(
                         Modifier
                             .align(Alignment.CenterVertically)
                             .fillMaxWidth(0.8f)
@@ -233,8 +233,6 @@ class TchatView {
 
     @Composable
     fun DrawerAppComponent(
-        navController: NavController,
-//        sender: DnsResolver,
         pseudo: String,
         community: String,
         address: String
@@ -251,7 +249,7 @@ class TchatView {
             }
         ) {
             TchatView(
-                navController, pseudo, community, address
+                pseudo, community, address
             ) { coroutineScope.launch { drawerState.open() } }
         }
     }
@@ -294,7 +292,7 @@ class TchatView {
     }
 
     @Composable
-    fun burgerMenuCommunity(
+    fun BurgerMenuCommunity(
         displayMenu: Boolean,
         onDismiss: () -> Unit
     ) {
@@ -318,17 +316,6 @@ class TchatView {
                     Text(text = "Communauté $i")
                 }
             }
-        }
-    }
-
-    private fun sendHistorique(
-        sender: DnsResolver,
-        community: String,
-        address: String,
-        nbToRetrieve: Int
-    ) {
-        CoroutineScope(IO).launch {
-            sender.requestHistorique(community, address, nbToRetrieve)
         }
     }
 
