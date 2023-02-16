@@ -50,7 +50,7 @@ fun NavigationBasicsApp() {
             val community = backStackEntry.arguments?.getString("community")
             val address = backStackEntry.arguments?.getString("address")
             if (pseudo != null && community != null && address != null) {
-                tchatView.DrawerAppComponent(navController, pseudo, community, address)
+                tchatView.DrawerAppComponent(pseudo, community, address)
             }
         }
     }
