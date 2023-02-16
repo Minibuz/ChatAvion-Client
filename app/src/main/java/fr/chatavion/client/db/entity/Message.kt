@@ -3,7 +3,7 @@ package fr.chatavion.client.db.entity
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity
+@Entity(tableName = "message")
 data class Message(
     @PrimaryKey
     val messageId: Long,
