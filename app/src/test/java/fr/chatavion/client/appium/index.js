@@ -8,13 +8,20 @@ const opts = {
   port: 4723,
   capabilities: {
     platformName: "Android",
-    platformVersion: "8.1",
-    deviceName: "advtest",
-    appPackage: "fr.chatavion.client",
-    appActivity: ".MainActivity",
-    automationName: "UiAutomator2"
+    platformVersion: "8.1",//ANDROID VERSION OF EMULATOR
+    deviceName: "advtest", //EMULTAOR NAME IN DEVICE MANAGER
+    appPackage: "fr.chatavion.client", //PACKAGE WHERE TO BE TESTED ACTIVITY IS
+    appActivity: ".MainActivity", //TO BE TESTED ACTIVITY NAME
+    automationName: "UiAutomator2" //DONT TOUCH
   }
 };
+
+/*
+REQUIREMENTS
+
+EMULATOR RUNNING WITH APP INSTALLED
+APPIUM SERVER RUNNING ON 0.0.0.0 OR 127.0.0.1 AND PORT 4723 SAME AS PORT OPTION IN opts
+*/
 
 async function main () {
   const driver = await wdio.remote(opts);
