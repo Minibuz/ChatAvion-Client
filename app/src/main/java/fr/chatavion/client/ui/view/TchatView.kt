@@ -103,7 +103,9 @@ class TchatView {
                             displayBurgerMenu = !displayBurgerMenu
                         }
                         IconButton(
-                            modifier = Modifier.testTag("paramSwitch"),
+                            modifier = Modifier.semantics{
+                                testTagsAsResourceId = true
+                            }.testTag("paramSwitch"),
                             onClick = {
                                 Log.i("expandMore", "ExpandMore pushed")
                                 displayBurgerMenu = !displayBurgerMenu
@@ -113,7 +115,9 @@ class TchatView {
                     },
                     navigationIcon = {
                         IconButton(
-                            modifier = Modifier.testTag("commDropDown"),
+                            modifier = Modifier.semantics{
+                                testTagsAsResourceId = true
+                            }.testTag("commDropDown"),
                             onClick = {
                             Log.i("menu", "Menu pushed")
                             openDrawer()
@@ -122,7 +126,9 @@ class TchatView {
                         }
                     }, actions = {
                         IconButton(
-                            modifier = Modifier.testTag("connectionSwitch"),
+                            modifier = Modifier.semantics{
+                                testTagsAsResourceId = true
+                            }.testTag("connectionSwitch"),
                             onClick = {
                                 Log.i("wifi", "Wifi pushed")
                             }) {
