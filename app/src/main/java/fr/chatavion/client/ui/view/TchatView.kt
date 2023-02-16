@@ -175,6 +175,7 @@ class TchatView {
                                             sender
                                         )
                                         msg = ""
+                                        remainingCharacter = 35
                                     }
                                 }
                             }) {
