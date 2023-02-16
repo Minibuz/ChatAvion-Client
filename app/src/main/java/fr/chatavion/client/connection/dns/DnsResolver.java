@@ -31,7 +31,7 @@ public class DnsResolver {
     public DnsResolver() {
     }
 
-    public boolean findType(String address) throws IOException {
+    public boolean findType(String address) {
         ResolverResult<? extends Data> result;
         address = "chat." + address;
         try {
@@ -104,40 +104,45 @@ public class DnsResolver {
         return false;
     }
 
-    public List<String> requestHistorique(String cmt, String address, int number) throws IOException {
+    public List<String> requestHistorique(String cmt, String address, int number) {
         if (number < 1 || number > 10) {
             throw new IllegalArgumentException("Cannot get less than 1 message from history or more than 10.");
         }
         String cmtB32 = this.converter32.encodeAsString(cmt.getBytes(StandardCharsets.UTF_8));
 
         list.clear();
-        for (int i = 0; i < number; i++) {
-            String request = type == A.class ? "m" + id : type == AAAA.class ? "m" + id + "o0" : "m" + id + "n0";
+        try {
+            for (int i = 0; i < number; i++) {
+                String request = type == A.class ? "m" + id : type == AAAA.class ? "m" + id + "o0" : "m" + id + "n0";
 
-            ResolverResult<? extends Data> result = ResolverApi.INSTANCE.resolve(request + "-" + cmtB32 + ".historique." + address, type);
-            if (!result.wasSuccessful()) {
-                logger.warning(() -> "Problem with recovering history.");
-            }
-            if (result.getAnswers().isEmpty()) {
-                logger.info(() -> "No message with this id to retrieve. Stopping message recovery.");
-                return list;
-            }
+                ResolverResult<? extends Data> result = ResolverApi.INSTANCE.resolve(request + "-" + cmtB32 + ".historique." + address, type);
+                if (!result.wasSuccessful()) {
+                    logger.warning(() -> "Problem with recovering history.");
+                }
+                if (result.getAnswers().isEmpty()) {
+                    logger.info(() -> "No message with this id to retrieve. Stopping message recovery.");
+                    return list;
+                }
 
-            List<Byte> msg = new ArrayList<>();
-            if (type == A.class) {
-                Set<A> answers = (Set<A>) result.getAnswers();
-                mergeResultTypeA(answers, msg);
-            } else if (type == AAAA.class) {
-                Set<AAAA> answers = (Set<AAAA>) result.getAnswers();
-                mergeResultTypeAAAA(answers, msg);
-            } else {
-                Set<TXT> answers = (Set<TXT>) result.getAnswers();
-                mergeResultTypeTXT(answers, msg);
+                List<Byte> msg = new ArrayList<>();
+                if (type == A.class) {
+                    Set<A> answers = (Set<A>) result.getAnswers();
+                    mergeResultTypeA(answers, msg);
+                } else if (type == AAAA.class) {
+                    Set<AAAA> answers = (Set<AAAA>) result.getAnswers();
+                    mergeResultTypeAAAA(answers, msg);
+                } else {
+                    Set<TXT> answers = (Set<TXT>) result.getAnswers();
+                    mergeResultTypeTXT(answers, msg);
+                }
+                String message = new String(converter32.decode(ArrayUtils.toPrimitive(msg.toArray(new Byte[0]))));
+                id++;
+                list.add(message);
             }
-            String message = new String(converter32.decode(ArrayUtils.toPrimitive(msg.toArray(new Byte[0]))));
-            id++;
-            list.add(message);
+        } catch (IOException e) {
+            return list;
         }
+
         return list;
     }
 
