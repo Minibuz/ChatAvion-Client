@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import fr.chatavion.client.R
 import fr.chatavion.client.connection.dns.DnsResolver
+import fr.chatavion.client.datastore.SettingsRepository
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 
@@ -39,6 +40,7 @@ class AuthentificationView {
     @SuppressLint("NotConstructor")
     fun AuthentificationView(navController: NavController) {
         val context = LocalContext.current
+        val settingsRepository = SettingsRepository(context = context)
         var id by remember { mutableStateOf("") }
         var pseudo by remember { mutableStateOf("") }
         var community by remember { mutableStateOf("") }
@@ -127,6 +129,10 @@ class AuthentificationView {
                                 Log.i("Address", address)
                                 CoroutineScope(IO).launch {
                                     isConnectionOk = sendButtonConnexion(address, community)
+                                    if (isConnectionOk) {
+                                        Log.i("Pseudo", "Setting user pseudo to $pseudo")
+                                        settingsRepository.setPseudo(pseudo)
+                                    }
                                     enabled = true
                                 }
                             } else {
