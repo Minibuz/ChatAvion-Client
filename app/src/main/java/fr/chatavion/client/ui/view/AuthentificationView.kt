@@ -38,6 +38,7 @@ class AuthentificationView {
         var pseudo by remember { mutableStateOf("") }
         var community by remember { mutableStateOf("") }
         var address by remember { mutableStateOf("") }
+        var enabled by remember { mutableStateOf(true) }
         var isRegisterOk by remember { mutableStateOf(false) }
         var isConnectionOk by remember { mutableStateOf(false) }
         if (pseudo != "" && id != "") {
@@ -97,8 +98,10 @@ class AuthentificationView {
                         .align(Alignment.CenterHorizontally)
                         .weight(1f / 3f)
                         .width(200.dp),
+                    enabled = enabled,
                     onClick = {
                         Log.d("FullPage", "Button pushed by $pseudo on $id")
+                        enabled = false
                         if (isRegisterOk) {
                             id = id.trim()
                             val count = id.count { it == '@' }
@@ -110,8 +113,10 @@ class AuthentificationView {
                                 Log.i("Address", address)
                                 CoroutineScope(IO).launch {
                                     isConnectionOk = sendButtonConnexion(address, community)
+                                    enabled = true
                                 }
                             } else {
+                                enabled = true
                                 showToast(
                                     "Il doit y avoir un et un seul @",
                                     context
