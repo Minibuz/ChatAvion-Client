@@ -15,10 +15,14 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -42,6 +46,7 @@ class TchatView {
     var historySender by mutableStateOf(true)
     var retrieve by mutableStateOf(true)
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     @SuppressLint("NotConstructor", "CoroutineCreationDuringComposition")
     fun TchatView(
@@ -98,6 +103,7 @@ class TchatView {
                             displayBurgerMenu = !displayBurgerMenu
                         }
                         IconButton(
+                            modifier = Modifier.testTag("paramSwitch"),
                             onClick = {
                                 Log.i("expandMore", "ExpandMore pushed")
                                 displayBurgerMenu = !displayBurgerMenu
@@ -106,7 +112,9 @@ class TchatView {
                         }
                     },
                     navigationIcon = {
-                        IconButton(onClick = {
+                        IconButton(
+                            modifier = Modifier.testTag("commDropDown"),
+                            onClick = {
                             Log.i("menu", "Menu pushed")
                             openDrawer()
                         }) {
@@ -114,6 +122,7 @@ class TchatView {
                         }
                     }, actions = {
                         IconButton(
+                            modifier = Modifier.testTag("connectionSwitch"),
                             onClick = {
                                 Log.i("wifi", "Wifi pushed")
                             }) {
@@ -135,6 +144,9 @@ class TchatView {
                     ) {
                         TextField(
                             value = msg.replace("\n", ""),
+                            modifier = Modifier.semantics{
+                                testTagsAsResourceId = true
+                            }.testTag("msgEditField"),
                             onValueChange = {
                                 msg = it
                                 remainingCharacter =
@@ -163,6 +175,9 @@ class TchatView {
                                 pressedElevation = 0.dp,
                                 disabledElevation = 0.dp
                             ),
+                            modifier = Modifier.semantics{
+                                testTagsAsResourceId = true}
+                                .testTag("sendBtn"),
                             onClick = {
                                 if (msg != "") {
                                     CoroutineScope(IO).launch {
