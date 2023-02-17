@@ -46,11 +46,11 @@ fun NavigationBasicsApp() {
 
         composable("tchat_page/{pseudo}/{community}/{address}") { backStackEntry ->
 //            val sender = backStackEntry.arguments?.getBundle("sender")
-            val pseudo = backStackEntry.arguments?.getString("pseudo")
+//            val pseudo = backStackEntry.arguments?.getString("pseudo")
             val community = backStackEntry.arguments?.getString("community")
             val address = backStackEntry.arguments?.getString("address")
-            if (pseudo != null && community != null && address != null) {
-                tchatView.DrawerAppComponent(pseudo, community, address)
+            if (community != null && address != null) {
+                tchatView.DrawerAppComponent(community, address)
             }
         }
     }
