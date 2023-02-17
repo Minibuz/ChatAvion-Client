@@ -3,10 +3,12 @@ package fr.chatavion.client.ui.view
 import android.annotation.SuppressLint
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.*
@@ -30,45 +32,46 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import fr.chatavion.client.R
 import fr.chatavion.client.connection.dns.DnsResolver
 import fr.chatavion.client.datastore.SettingsRepository
 import fr.chatavion.client.ui.theme.White
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.nio.charset.StandardCharsets
+import java.util.concurrent.CancellationException
+
 
 class TchatView {
 
     // Never stops so can be a problem if we swap community
     // TODO : make a singleton
-    private var historySender by mutableStateOf(true)
-    private var retrieve by mutableStateOf(true)
+    private val sender = DnsResolver()
 
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     @SuppressLint("NotConstructor", "CoroutineCreationDuringComposition")
     fun TchatView(
+        navController: NavController,
         community: String,
         address: String,
         openDrawer: () -> Unit
     ) {
-
         val context = LocalContext.current
 
-        val sender = DnsResolver()
+        Log.i("Ici", "On est au debut")
         val messages = remember { mutableStateListOf<String>() }
         var msg by remember { mutableStateOf("") }
         var remainingCharacter by remember { mutableStateOf(35) }
         var enableSendingMessage by remember { mutableStateOf(true) }
+        var displayBurgerMenu by remember { mutableStateOf(false) }
+        var historySender by remember { mutableStateOf(true) }
 
-        if (historySender) {
-            historySender = false
-            CoroutineScope(IO).launch {
-                while (retrieve) {
+        val job = CoroutineScope(IO).launch(start = CoroutineStart.LAZY) {
+            try {
+                while (true) {
+                    Log.i("History", "Retrieve the history")
                     messages.addAll(
                         sender.requestHistorique(
                             community,
@@ -76,12 +79,25 @@ class TchatView {
                             10
                         )
                     )
-                    delay(10000L)
+                    delay(10_000L)
                 }
+            } catch (e: Exception) {
+                Log.i("History", "Cancel history retrieve")
+                return@launch
             }
         }
 
-        var displayBurgerMenu by remember { mutableStateOf(false) }
+        BackHandler(enabled = true) {
+            Log.i("Work", "Je marche")
+            CoroutineScope(IO).cancel(CancellationException())
+            navController.navigate("auth_page")
+        }
+
+        if (historySender) {
+            Log.i("Ici", "On rerentre ici")
+            job.start()
+            historySender = false
+        }
 
         Scaffold(
             topBar = {
@@ -233,7 +249,8 @@ class TchatView {
                         .fillMaxWidth()
                         .background(color = MaterialTheme.colors.background)
                         .padding(PaddingValues(horizontal = 25.dp, vertical = 15.dp)),
-                    verticalArrangement = Arrangement.spacedBy(15.dp)
+                    verticalArrangement = Arrangement.spacedBy(15.dp),
+                    state = LazyListState(firstVisibleItemIndex = messages.size)
                 ) {
                     items(messages) { message ->
                         DisplayCenterText(message)
@@ -242,7 +259,6 @@ class TchatView {
             }
         }
     }
-
 
     @Composable
     fun DisplayCenterText(text: String) {
@@ -274,11 +290,13 @@ class TchatView {
 
     @Composable
     fun DrawerAppComponent(
+        navController: NavController,
         community: String,
         address: String
     ) {
         val drawerState = rememberDrawerState(DrawerValue.Closed)
         val coroutineScope = rememberCoroutineScope()
+
         ModalDrawer(
             drawerState = drawerState,
             gesturesEnabled = drawerState.isOpen,
@@ -290,7 +308,7 @@ class TchatView {
             },
             content = {
                 TchatView(
-                    community, address
+                    navController, community, address
                 ) { coroutineScope.launch { drawerState.open() } }
             }
         )
