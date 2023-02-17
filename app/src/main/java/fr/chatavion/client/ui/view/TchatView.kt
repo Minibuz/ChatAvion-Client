@@ -34,11 +34,8 @@ import fr.chatavion.client.R
 import fr.chatavion.client.connection.dns.DnsResolver
 import fr.chatavion.client.datastore.SettingsRepository
 import fr.chatavion.client.ui.theme.White
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.nio.charset.StandardCharsets
 
 class TchatView {
@@ -56,7 +53,6 @@ class TchatView {
         address: String,
         openDrawer: () -> Unit
     ) {
-
         val context = LocalContext.current
 
         val sender = DnsResolver()
@@ -65,20 +61,21 @@ class TchatView {
         var remainingCharacter by remember { mutableStateOf(35) }
         var enableSendingMessage by remember { mutableStateOf(true) }
 
+        val job = CoroutineScope(IO).launch(start = CoroutineStart.LAZY) {
+            while (retrieve) {
+                messages.addAll(
+                    sender.requestHistorique(
+                        community,
+                        address,
+                        10
+                    )
+                )
+                delay(10000L)
+            }
+        }
         if (historySender) {
             historySender = false
-            CoroutineScope(IO).launch {
-                while (retrieve) {
-                    messages.addAll(
-                        sender.requestHistorique(
-                            community,
-                            address,
-                            10
-                        )
-                    )
-                    delay(10000L)
-                }
-            }
+            job.start()
         }
 
         var displayBurgerMenu by remember { mutableStateOf(false) }
