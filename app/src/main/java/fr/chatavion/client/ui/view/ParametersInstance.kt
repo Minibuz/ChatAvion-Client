@@ -6,6 +6,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,10 +25,10 @@ import kotlinx.coroutines.launch
 @Composable
 fun UserParameter(
     currentPseudo: String,
-    onClose: (String) -> Unit,
+    onClose: () -> Unit,
     community: String
 ) {
-    var current by remember { mutableStateOf("initial value can't happen") }
+    var current by remember { mutableStateOf("") }
     val context = LocalContext.current
     val settingsRepository = SettingsRepository(context = context)
 
@@ -51,10 +52,7 @@ fun UserParameter(
                         IconButton(
                             onClick = {
                                 Log.i("userParameter", "User parameter")
-                                CoroutineScope(IO).launch {
-                                    settingsRepository.setPseudo(current)
-                                }
-                                onClose(current)
+                                onClose()
                             },
                             modifier = Modifier
                                 .fillMaxWidth(0.2f)
@@ -100,18 +98,42 @@ fun UserParameter(
                             color = MaterialTheme.colors.onBackground,
                             text = "Pseudo actuel*"
                         )
-                        TextField(
-                            textStyle = TextStyle(
-                                fontSize = 16.sp,
-                                color = MaterialTheme.colors.onBackground
-                            ),
-                            colors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.background),
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(10.dp)),
-                            value = if(current == "initial value can't happen") currentPseudo else current,
-                            onValueChange = {
-                                current = it
-                            })
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            TextField(
+                                textStyle = TextStyle(
+                                    fontSize = 16.sp,
+                                    color = MaterialTheme.colors.onBackground
+                                ),
+                                colors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.background),
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .fillMaxWidth(0.8f),
+                                value = if (current == "") currentPseudo else current.replace(
+                                    "\n",
+                                    ""
+                                ),
+                                onValueChange = {
+                                    if (it.length <= 35) current = it
+                                })
+                            IconButton(
+                                onClick = {
+                                    CoroutineScope(IO).launch {
+                                        settingsRepository.setPseudo(current)
+                                    }
+                                },
+                                modifier = Modifier
+                                    .align(Alignment.CenterVertically),
+                                content = {
+                                    Icon(
+                                        Icons.Filled.Done,
+                                        "Done",
+                                        tint = MaterialTheme.colors.onBackground
+                                    )
+                                }
+                            )
+                        }
                         Text(
                             color = MaterialTheme.colors.onBackground,
                             text = stringResource(id = R.string.explication_pseudo_community)+" '$community'"

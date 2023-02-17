@@ -287,12 +287,13 @@ class TchatView {
                     community,
                     closeDrawer = { coroutineScope.launch { drawerState.close() } }
                 )
+            },
+            content = {
+                TchatView(
+                    community, address
+                ) { coroutineScope.launch { drawerState.open() } }
             }
-        ) {
-            TchatView(
-                community, address
-            ) { coroutineScope.launch { drawerState.open() } }
-        }
+        )
     }
 
     @Composable
@@ -310,9 +311,8 @@ class TchatView {
             UserParameter(
                 community = community,
                 currentPseudo = pseudoCurrent,
-                onClose = { str: String ->
+                onClose = {
                     showUser = false
-                    pseudoCurrent = str
                 }
             )
         }
