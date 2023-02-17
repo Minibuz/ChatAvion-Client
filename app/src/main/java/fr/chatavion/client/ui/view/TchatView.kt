@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import fr.chatavion.client.R
 import fr.chatavion.client.connection.dns.DnsResolver
+import fr.chatavion.client.datastore.SettingsRepository
 import fr.chatavion.client.ui.theme.White
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
@@ -51,11 +52,13 @@ class TchatView {
     @Composable
     @SuppressLint("NotConstructor", "CoroutineCreationDuringComposition")
     fun TchatView(
-        pseudo: String,
         community: String,
         address: String,
         openDrawer: () -> Unit
     ) {
+
+        val context = LocalContext.current
+
         val sender = DnsResolver()
         val messages = remember { mutableStateListOf<String>() }
         var msg by remember { mutableStateOf("") }
@@ -194,20 +197,24 @@ class TchatView {
                                 }
                                 .testTag("sendBtn"),
                             onClick = {
-                                if (msg != "") {
                                     CoroutineScope(IO).launch {
-                                        sendMessage(
-                                            msg,
-                                            pseudo,
-                                            community,
-                                            address,
-                                            messages,
-                                            sender
-                                        )
-                                        msg = ""
-                                        remainingCharacter = 35
+                                        val settingsRepository = SettingsRepository(context = context)
+                                        settingsRepository.pseudo.collect { pseudo ->
+                                            if (msg != "") {
+                                                Log.i("test", pseudo + ":" + msg)
+                                                sendMessage(
+                                                    msg,
+                                                    pseudo,
+                                                    community,
+                                                    address,
+                                                    messages,
+                                                    sender
+                                                )
+                                                msg = ""
+                                                remainingCharacter = 35
+                                            }
+                                        }
                                     }
-                                }
                             }) {
                             Icon(Icons.Filled.Send, "send")
                         }
@@ -264,7 +271,6 @@ class TchatView {
 
     @Composable
     fun DrawerAppComponent(
-        pseudo: String,
         community: String,
         address: String
     ) {
@@ -280,7 +286,7 @@ class TchatView {
             }
         ) {
             TchatView(
-                pseudo, community, address
+                community, address
             ) { coroutineScope.launch { drawerState.open() } }
         }
     }
@@ -289,10 +295,20 @@ class TchatView {
     fun DrawerContentComponent(
         closeDrawer: () -> Unit
     ) {
+        val context = LocalContext.current
+        val settingsRepository = SettingsRepository(context = context)
+
+        var pseudoCurrent by remember { mutableStateOf("") }
         var showUser by remember { mutableStateOf(false) }
         if (showUser) {
             // Add pages here
-            UserParameter(onClose = { showUser = false })
+            UserParameter(
+                currentPseudo = pseudoCurrent,
+                onClose = { str:String ->
+                    showUser = false
+                    pseudoCurrent = str
+                }
+            )
         }
 
         Surface(
@@ -361,6 +377,11 @@ class TchatView {
                                             modifier = Modifier.padding(8.dp),
                                             onClick = {
                                                 Log.i("Parameters", "Parameters")
+                                                CoroutineScope(IO).launch {
+                                                    settingsRepository.pseudo.collect() {
+                                                        pseudo -> pseudoCurrent = pseudo
+                                                    }
+                                                }
                                                 showUser = true
                                             },
                                             colors = ButtonDefaults.buttonColors(MaterialTheme.colors.background),
