@@ -17,7 +17,7 @@ interface CommunityDAO {
 
     @Transaction
     @Query("SELECT * FROM community")
-    fun getAll(): List<CommunityWithMessages>
+    fun getAll(): LiveData<List<CommunityWithMessages>>
 
     @Insert
     fun insert(community: Community)

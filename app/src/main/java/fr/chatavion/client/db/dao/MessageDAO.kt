@@ -1,5 +1,6 @@
 package fr.chatavion.client.db.dao
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
@@ -11,5 +12,5 @@ interface MessageDAO {
     fun insertAll(vararg messages: Message)
 
     @Query("SELECT * FROM message")
-    fun getAll(): List<Message>
+    fun getAll(): LiveData<List<Message>>
 }
