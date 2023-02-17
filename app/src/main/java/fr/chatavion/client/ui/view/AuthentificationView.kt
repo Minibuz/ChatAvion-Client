@@ -80,9 +80,11 @@ class AuthentificationView {
                     onValueChange = { id = it },
                     placeholder = { Text(text = stringResource(R.string.communityAtIpServ)) },
                     textStyle = TextStyle(fontSize = 16.sp),
-                    modifier = Modifier.semantics{
-                        testTagsAsResourceId = true
-                    }.testTag("textEditCommu")
+                    modifier = Modifier
+                        .semantics {
+                            testTagsAsResourceId = true
+                        }
+                        .testTag("textEditCommu")
                 )
                 Spacer(modifier = Modifier.padding(vertical = 10.dp))
                 Text(
@@ -95,9 +97,10 @@ class AuthentificationView {
                     onValueChange = { if (it.length <= 35) pseudo = it },
                     placeholder = { Text(text = stringResource(R.string.default_pseudo)) },
                     textStyle = TextStyle(fontSize = 16.sp),
-                    modifier = Modifier.semantics{
-                        testTagsAsResourceId = true
-                    }
+                    modifier = Modifier
+                        .semantics {
+                            testTagsAsResourceId = true
+                        }
                         .testTag("textEditPwd")
                 )
             }
@@ -111,9 +114,11 @@ class AuthentificationView {
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
                         .weight(1f / 3f)
-                        .width(200.dp).semantics{
+                        .width(200.dp)
+                        .semantics {
                             testTagsAsResourceId = true
-                        }.testTag("connectionBtn"),
+                        }
+                        .testTag("connectionBtn"),
                     enabled = enabled,
                     onClick = {
                         Log.d("FullPage", "Button pushed by $pseudo on $id")
