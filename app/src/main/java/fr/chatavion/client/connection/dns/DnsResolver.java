@@ -29,6 +29,11 @@ public class DnsResolver {
     private int id = 0;
 
     public DnsResolver() {
+        logger.info("Ca pue la merde");
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public boolean findType(String address) {
@@ -113,6 +118,7 @@ public class DnsResolver {
     }
 
     public List<String> requestHistorique(String cmt, String address, int number) {
+        logger.info(() -> "On retrieve " + id);
         if (number < 1 || number > 10) {
             throw new IllegalArgumentException("Cannot get less than 1 message from history or more than 10.");
         }

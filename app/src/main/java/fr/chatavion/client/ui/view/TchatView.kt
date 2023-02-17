@@ -3,6 +3,7 @@ package fr.chatavion.client.ui.view
 import android.annotation.SuppressLint
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -30,6 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import fr.chatavion.client.R
 import fr.chatavion.client.connection.dns.DnsResolver
 import fr.chatavion.client.datastore.SettingsRepository
@@ -37,49 +39,64 @@ import fr.chatavion.client.ui.theme.White
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import java.nio.charset.StandardCharsets
+import java.util.concurrent.CancellationException
+
 
 class TchatView {
 
     // Never stops so can be a problem if we swap community
     // TODO : make a singleton
-    private var historySender by mutableStateOf(true)
-    private var retrieve by mutableStateOf(true)
+    private val sender = DnsResolver()
 
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     @SuppressLint("NotConstructor", "CoroutineCreationDuringComposition")
     fun TchatView(
+        navController: NavController,
         community: String,
         address: String,
         openDrawer: () -> Unit
     ) {
         val context = LocalContext.current
 
-        val sender = DnsResolver()
+        Log.i("Ici", "On est au debut")
         val messages = remember { mutableStateListOf<String>() }
         var msg by remember { mutableStateOf("") }
         var remainingCharacter by remember { mutableStateOf(35) }
         var enableSendingMessage by remember { mutableStateOf(true) }
+        var displayBurgerMenu by remember { mutableStateOf(false) }
+        var historySender by remember { mutableStateOf(true) }
 
         val job = CoroutineScope(IO).launch(start = CoroutineStart.LAZY) {
-            while (retrieve) {
-                Log.i("History", "Retrieve the history")
-                messages.addAll(
-                    sender.requestHistorique(
-                        community,
-                        address,
-                        10
+            try {
+                while (true) {
+                    Log.i("History", "Retrieve the history")
+                    messages.addAll(
+                        sender.requestHistorique(
+                            community,
+                            address,
+                            10
+                        )
                     )
-                )
-                delay(10000L)
+                    delay(10_000L)
+                }
+            } catch (e: Exception) {
+                Log.i("History", "Cancel history retrieve")
+                return@launch
             }
         }
-        if (historySender) {
-            historySender = false
-            job.start()
+
+        BackHandler(enabled = true) {
+            Log.i("Work", "Je marche")
+            CoroutineScope(IO).cancel(CancellationException())
+            navController.navigate("auth_page")
         }
 
-        var displayBurgerMenu by remember { mutableStateOf(false) }
+        if (historySender) {
+            Log.i("Ici", "On rerentre ici")
+            job.start()
+            historySender = false
+        }
 
         Scaffold(
             topBar = {
@@ -241,7 +258,6 @@ class TchatView {
         }
     }
 
-
     @Composable
     fun DisplayCenterText(text: String) {
         Column(
@@ -272,11 +288,13 @@ class TchatView {
 
     @Composable
     fun DrawerAppComponent(
+        navController: NavController,
         community: String,
         address: String
     ) {
         val drawerState = rememberDrawerState(DrawerValue.Closed)
         val coroutineScope = rememberCoroutineScope()
+
         ModalDrawer(
             drawerState = drawerState,
             gesturesEnabled = drawerState.isOpen,
@@ -288,7 +306,7 @@ class TchatView {
             },
             content = {
                 TchatView(
-                    community, address
+                    navController, community, address
                 ) { coroutineScope.launch { drawerState.open() } }
             }
         )
