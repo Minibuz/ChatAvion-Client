@@ -1,7 +1,6 @@
 package fr.chatavion.client.ui.view
 
 import android.util.Log
-import fr.chatavion.client.R
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -17,6 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import fr.chatavion.client.R
 import fr.chatavion.client.datastore.SettingsRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
@@ -25,7 +25,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun UserParameter(
     currentPseudo: String,
-    onClose: () -> Unit
+    onClose: (String) -> Unit,
+    community: String
 ) {
     var current by remember { mutableStateOf("") }
     val context = LocalContext.current
@@ -135,7 +136,7 @@ fun UserParameter(
                         }
                         Text(
                             color = MaterialTheme.colors.onBackground,
-                            text = stringResource(id = R.string.explication_pseudo_community)
+                            text = stringResource(id = R.string.explication_pseudo_community)+" '$community'"
                         )
                     }
                 }

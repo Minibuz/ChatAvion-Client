@@ -63,6 +63,7 @@ class TchatView {
         val messages = remember { mutableStateListOf<String>() }
         var msg by remember { mutableStateOf("") }
         var remainingCharacter by remember { mutableStateOf(35) }
+        var enableSendingMessage by remember { mutableStateOf(true) }
 
         if (historySender) {
             historySender = false
@@ -125,9 +126,9 @@ class TchatView {
                                 }
                                 .testTag("commDropDown"),
                             onClick = {
-                            Log.i("menu", "Menu pushed")
-                            openDrawer()
-                        }) {
+                                Log.i("menu", "Menu pushed")
+                                openDrawer()
+                            }) {
                             Icon(Icons.Filled.Menu, "menu")
                         }
                     }, actions = {
@@ -173,8 +174,7 @@ class TchatView {
                             colors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.background)
                         )
                     }
-                    Column(
-                    ) {
+                    Column {
                         Text(
                             text = "$remainingCharacter/35",
                             color = if (remainingCharacter < 0) MaterialTheme.colors.error else MaterialTheme.colors.primaryVariant,
@@ -191,30 +191,33 @@ class TchatView {
                                 pressedElevation = 0.dp,
                                 disabledElevation = 0.dp
                             ),
+                            enabled = enableSendingMessage,
                             modifier = Modifier
                                 .semantics {
                                     testTagsAsResourceId = true
                                 }
                                 .testTag("sendBtn"),
                             onClick = {
-                                    CoroutineScope(IO).launch {
-                                        val settingsRepository = SettingsRepository(context = context)
-                                        settingsRepository.pseudo.collect { pseudo ->
-                                            if (msg != "") {
-                                                Log.i("test", pseudo + ":" + msg)
-                                                sendMessage(
-                                                    msg,
-                                                    pseudo,
-                                                    community,
-                                                    address,
-                                                    messages,
-                                                    sender
-                                                )
-                                                msg = ""
-                                                remainingCharacter = 35
-                                            }
+                                CoroutineScope(IO).launch {
+                                    enableSendingMessage = false
+                                    val settingsRepository = SettingsRepository(context = context)
+                                    settingsRepository.pseudo.collect { pseudo ->
+                                        if (msg != "") {
+                                            Log.i("test", "$pseudo:$msg")
+                                            sendMessage(
+                                                msg,
+                                                pseudo,
+                                                community,
+                                                address,
+                                                messages,
+                                                sender
+                                            )
+                                            msg = ""
+                                            remainingCharacter = 35
+                                            enableSendingMessage = true
                                         }
                                     }
+                                }
                             }) {
                             Icon(Icons.Filled.Send, "send")
                         }
@@ -281,6 +284,7 @@ class TchatView {
             gesturesEnabled = drawerState.isOpen,
             drawerContent = {
                 DrawerContentComponent(
+                    community,
                     closeDrawer = { coroutineScope.launch { drawerState.close() } }
                 )
             },
@@ -294,6 +298,7 @@ class TchatView {
 
     @Composable
     fun DrawerContentComponent(
+        community: String,
         closeDrawer: () -> Unit
     ) {
         val context = LocalContext.current
@@ -304,6 +309,7 @@ class TchatView {
         if (showUser) {
             // Add pages here
             UserParameter(
+                community = community,
                 currentPseudo = pseudoCurrent,
                 onClose = {
                     showUser = false
@@ -327,7 +333,7 @@ class TchatView {
                         modifier = Modifier
                             .fillMaxSize(),
                     ) {
-                        Row() {
+                        Row {
                             Icon(
                                 Icons.Filled.Menu,
                                 "menu",
@@ -378,8 +384,8 @@ class TchatView {
                                             onClick = {
                                                 Log.i("Parameters", "Parameters")
                                                 CoroutineScope(IO).launch {
-                                                    settingsRepository.pseudo.collect() {
-                                                        pseudo -> pseudoCurrent = pseudo
+                                                    settingsRepository.pseudo.collect { pseudo ->
+                                                        pseudoCurrent = pseudo
                                                     }
                                                 }
                                                 showUser = true
