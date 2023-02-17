@@ -11,7 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MessageViewModel(application: Application) : AndroidViewModel(application) {
-    private val readAllData: LiveData<List<Message>>
+    val readAllData: LiveData<List<Message>>
     private var messageDao: MessageDAO = DataBaseConnection.getInstance(application).messageDao()
 
     init {

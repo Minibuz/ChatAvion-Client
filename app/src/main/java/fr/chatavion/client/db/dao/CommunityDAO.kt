@@ -13,7 +13,7 @@ interface CommunityDAO {
 
     @Transaction
     @Query("SELECT * FROM community WHERE communityId = :communityID")
-    fun getCommunityWithMessages(communityID: Int): LiveData<CommunityWithMessages>
+    fun getById(communityID: Int): LiveData<CommunityWithMessages>
 
     @Transaction
     @Query("SELECT * FROM community")

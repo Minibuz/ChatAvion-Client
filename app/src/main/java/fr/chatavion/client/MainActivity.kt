@@ -14,6 +14,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import fr.chatavion.client.db.viewModel.CommunityViewModel
 import fr.chatavion.client.db.viewModel.MessageViewModel
 import fr.chatavion.client.ui.theme.ChatavionTheme
 import fr.chatavion.client.ui.view.AuthentificationView
@@ -38,7 +39,12 @@ class MainActivity : ComponentActivity() {
                         )
                     )
 
-
+                    communityViewModel = viewModel(
+                        factory =
+                        CommunityViewModel.CommunityFactory(
+                            context.applicationContext as Application
+                        )
+                    )
 
                     NavigationBasicsApp()
                 }
@@ -48,6 +54,7 @@ class MainActivity : ComponentActivity() {
 }
 
 lateinit var messageViewModel: MessageViewModel
+lateinit var communityViewModel: MessageViewModel
 
 @Composable
 fun NavigationBasicsApp() {
