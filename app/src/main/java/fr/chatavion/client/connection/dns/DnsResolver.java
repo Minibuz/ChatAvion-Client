@@ -68,7 +68,9 @@ public class DnsResolver {
     }
 
     public boolean communityDetection(String community, String address) throws IOException {
+        logger.info("Before");
         ResolverResult<? extends Data> e = ResolverApi.INSTANCE.resolve(community + ".connexion." + address, type);
+        logger.info("After");
         if (!e.wasSuccessful()) {
             logger.warning(() -> "That community doesn't exist for the given server.");
             return false;
@@ -88,8 +90,14 @@ public class DnsResolver {
         String userB32 = this.converter32.encodeAsString(pseudo.getBytes(StandardCharsets.UTF_8));
 
         for (int retries = 0; retries < NUMBER_OF_RETRIES; retries++) {
-            ResolverResult<? extends Data> result = ResolverApi.INSTANCE.resolve(
-                    cmtB32 + "." + userB32 + "." + msgB32 + ".message." + address, type);
+            ResolverResult<? extends Data> result;
+            try {
+                result = ResolverApi.INSTANCE.resolve(
+                        cmtB32 + "." + userB32 + "." + msgB32 + ".message." + address, type);
+            } catch (IOException e) {
+                logger.warning(() -> "Error : " + e.getMessage());
+                return false;
+            }
 
             if (!result.wasSuccessful()) {
                 logger.info(() -> "Server hasn't received the message.\nResending the message.");
@@ -115,9 +123,12 @@ public class DnsResolver {
             for (int i = 0; i < number; i++) {
                 String request = type == A.class ? "m" + id : type == AAAA.class ? "m" + id + "o0" : "m" + id + "n0";
 
+                logger.info("Avant resolve TTT");
                 ResolverResult<? extends Data> result = ResolverApi.INSTANCE.resolve(request + "-" + cmtB32 + ".historique." + address, type);
+                logger.info("Après resolve APP");
                 if (!result.wasSuccessful()) {
                     logger.warning(() -> "Problem with recovering history.");
+                    return List.of();
                 }
                 if (result.getAnswers().isEmpty()) {
                     logger.info(() -> "No message with this id to retrieve. Stopping message recovery.");

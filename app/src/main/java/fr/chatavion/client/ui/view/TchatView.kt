@@ -63,6 +63,7 @@ class TchatView {
 
         val job = CoroutineScope(IO).launch(start = CoroutineStart.LAZY) {
             while (retrieve) {
+                Log.i("History", "Retrieve the history")
                 messages.addAll(
                     sender.requestHistorique(
                         community,
