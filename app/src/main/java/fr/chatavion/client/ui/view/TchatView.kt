@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.*
@@ -248,7 +249,8 @@ class TchatView {
                         .fillMaxWidth()
                         .background(color = MaterialTheme.colors.background)
                         .padding(PaddingValues(horizontal = 25.dp, vertical = 15.dp)),
-                    verticalArrangement = Arrangement.spacedBy(15.dp)
+                    verticalArrangement = Arrangement.spacedBy(15.dp),
+                    state = LazyListState(firstVisibleItemIndex = messages.size)
                 ) {
                     items(messages) { message ->
                         DisplayCenterText(message)
