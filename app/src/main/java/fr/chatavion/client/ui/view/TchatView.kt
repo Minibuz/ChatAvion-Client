@@ -20,8 +20,6 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Canvas
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -34,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import fr.chatavion.client.R
 import fr.chatavion.client.connection.dns.DnsResolver
+import fr.chatavion.client.datastore.SettingsRepository
 import fr.chatavion.client.ui.theme.White
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
@@ -53,11 +52,13 @@ class TchatView {
     @Composable
     @SuppressLint("NotConstructor", "CoroutineCreationDuringComposition")
     fun TchatView(
-        pseudo: String,
         community: String,
         address: String,
         openDrawer: () -> Unit
     ) {
+
+        val context = LocalContext.current
+
         val sender = DnsResolver()
         val messages = remember { mutableStateListOf<String>() }
         var msg by remember { mutableStateOf("") }
@@ -104,9 +105,11 @@ class TchatView {
                             displayBurgerMenu = !displayBurgerMenu
                         }
                         IconButton(
-                            modifier = Modifier.semantics{
-                                testTagsAsResourceId = true
-                            }.testTag("paramSwitch"),
+                            modifier = Modifier
+                                .semantics {
+                                    testTagsAsResourceId = true
+                                }
+                                .testTag("paramSwitch"),
                             onClick = {
                                 Log.i("expandMore", "ExpandMore pushed")
                                 displayBurgerMenu = !displayBurgerMenu
@@ -116,9 +119,11 @@ class TchatView {
                     },
                     navigationIcon = {
                         IconButton(
-                            modifier = Modifier.semantics{
-                                testTagsAsResourceId = true
-                            }.testTag("commDropDown"),
+                            modifier = Modifier
+                                .semantics {
+                                    testTagsAsResourceId = true
+                                }
+                                .testTag("commDropDown"),
                             onClick = {
                             Log.i("menu", "Menu pushed")
                             openDrawer()
@@ -127,9 +132,11 @@ class TchatView {
                         }
                     }, actions = {
                         IconButton(
-                            modifier = Modifier.semantics{
-                                testTagsAsResourceId = true
-                            }.testTag("connectionSwitch"),
+                            modifier = Modifier
+                                .semantics {
+                                    testTagsAsResourceId = true
+                                }
+                                .testTag("connectionSwitch"),
                             onClick = {
                                 Log.i("wifi", "Wifi pushed")
                             }) {
@@ -151,9 +158,11 @@ class TchatView {
                     ) {
                         TextField(
                             value = msg.replace("\n", ""),
-                            modifier = Modifier.semantics{
-                                testTagsAsResourceId = true
-                            }.testTag("msgEditField"),
+                            modifier = Modifier
+                                .semantics {
+                                    testTagsAsResourceId = true
+                                }
+                                .testTag("msgEditField"),
                             onValueChange = {
                                 msg = it
                                 remainingCharacter =
@@ -182,24 +191,30 @@ class TchatView {
                                 pressedElevation = 0.dp,
                                 disabledElevation = 0.dp
                             ),
-                            modifier = Modifier.semantics{
-                                testTagsAsResourceId = true}
+                            modifier = Modifier
+                                .semantics {
+                                    testTagsAsResourceId = true
+                                }
                                 .testTag("sendBtn"),
                             onClick = {
-                                if (msg != "") {
                                     CoroutineScope(IO).launch {
-                                        sendMessage(
-                                            msg,
-                                            pseudo,
-                                            community,
-                                            address,
-                                            messages,
-                                            sender
-                                        )
-                                        msg = ""
-                                        remainingCharacter = 35
+                                        val settingsRepository = SettingsRepository(context = context)
+                                        settingsRepository.pseudo.collect { pseudo ->
+                                            if (msg != "") {
+                                                Log.i("test", pseudo + ":" + msg)
+                                                sendMessage(
+                                                    msg,
+                                                    pseudo,
+                                                    community,
+                                                    address,
+                                                    messages,
+                                                    sender
+                                                )
+                                                msg = ""
+                                                remainingCharacter = 35
+                                            }
+                                        }
                                     }
-                                }
                             }) {
                             Icon(Icons.Filled.Send, "send")
                         }
@@ -256,7 +271,6 @@ class TchatView {
 
     @Composable
     fun DrawerAppComponent(
-        pseudo: String,
         community: String,
         address: String
     ) {
@@ -272,7 +286,7 @@ class TchatView {
             }
         ) {
             TchatView(
-                pseudo, community, address
+                community, address
             ) { coroutineScope.launch { drawerState.open() } }
         }
     }
@@ -281,76 +295,105 @@ class TchatView {
     fun DrawerContentComponent(
         closeDrawer: () -> Unit
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(0.15f)
+        val context = LocalContext.current
+        val settingsRepository = SettingsRepository(context = context)
+
+        var pseudoCurrent by remember { mutableStateOf("") }
+        var showUser by remember { mutableStateOf(false) }
+        if (showUser) {
+            // Add pages here
+            UserParameter(
+                currentPseudo = pseudoCurrent,
+                onClose = { str:String ->
+                    showUser = false
+                    pseudoCurrent = str
+                }
+            )
+        }
+
+        Surface(
+            color = MaterialTheme.colors.background
+        ) {
+            Column(
+                modifier = Modifier.fillMaxSize()
             ) {
-                Surface(
-                    color = MaterialTheme.colors.onBackground,
+                Row(
                     modifier = Modifier
-                        .fillMaxSize()
+                        .fillMaxWidth()
+                        .fillMaxHeight(0.15f)
                 ) {
-                    Row() {
-                        Icon(
-                            Icons.Filled.Menu,
-                            "menu",
-                            tint = MaterialTheme.colors.background,
-                            modifier = Modifier
-                                .fillMaxWidth(0.2f)
-                                .align(Alignment.CenterVertically)
-                        )
-                        Text(
-                            text = "Paramètres",
-                            modifier = Modifier
-                                .padding(16.dp)
-                                .align(Alignment.CenterVertically),
-                            color = MaterialTheme.colors.background
-                        )
+                    Surface(
+                        color = MaterialTheme.colors.background,
+                        modifier = Modifier
+                            .fillMaxSize(),
+                    ) {
+                        Row() {
+                            Icon(
+                                Icons.Filled.Menu,
+                                "menu",
+                                tint = MaterialTheme.colors.onBackground,
+                                modifier = Modifier
+                                    .fillMaxWidth(0.2f)
+                                    .align(Alignment.CenterVertically)
+                            )
+                            Text(
+                                text = "Paramètres",
+                                color = MaterialTheme.colors.onBackground,
+                                modifier = Modifier
+                                    .padding(16.dp)
+                                    .align(Alignment.CenterVertically)
+                            )
+                        }
                     }
                 }
-            }
-            Divider(
-                color = MaterialTheme.colors.background,
-                thickness = 2.dp,
-            )
-            Box(
-                modifier = Modifier.fillMaxHeight(2/4f)
-            ) {
-                Column {
-                    for (index in Parameters.values().indices) {
-                        val screen = getScreenBasedOnIndex(index).name
-                        Column(
-                            modifier = Modifier.clickable(onClick = {
-                                closeDrawer()
-                            }), content = {
-                                Surface(
-                                    modifier = Modifier
-                                        .fillMaxWidth(),
-                                    color = MaterialTheme.colors.onBackground
-                                ) {
-                                    Button(
-                                        content = {
-                                            Text(
-                                                text = screen,
-                                                color = MaterialTheme.colors.background,
-                                                textAlign = TextAlign.Center
-                                            )
-                                        },
-                                        modifier = Modifier.padding(8.dp),
-                                        colors = ButtonDefaults.buttonColors(MaterialTheme.colors.onBackground),
-                                        onClick = {
-                                            Log.i("Parameters", "Parameters")
-                                        }
-                                    )
-                                    Divider(
+                Divider(
+                    thickness = 2.dp,
+                    color = MaterialTheme.colors.onBackground
+                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight(2 / 4f)
+                ) {
+                    Column {
+                        for (index in Parameters.values().indices) {
+                            val screen = getScreenBasedOnIndex(index).name
+                            Column(
+                                modifier = Modifier.clickable(onClick = {
+                                    closeDrawer()
+                                }), content = {
+                                    Surface(
                                         color = MaterialTheme.colors.background,
-                                        thickness = 1.dp,
-                                        startIndent = (1/5f).dp
-                                    )
-                                }
-                            })
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                    ) {
+                                        TextButton(
+                                            content = {
+                                                Text(
+                                                    color = MaterialTheme.colors.onBackground,
+                                                    text = screen,
+                                                    textAlign = TextAlign.Center
+                                                )
+                                            },
+                                            modifier = Modifier.padding(8.dp),
+                                            onClick = {
+                                                Log.i("Parameters", "Parameters")
+                                                CoroutineScope(IO).launch {
+                                                    settingsRepository.pseudo.collect() {
+                                                        pseudo -> pseudoCurrent = pseudo
+                                                    }
+                                                }
+                                                showUser = true
+                                            },
+                                            colors = ButtonDefaults.buttonColors(MaterialTheme.colors.background),
+                                        )
+                                        Divider(
+                                            color = MaterialTheme.colors.onBackground,
+                                            thickness = 1.dp,
+                                            startIndent = (1 / 5f).dp
+                                        )
+                                    }
+                                })
+                        }
                     }
                 }
             }
