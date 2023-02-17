@@ -3,9 +3,7 @@ package fr.chatavion.client.db.viewModel
 import android.app.Application
 import android.database.sqlite.SQLiteConstraintException
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import fr.chatavion.client.db.DataBaseConnection
 import fr.chatavion.client.db.dao.MessageDAO
 import fr.chatavion.client.db.entity.Message
@@ -32,6 +30,18 @@ class MessageViewModel(application: Application) : AndroidViewModel(application)
             } catch (e: SQLiteConstraintException) {
                 Log.e("SQLEXCEPTION", e.toString())
             }
+        }
+    }
+
+    class MessageFactory(
+        private val application: Application,
+    ) : ViewModelProvider.Factory {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            @Suppress("UNCHECKED_CAST")
+            if (modelClass.isAssignableFrom(MessageViewModel::class.java)) {
+                return MessageViewModel(application) as T
+            }
+            throw IllegalArgumentException("Unknown ViewModel class")
         }
     }
 }
