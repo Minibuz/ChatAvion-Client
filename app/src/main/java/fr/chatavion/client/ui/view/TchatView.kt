@@ -45,10 +45,6 @@ import java.util.concurrent.CancellationException
 
 class TchatView {
 
-    // Never stops so can be a problem if we swap community
-    // TODO : make a singleton
-    private val sender = DnsResolver()
-
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     @SuppressLint("NotConstructor", "CoroutineCreationDuringComposition")
@@ -61,42 +57,16 @@ class TchatView {
         val context = LocalContext.current
 
         Log.i("Ici", "On est au debut")
+        val sender = DnsResolver()
         val messages = remember { mutableStateListOf<String>() }
         var msg by remember { mutableStateOf("") }
         var remainingCharacter by remember { mutableStateOf(35) }
         var enableSendingMessage by remember { mutableStateOf(true) }
         var displayBurgerMenu by remember { mutableStateOf(false) }
-        var historySender by remember { mutableStateOf(true) }
-
-        val job = CoroutineScope(IO).launch(start = CoroutineStart.LAZY) {
-            try {
-                while (true) {
-                    Log.i("History", "Retrieve the history")
-                    messages.addAll(
-                        sender.requestHistorique(
-                            community,
-                            address,
-                            10
-                        )
-                    )
-                    delay(10_000L)
-                }
-            } catch (e: Exception) {
-                Log.i("History", "Cancel history retrieve")
-                return@launch
-            }
-        }
 
         BackHandler(enabled = true) {
             Log.i("Work", "Je marche")
-            CoroutineScope(IO).cancel(CancellationException())
             navController.navigate("auth_page")
-        }
-
-        if (historySender) {
-            Log.i("Ici", "On rerentre ici")
-            job.start()
-            historySender = false
         }
 
         Scaffold(
@@ -255,6 +225,27 @@ class TchatView {
                     items(messages) { message ->
                         DisplayCenterText(message)
                     }
+                }
+            }
+        }
+
+        LaunchedEffect(true) {
+            withContext(IO) {
+                try {
+                    while (true) {
+                        Log.i("History", "Retrieve the history")
+                        messages.addAll(
+                            sender.requestHistorique(
+                                community,
+                                address,
+                                10
+                            )
+                        )
+                        delay(10_000L)
+                    }
+                } catch (e: CancellationException) {
+                    e.message?.let { Log.i("History", it) }
+                    Log.i("History", "Cancel history retrieve")
                 }
             }
         }
