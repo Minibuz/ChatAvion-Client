@@ -3,6 +3,7 @@ package fr.chatavion.client.ui.view
 import android.annotation.SuppressLint
 import android.util.Log
 import android.widget.Toast
+import android.widget.Toast.LENGTH_SHORT
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -192,7 +193,7 @@ class TchatView {
                                     settingsRepository.pseudo.collect { pseudo ->
                                         if (msg != "") {
                                             Log.i("test", "$pseudo:$msg")
-                                            sendMessage(
+                                            val ret = sendMessage(
                                                 msg,
                                                 pseudo,
                                                 community,
@@ -200,8 +201,15 @@ class TchatView {
                                                 messages,
                                                 dnsResolver
                                             )
-                                            msg = ""
-                                            remainingCharacter = 35
+
+                                            if( ret ) {
+                                                msg = ""
+                                                remainingCharacter = 35
+                                            } else {
+                                                withContext(Dispatchers.Main) {
+                                                    Toast.makeText(context, "Test", LENGTH_SHORT).show()
+                                                }
+                                            }
                                             enableSendingMessage = true
                                         }
                                     }
@@ -461,7 +469,7 @@ class TchatView {
             for (i in 1..3) {
                 DropdownMenuItem(
                     onClick = {
-                        Toast.makeText(context, "$i", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "$i", LENGTH_SHORT).show()
                     },
                     modifier = Modifier
                         .fillMaxWidth()
