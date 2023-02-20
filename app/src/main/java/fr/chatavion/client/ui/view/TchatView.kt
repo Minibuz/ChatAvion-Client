@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -37,31 +38,47 @@ import fr.chatavion.client.R
 import fr.chatavion.client.communityViewModel
 import fr.chatavion.client.connection.dns.DnsResolver
 import fr.chatavion.client.datastore.SettingsRepository
+import fr.chatavion.client.db.entity.Message
+import fr.chatavion.client.messageViewModel
 import fr.chatavion.client.ui.theme.White
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import java.nio.charset.StandardCharsets
-import java.util.concurrent.CancellationException
-
 
 class TchatView {
+    private val communityVM = communityViewModel
+    private val messageVM = messageViewModel
 
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
-    @SuppressLint("NotConstructor", "CoroutineCreationDuringComposition")
+    @SuppressLint("NotConstructor")
     fun TchatView(
         navController: NavController,
         communityName: String,
         communityAddress: String,
-        communityId: Long,
+        communityId: Int,
         openDrawer: () -> Unit
     ) {
+        val com = communityViewModel.getAll()
+        Log.i("COM", com.toString())
+        Log.i("SIZE", com.value?.size.toString())
+        com.value?.forEach { communityWithMessages ->
+            Log.i(
+                "AAAH",
+                communityWithMessages.community.name
+            )
+        }
+
         val context = LocalContext.current
 
-        val a = communityViewModel.getById(communityId).value ?: return
+        val community = communityId.let {
+            communityVM.getById(it).observeAsState().value
+        }
+
+        Log.i("CommunityName", community?.community?.name.toString())
 
         val sender = DnsResolver()
-        val messages = remember { mutableStateListOf<String>() }
+        val messages = remember { mutableStateListOf<Message>() }
         var msg by remember { mutableStateOf("") }
         var remainingCharacter by remember { mutableStateOf(35) }
         var enableSendingMessage by remember { mutableStateOf(true) }
@@ -198,7 +215,8 @@ class TchatView {
                                                 communityName,
                                                 communityAddress,
                                                 messages,
-                                                sender
+                                                sender,
+                                                communityId
                                             )
                                             msg = ""
                                             remainingCharacter = 35
@@ -224,8 +242,12 @@ class TchatView {
                     verticalArrangement = Arrangement.spacedBy(15.dp),
                     state = LazyListState(firstVisibleItemIndex = messages.size)
                 ) {
-                    items(messages) { message ->
-                        DisplayCenterText(message)
+                    if (community != null) {
+                        items(
+                            community.messages
+                        ) { message ->
+                            DisplayCenterText(message.message)
+                        }
                     }
                 }
             }
@@ -236,13 +258,23 @@ class TchatView {
                 try {
                     while (true) {
                         Log.i("History", "Retrieve the history")
-                        messages.addAll(
-                            sender.requestHistorique(
-                                communityName,
-                                communityAddress,
-                                10
-                            )
+                        val msg = sender.requestHistorique(
+                            communityName,
+                            communityAddress,
+                            10
                         )
+                        // TODO :
+                        // msg = List<String>
+                        // Add in messageVM.insertAll() List<Message>
+                        // So for each String in List<String>,
+                        // split pseudo and message and add to
+                        // list while creating Message each time
+
+//                        val parts: List<String> = msg.split(":::")
+//
+//                        msg.stream().map { m -> Message(m) }
+//
+//                        messageVM.insertAll(msg)
                         delay(10_000L)
                     }
                 } catch (e: CancellationException) {
@@ -284,9 +316,9 @@ class TchatView {
     @Composable
     fun DrawerAppComponent(
         navController: NavController,
-        community: String,
-        address: String,
-        id: Long
+        communityName: String,
+        communityAddress: String,
+        communityId: Int
     ) {
         val drawerState = rememberDrawerState(DrawerValue.Closed)
         val coroutineScope = rememberCoroutineScope()
@@ -296,13 +328,13 @@ class TchatView {
             gesturesEnabled = drawerState.isOpen,
             drawerContent = {
                 DrawerContentComponent(
-                    community,
+                    communityName,
                     closeDrawer = { coroutineScope.launch { drawerState.close() } }
                 )
             },
             content = {
                 TchatView(
-                    navController, community, address, id
+                    navController, communityName, communityAddress, communityId
                 ) { coroutineScope.launch { drawerState.open() } }
             }
         )
@@ -310,7 +342,7 @@ class TchatView {
 
     @Composable
     fun DrawerContentComponent(
-        community: String,
+        communityName: String,
         closeDrawer: () -> Unit
     ) {
         val context = LocalContext.current
@@ -321,7 +353,7 @@ class TchatView {
         if (showUser) {
             // Add pages here
             UserParameter(
-                community = community,
+                community = communityName,
                 currentPseudo = pseudoCurrent,
                 onClose = {
                     showUser = false
@@ -472,17 +504,24 @@ class TchatView {
     private suspend fun sendMessage(
         text: String,
         pseudo: String,
-        community: String,
-        address: String,
-        messages: SnapshotStateList<String>,
-        sender: DnsResolver
+        communityName: String,
+        communityAddress: String,
+        messages: SnapshotStateList<Message>,
+        sender: DnsResolver,
+        id: Int
     ): Boolean {
         var returnVal: Boolean
         withContext(IO) {
-            returnVal = sender.sendMessage(community, address, pseudo, text)
+            returnVal = sender.sendMessage(communityName, communityAddress, pseudo, text)
         }
         if (returnVal) {
-            messages.add("$pseudo:::$text")
+            messages.add(
+                Message(
+                    pseudo,
+                    text,
+                    id
+                )
+            )
             Log.i("Message", "Success")
         } else
             Log.i("Message", "Error")

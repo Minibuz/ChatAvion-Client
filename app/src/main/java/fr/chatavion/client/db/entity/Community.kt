@@ -9,6 +9,6 @@ data class Community(
     val address: String,
     val Pseudo: String,
     @PrimaryKey(autoGenerate = true)
-    val communityId: Long = 0
+    val communityId: Int = 0
 )
 

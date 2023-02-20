@@ -1,10 +1,8 @@
 package fr.chatavion.client.db.dao
 
+import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
-import androidx.room.Transaction
+import androidx.room.*
 import fr.chatavion.client.db.entity.Community
 import fr.chatavion.client.db.entity.CommunityWithMessages
 
@@ -12,13 +10,17 @@ import fr.chatavion.client.db.entity.CommunityWithMessages
 interface CommunityDAO {
 
     @Transaction
-    @Query("SELECT * FROM community WHERE communityId = :communityID")
-    fun getById(communityID: Long): LiveData<CommunityWithMessages>
+    @Query("SELECT * FROM community WHERE communityId = (:communityID);")
+    fun getById(communityID: Int): LiveData<CommunityWithMessages>
 
     @Transaction
-    @Query("SELECT * FROM community")
+    @Query("SELECT * FROM community;")
     fun getAll(): LiveData<List<CommunityWithMessages>>
 
     @Insert
-    fun insert(community: Community)
+    @Throws(SQLiteConstraintException::class)
+    suspend fun insert(community: Community)
+
+    @Delete
+    suspend fun delete(community: Community)
 }

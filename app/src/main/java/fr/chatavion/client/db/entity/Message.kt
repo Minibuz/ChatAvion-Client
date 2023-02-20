@@ -5,9 +5,9 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "message")
 data class Message(
-    @PrimaryKey
-    val messageId: Long,
     val pseudo: String,
     val message: String,
-    val communityId: Long
+    val communityId: Int,
+    @PrimaryKey(autoGenerate = true)
+    val messageId: Int = 0
 )

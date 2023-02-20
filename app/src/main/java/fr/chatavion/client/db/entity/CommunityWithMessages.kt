@@ -6,6 +6,7 @@ import androidx.room.Relation
 data class CommunityWithMessages(
     @Embedded val community: Community,
     @Relation(
+        entity = Message::class,
         parentColumn = "communityId",
         entityColumn = "communityId"
     )
