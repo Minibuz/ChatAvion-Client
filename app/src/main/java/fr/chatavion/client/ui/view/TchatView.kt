@@ -2,6 +2,7 @@ package fr.chatavion.client.ui.view
 
 import android.annotation.SuppressLint
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.activity.compose.BackHandler
@@ -39,6 +40,7 @@ import fr.chatavion.client.connection.dns.DnsResolver
 import fr.chatavion.client.connection.http.HttpResolver
 import fr.chatavion.client.datastore.SettingsRepository
 import fr.chatavion.client.ui.theme.White
+import fr.chatavion.client.util.Utils
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import java.nio.charset.StandardCharsets
@@ -46,6 +48,11 @@ import java.util.concurrent.CancellationException
 
 
 class TchatView {
+
+
+
+
+
 
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
@@ -213,7 +220,13 @@ class TchatView {
                                             enableSendingMessage = true
                                         }
                                     }
-                                }
+                                 }
+                                Log.i("hideKeybaord","avant fermer keyboard")
+                                Utils.hideSoftKeyBoard(context, View(context))
+
+                                Log.i("hideKeybaord", "apres fermer keyboard")
+
+
                             }) {
                             Icon(Icons.Filled.Send, "send")
                         }
@@ -264,6 +277,7 @@ class TchatView {
             }
         }
     }
+
 
     @Composable
     fun DisplayCenterText(text: String) {

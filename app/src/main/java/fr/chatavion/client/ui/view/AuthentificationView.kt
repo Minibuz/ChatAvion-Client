@@ -29,6 +29,7 @@ import androidx.navigation.NavController
 import fr.chatavion.client.R
 import fr.chatavion.client.connection.dns.DnsResolver
 import fr.chatavion.client.datastore.SettingsRepository
+import fr.chatavion.client.util.Utils
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 
@@ -137,13 +138,19 @@ class AuthentificationView {
                                     if (isConnectionOk) {
                                         Log.i("Pseudo", "Setting user pseudo to $pseudo")
                                         settingsRepository.setPseudo(pseudo)
+                                        Utils.showInfoToast(
+                                            R.string.commuConnexion.toString(),
+                                            context
+                                        )
                                     }
                                     enabled = true
+                                    Utils.showErrorToast(R.string.commuConnexionFailed.toString(), context)
                                 }
                             } else {
                                 enabled = true
-                                showToast(
-                                    "Il doit y avoir un et un seul @",
+
+                                Utils.showErrorToast(
+                                    R.string.community_id_must_have_one_At.toString(),
                                     context
                                 )
                             }
@@ -160,14 +167,6 @@ class AuthentificationView {
         }
     }
 
-    private fun showToast(text: String, context: Context) {
-        Toast.makeText(
-            context,
-            text,
-            Toast.LENGTH_SHORT
-        ).show()
-    }
-
     private suspend fun sendButtonConnexion(
         address: String,
         community: String
@@ -179,6 +178,7 @@ class AuthentificationView {
         }
         if (returnVal)
             Log.i("Connexion", "Success")
+
         else
             Log.i("Connexion", "Error")
         return returnVal
