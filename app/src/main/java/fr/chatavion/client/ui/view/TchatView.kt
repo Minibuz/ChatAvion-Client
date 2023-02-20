@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import fr.chatavion.client.R
+import fr.chatavion.client.communityViewModel
 import fr.chatavion.client.connection.dns.DnsResolver
 import fr.chatavion.client.datastore.SettingsRepository
 import fr.chatavion.client.ui.theme.White
@@ -50,13 +51,15 @@ class TchatView {
     @SuppressLint("NotConstructor", "CoroutineCreationDuringComposition")
     fun TchatView(
         navController: NavController,
-        community: String,
-        address: String,
+        communityName: String,
+        communityAddress: String,
+        communityId: Long,
         openDrawer: () -> Unit
     ) {
         val context = LocalContext.current
 
-        Log.i("Ici", "On est au debut")
+        val a = communityViewModel.getById(communityId).value ?: return
+
         val sender = DnsResolver()
         val messages = remember { mutableStateListOf<String>() }
         var msg by remember { mutableStateOf("") }
@@ -65,7 +68,6 @@ class TchatView {
         var displayBurgerMenu by remember { mutableStateOf(false) }
 
         BackHandler(enabled = true) {
-            Log.i("Work", "Je marche")
             navController.navigate("auth_page")
         }
 
@@ -82,7 +84,7 @@ class TchatView {
                                 .fillMaxSize(4 / 5f)
                         ) {
                             Text(
-                                text = community,
+                                text = communityName,
                                 color = MaterialTheme.colors.onPrimary,
                                 modifier = Modifier
                                     .wrapContentHeight()
@@ -193,8 +195,8 @@ class TchatView {
                                             sendMessage(
                                                 msg,
                                                 pseudo,
-                                                community,
-                                                address,
+                                                communityName,
+                                                communityAddress,
                                                 messages,
                                                 sender
                                             )
@@ -236,8 +238,8 @@ class TchatView {
                         Log.i("History", "Retrieve the history")
                         messages.addAll(
                             sender.requestHistorique(
-                                community,
-                                address,
+                                communityName,
+                                communityAddress,
                                 10
                             )
                         )
@@ -283,7 +285,8 @@ class TchatView {
     fun DrawerAppComponent(
         navController: NavController,
         community: String,
-        address: String
+        address: String,
+        id: Long
     ) {
         val drawerState = rememberDrawerState(DrawerValue.Closed)
         val coroutineScope = rememberCoroutineScope()
@@ -299,7 +302,7 @@ class TchatView {
             },
             content = {
                 TchatView(
-                    navController, community, address
+                    navController, community, address, id
                 ) { coroutineScope.launch { drawerState.open() } }
             }
         )

@@ -5,10 +5,10 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "community")
 data class Community(
-    @PrimaryKey
-    val communityId: Long,
     val name: String,
     val address: String,
-    val Pseudo: String
+    val Pseudo: String,
+    @PrimaryKey(autoGenerate = true)
+    val communityId: Long = 0
 )
 

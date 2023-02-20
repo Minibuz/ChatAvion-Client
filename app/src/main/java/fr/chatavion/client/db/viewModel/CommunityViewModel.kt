@@ -24,7 +24,7 @@ class CommunityViewModel(application: Application) : AndroidViewModel(applicatio
         return communityDao.getAll()
     }
 
-    fun getById(id: Int): LiveData<CommunityWithMessages> {
+    fun getById(id: Long): LiveData<CommunityWithMessages> {
 //        viewModelScope.launch(Dispatchers.IO) {
 //            try {
         return communityDao.getById(id)
