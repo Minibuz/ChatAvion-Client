@@ -139,12 +139,12 @@ class AuthentificationView {
                                         Log.i("Pseudo", "Setting user pseudo to $pseudo")
                                         settingsRepository.setPseudo(pseudo)
                                         Utils.showInfoToast(
-                                            R.string.commuConnexion.toString(),
+                                            R.string.commuConnection.toString(),
                                             context
                                         )
                                     }
                                     enabled = true
-                                    Utils.showErrorToast(R.string.commuConnexionFailed.toString(), context)
+                                    Utils.showErrorToast(R.string.commuConnectionFailed.toString(), context)
                                 }
                             } else {
                                 enabled = true
