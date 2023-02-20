@@ -68,6 +68,7 @@ class TchatView {
         Log.i("Ici", "On est au debut")
         val dnsResolver = DnsResolver()
         val httpResolver = HttpResolver()
+        var connectionIsDNS = true
         val messages = remember { mutableStateListOf<String>() }
         var msg by remember { mutableStateOf("") }
         var remainingCharacter by remember { mutableStateOf(35) }
@@ -136,6 +137,14 @@ class TchatView {
                                 .testTag("connectionSwitch"),
                             onClick = {
                                 Log.i("wifi", "Wifi pushed")
+                                if(connectionIsDNS){
+                                    connectionIsDNS = false
+                                    Utils.showInfoToast(R.string.connectionSwitchHTTP.toString(), context)
+                                }
+                                else{
+                                    connectionIsDNS = true
+                                    Utils.showInfoToast(R.string.connectionSwitchDNS.toString(), context)
+                                }
                             }) {
                             Icon(Icons.Filled.Wifi, "wifi")
                         }

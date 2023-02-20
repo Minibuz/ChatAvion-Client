@@ -29,9 +29,6 @@
     <string name="msgError">Le message n\'a pas pu être envoyé à cause d\'une erreur interne de l\'application</string>
     <string name="commuConnexion">Connexion réussie</string>
     <string name="commuConnexionFailed">La connexion a echoué</string>
-    <string name"connectionSwitchDNS">Passage en mode DNS</string>
-    <string name"connectionSwitchHTTP">Passage en mode HTTP</string>
-
-
-
+    <string name="connectionSwitchDNS">Passage en mode DNS</string>
+    <string name="connectionSwitchHTTP">Passage en mode HTTP</string>
 </resources>
