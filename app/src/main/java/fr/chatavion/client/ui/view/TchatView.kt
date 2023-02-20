@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import fr.chatavion.client.R
 import fr.chatavion.client.connection.dns.DnsResolver
+import fr.chatavion.client.connection.http.HttpResolver
 import fr.chatavion.client.datastore.SettingsRepository
 import fr.chatavion.client.ui.theme.White
 import kotlinx.coroutines.*
@@ -57,7 +58,8 @@ class TchatView {
         val context = LocalContext.current
 
         Log.i("Ici", "On est au debut")
-        val sender = DnsResolver()
+        val dnsResolver = DnsResolver()
+        val httpResolver = HttpResolver()
         val messages = remember { mutableStateListOf<String>() }
         var msg by remember { mutableStateOf("") }
         var remainingCharacter by remember { mutableStateOf(35) }
@@ -196,7 +198,7 @@ class TchatView {
                                                 community,
                                                 address,
                                                 messages,
-                                                sender
+                                                dnsResolver
                                             )
                                             msg = ""
                                             remainingCharacter = 35
@@ -234,12 +236,16 @@ class TchatView {
                 try {
                     while (true) {
                         Log.i("History", "Retrieve the history")
-                        messages.addAll(
-                            sender.requestHistorique(
+                        val list: List<String> =
+                            dnsResolver.requestHistorique(
                                 community,
                                 address,
                                 10
                             )
+                        // Traitement en plus ici ? Pour la détection
+                        // des anciens messages envoyé par l'utilisateur
+                        messages.addAll(
+                            list
                         )
                         delay(10_000L)
                     }
