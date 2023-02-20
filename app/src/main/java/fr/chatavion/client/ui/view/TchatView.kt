@@ -24,6 +24,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -36,6 +37,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import fr.chatavion.client.R
+import fr.chatavion.client.connection.Message
+import fr.chatavion.client.connection.MessageStatus
 import fr.chatavion.client.connection.dns.DnsResolver
 import fr.chatavion.client.connection.http.HttpResolver
 import fr.chatavion.client.datastore.SettingsRepository
@@ -43,8 +46,10 @@ import fr.chatavion.client.ui.theme.White
 import fr.chatavion.client.util.Utils
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.CancellationException
+import kotlin.streams.toList
 
 
 class TchatView {
@@ -64,16 +69,18 @@ class TchatView {
         openDrawer: () -> Unit
     ) {
         val context = LocalContext.current
+        val settingsRepository = SettingsRepository(context = context)
 
         Log.i("Ici", "On est au debut")
         val dnsResolver = DnsResolver()
         val httpResolver = HttpResolver()
         var connectionIsDNS = true
-        val messages = remember { mutableStateListOf<String>() }
+        val messages = remember { mutableStateListOf<Message>() }
         var msg by remember { mutableStateOf("") }
         var remainingCharacter by remember { mutableStateOf(35) }
         var enableSendingMessage by remember { mutableStateOf(true) }
         var displayBurgerMenu by remember { mutableStateOf(false) }
+        var pseudo by remember{ mutableStateOf("") }
 
         BackHandler(enabled = true) {
             Log.i("Work", "Je marche")
@@ -205,9 +212,8 @@ class TchatView {
                             onClick = {
                                 CoroutineScope(IO).launch {
                                     enableSendingMessage = false
-                                    val settingsRepository = SettingsRepository(context = context)
-                                    settingsRepository.pseudo.collect { pseudo ->
-                                        if (msg != "") {
+
+                                    if (msg != "") {
                                             Log.i("test", "$pseudo:$msg")
                                             val ret = sendMessage(
                                                 msg,
@@ -222,12 +228,11 @@ class TchatView {
                                                 msg = ""
                                                 remainingCharacter = 35
                                             } else {
-                                                withContext(Dispatchers.Main) {
+                                                withContext(Main) {
                                                     Toast.makeText(context, "Test", LENGTH_SHORT).show()
                                                 }
                                             }
                                             enableSendingMessage = true
-                                        }
                                     }
                                  }
 
@@ -257,22 +262,50 @@ class TchatView {
             }
         }
 
+        CoroutineScope(Main).launch {
+            settingsRepository.pseudo.collect { value ->
+                pseudo = value
+            }
+        }
+
         LaunchedEffect(true) {
             withContext(IO) {
                 try {
                     while (true) {
                         Log.i("History", "Retrieve the history")
-                        val list: List<String> =
-                            dnsResolver.requestHistorique(
+
+                        val msgList = dnsResolver.requestHistorique(
                                 community,
                                 address,
                                 10
-                            )
-                        // Traitement en plus ici ? Pour la détection
-                        // des anciens messages envoyé par l'utilisateur
-                        messages.addAll(
-                            list
+                            ).stream().map {
+                                element ->
+                                    val parts = element.split(":::")
+                                    Message(MessageStatus.RECEIVED, parts[0], parts[1], false)
+                            }.toList()
+
+                        val list = messages.stream().filter {
+                                e -> e.status == MessageStatus.SEND
+                        }.toList()
+
+                        val listToRemove: MutableList<Message> = mutableListOf()
+                        msgList.forEach {
+                            msg ->
+                                for (message in list) {
+                                    if(msg.user == message.user && msg.message == message.message) {
+                                        msg.send = true
+                                        listToRemove.add(message)
+                                    }
+                                }
+                        }
+
+                        messages.removeAll(
+                            listToRemove
                         )
+                        messages.addAll(
+                            msgList
+                        )
+
                         delay(10_000L)
                     }
                 } catch (e: CancellationException) {
@@ -285,16 +318,16 @@ class TchatView {
 
 
     @Composable
-    fun DisplayCenterText(text: String) {
+    fun DisplayCenterText(message: Message) {
+
         Column(
             horizontalAlignment = Alignment.Start,
             modifier = Modifier
         )
         {
-            val parts: List<String> = text.split(":::")
             Text(
-                text = parts[0].trim(),
-                color = MaterialTheme.colors.onPrimary,
+                text = message.user.trim(),
+                color = if(message.send) Color.Blue else MaterialTheme.colors.onPrimary,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.ExtraBold,
                 modifier = Modifier
@@ -302,8 +335,8 @@ class TchatView {
             )
             Spacer(modifier = Modifier.size(3.dp))
             Text(
-                text = parts[1].trim(),
-                color = MaterialTheme.colors.onPrimary,
+                text = message.message.trim(),
+                color = if(message.status == MessageStatus.SEND) MaterialTheme.colors.primaryVariant else MaterialTheme.colors.onPrimary,
                 fontSize = 14.sp,
                 softWrap = true,
                 modifier = Modifier
@@ -425,7 +458,7 @@ class TchatView {
                                             modifier = Modifier.padding(8.dp),
                                             onClick = {
                                                 Log.i("Parameters", "Parameters")
-                                                CoroutineScope(IO).launch {
+                                                CoroutineScope(Dispatchers.Default).launch {
                                                     settingsRepository.pseudo.collect { pseudo ->
                                                         pseudoCurrent = pseudo
                                                     }
@@ -504,7 +537,7 @@ class TchatView {
         pseudo: String,
         community: String,
         address: String,
-        messages: SnapshotStateList<String>,
+        messages: SnapshotStateList<Message>,
         sender: DnsResolver
     ): Boolean {
         var returnVal: Boolean
@@ -512,7 +545,7 @@ class TchatView {
             returnVal = sender.sendMessage(community, address, pseudo, text)
         }
         if (returnVal) {
-            messages.add("$pseudo:::$text")
+            messages.add(Message(MessageStatus.SEND, pseudo, text, true))
             Log.i("Message", "Success")
         } else
             Log.i("Message", "Error")
