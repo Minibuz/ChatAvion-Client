@@ -230,10 +230,6 @@ class TchatView {
                                         }
                                     }
                                  }
-                                Log.i("hideKeybaord","avant fermer keyboard")
-                                Utils.hideSoftKeyBoard(context, View(context))
-
-                                Log.i("hideKeybaord", "apres fermer keyboard")
 
 
                             }) {
