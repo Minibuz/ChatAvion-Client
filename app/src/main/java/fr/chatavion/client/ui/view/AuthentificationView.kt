@@ -26,14 +26,17 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import fr.chatavion.client.R
 import fr.chatavion.client.connection.dns.DnsResolver
+import fr.chatavion.client.connection.http.HttpResolver
 import fr.chatavion.client.datastore.SettingsRepository
 import fr.chatavion.client.util.Utils
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import java.net.*
 
 class AuthentificationView {
-    private val sender = DnsResolver()
+    private val dnsSender = DnsResolver()
+    private val httpSender = HttpResolver()
 
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
@@ -180,14 +183,27 @@ class AuthentificationView {
     ): Boolean {
         var returnVal: Boolean
         withContext(IO) {
-            sender.findType(address)
-            returnVal = sender.communityDetection(community, address)
+            returnVal = if(testHttp()) {
+                httpSender.communityChecker(address, community)
+            } else {
+                dnsSender.findType(address)
+                dnsSender.communityDetection(address, community)
+            }
         }
         if (returnVal)
             Log.i("Connexion", "Success")
-
         else
             Log.i("Connexion", "Error")
         return returnVal
+    }
+
+    private fun testHttp() : Boolean {
+        val url = URL("https://www.google.com")
+        with(url.openConnection() as HttpURLConnection) {
+            requestMethod = "GET"  // optional default is GET
+
+            Log.i("Test HTTP", "\nSent 'GET' request to URL : $url; Response Code : $responseCode")
+            return responseCode==200
+        }
     }
 }

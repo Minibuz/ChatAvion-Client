@@ -76,6 +76,7 @@ class HttpResolver {
     ) : Boolean {
         val url = URL("http://chat.$address/community/$community")
 
+        var result = false
         with(url.openConnection() as HttpURLConnection) {
             requestMethod = "GET"  // optional default is GET
 
@@ -83,12 +84,10 @@ class HttpResolver {
 
             inputStream.bufferedReader().use {
                 it.lines().forEach { line ->
-                    // Parse le résultat pour avoir le
-                    // résultat, true ou false
-                    println(line)
+                    result = mapper.readValue(line)
                 }
             }
         }
-        return false
+        return result
     }
 }
