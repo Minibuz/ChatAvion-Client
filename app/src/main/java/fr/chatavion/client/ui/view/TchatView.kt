@@ -2,7 +2,6 @@ package fr.chatavion.client.ui.view
 
 import android.annotation.SuppressLint
 import android.util.Log
-import android.view.View
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.activity.compose.BackHandler
@@ -49,15 +48,8 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.CancellationException
-import kotlin.streams.toList
-
 
 class TchatView {
-
-
-
-
-
 
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
@@ -74,12 +66,12 @@ class TchatView {
         Log.i("Ici", "On est au debut")
         val dnsResolver = DnsResolver()
         val httpResolver = HttpResolver()
-        var connectionIsDNS = true
         val messages = remember { mutableStateListOf<Message>() }
         var msg by remember { mutableStateOf("") }
         var remainingCharacter by remember { mutableStateOf(35) }
         var enableSendingMessage by remember { mutableStateOf(true) }
         var displayBurgerMenu by remember { mutableStateOf(false) }
+        var connectionIsDNS by remember { mutableStateOf(true) }
         var pseudo by remember{ mutableStateOf("") }
 
         BackHandler(enabled = true) {
@@ -221,7 +213,9 @@ class TchatView {
                                                 community,
                                                 address,
                                                 messages,
-                                                dnsResolver
+                                                dnsResolver,
+                                                httpResolver,
+                                                connectionIsDNS
                                             )
 
                                             if( ret ) {
@@ -274,37 +268,13 @@ class TchatView {
                     while (true) {
                         Log.i("History", "Retrieve the history")
 
-                        val msgList = dnsResolver.requestHistorique(
-                                community,
-                                address,
-                                10
-                            ).stream().map {
-                                element ->
-                                    val parts = element.split(":::")
-                                    Message(MessageStatus.RECEIVED, parts[0], parts[1], false)
-                            }.toList()
-
-                        val list = messages.stream().filter {
-                                e -> e.status == MessageStatus.SEND
-                        }.toList()
-
-                        val listToRemove: MutableList<Message> = mutableListOf()
-                        msgList.forEach {
-                            msg ->
-                                for (message in list) {
-                                    if(msg.user == message.user && msg.message == message.message) {
-                                        msg.send = true
-                                        listToRemove.add(message)
-                                    }
-                                }
+                        if(connectionIsDNS) {
+                            dnsHistoryRetrieval(dnsResolver, community, address, messages)
+                            httpResolver.id = dnsResolver.id
+                        } else {
+                            httpHistoryRetrieval(httpResolver, community, address, messages)
+                            dnsResolver.id = httpResolver.id
                         }
-
-                        messages.removeAll(
-                            listToRemove
-                        )
-                        messages.addAll(
-                            msgList
-                        )
 
                         delay(10_000L)
                     }
@@ -315,7 +285,6 @@ class TchatView {
             }
         }
     }
-
 
     @Composable
     fun DisplayCenterText(message: Message) {
@@ -533,19 +502,25 @@ class TchatView {
     }
 
     private suspend fun sendMessage(
-        text: String,
+        message: String,
         pseudo: String,
         community: String,
         address: String,
         messages: SnapshotStateList<Message>,
-        sender: DnsResolver
+        senderDns: DnsResolver,
+        senderHttp: HttpResolver,
+        isDns: Boolean
     ): Boolean {
         var returnVal: Boolean
         withContext(IO) {
-            returnVal = sender.sendMessage(community, address, pseudo, text)
+            if(isDns) {
+                returnVal = senderDns.sendMessage(community, address, pseudo, message)
+            } else {
+                returnVal = senderHttp.sendMessage(community, address, pseudo, message)
+            }
         }
         if (returnVal) {
-            messages.add(Message(MessageStatus.SEND, pseudo, text, true))
+            messages.add(Message(MessageStatus.SEND, pseudo, message, true))
             Log.i("Message", "Success")
         } else
             Log.i("Message", "Error")
