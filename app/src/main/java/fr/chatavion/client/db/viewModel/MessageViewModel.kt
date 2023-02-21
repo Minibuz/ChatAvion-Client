@@ -23,10 +23,10 @@ class MessageViewModel(application: Application) : AndroidViewModel(application)
     }
 
     @Throws(SQLiteConstraintException::class)
-    fun insertAll(vararg messages: Message) {
+    fun insertAll(messages: List<Message>) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                messageDao.insertAll(*messages)
+                messageDao.insertAll(messages)
             } catch (e: SQLiteConstraintException) {
                 Log.e("SQLEXCEPTION", e.toString())
             }
