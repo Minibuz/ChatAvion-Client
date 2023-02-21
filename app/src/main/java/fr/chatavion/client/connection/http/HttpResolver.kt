@@ -51,6 +51,7 @@ class HttpResolver {
 
         val payload = "{\"username\": \"$pseudo\", \"message\": \"$message\"}"
 
+        var result = false
         with(url.openConnection() as HttpURLConnection) {
             setRequestProperty("Content-Type", "application/json")
             setRequestProperty("Content-Length", payload.length.toString())
@@ -60,16 +61,13 @@ class HttpResolver {
             wr.write(payload)
             wr.flush()
 
-            println("URL : $url")
-            println("Response Code : $responseCode")
-
             inputStream.bufferedReader().use {
                 it.lines().forEach { line ->
-                    println(line)
+                    result = mapper.readValue(line)
                 }
             }
         }
-        return true
+        return result
     }
 
     fun communityChecker (
