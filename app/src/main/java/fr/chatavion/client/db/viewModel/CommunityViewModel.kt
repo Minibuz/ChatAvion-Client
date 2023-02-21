@@ -12,17 +12,17 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 
 class CommunityViewModel(application: Application) : AndroidViewModel(application) {
-    val readAllData: LiveData<List<CommunityWithMessages>>
+//    val readAllData: LiveData<List<CommunityWithMessages>>
     private var communityDao: CommunityDAO =
         DataBaseConnection.getInstance(application).communityDao()
 
-    init {
-        readAllData = communityDao.getAll()
-    }
+//    init {
+//        readAllData = communityDao.getAll()
+//    }
 
-    fun getAll(): LiveData<List<CommunityWithMessages>> {
-        return communityDao.getAll()
-    }
+//    fun getAll(): LiveData<List<CommunityWithMessages>> {
+//        return communityDao.getAll()
+//    }
 
     fun getId(name: String, address: String): Int {
         return communityDao.getId(name, address)

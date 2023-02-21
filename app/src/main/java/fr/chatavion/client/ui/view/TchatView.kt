@@ -59,17 +59,6 @@ class TchatView {
         communityId: Int,
         openDrawer: () -> Unit
     ) {
-        // TODO - TESTS TO REMOVE
-        val com = communityViewModel.getAll()
-        Log.i("COM", com.toString())
-        Log.i("SIZE", com.value?.size.toString())
-        com.value?.forEach { communityWithMessages ->
-            Log.i(
-                "AAAH",
-                communityWithMessages.community.name
-            )
-        }
-        // TODO - TESTS TO REMOVE
 
         val context = LocalContext.current
         val community = communityId.let {

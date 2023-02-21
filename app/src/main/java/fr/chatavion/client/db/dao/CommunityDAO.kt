@@ -12,9 +12,9 @@ interface CommunityDAO {
     @Query("SELECT * FROM community WHERE communityId = (:id)")
     fun getById(id: Int): LiveData<CommunityWithMessages>
 
-    @Transaction
-    @Query("SELECT * FROM community")
-    fun getAll(): LiveData<List<CommunityWithMessages>>
+//    @Transaction
+//    @Query("SELECT * FROM community")
+//    fun getAll(): LiveData<List<CommunityWithMessages>>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(community: Community)
