@@ -15,10 +15,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Send
-import androidx.compose.material.icons.filled.Wifi
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -214,25 +211,25 @@ class TchatView {
                                     enableSendingMessage = false
 
                                     if (msg != "") {
-                                            Log.i("test", "$pseudo:$msg")
-                                            val ret = sendMessage(
-                                                msg,
-                                                pseudo,
-                                                community,
-                                                address,
-                                                messages,
-                                                dnsResolver
-                                            )
+                                        Log.i("test", "$pseudo:$msg")
+                                        val ret = sendMessage(
+                                            msg,
+                                            pseudo,
+                                            community,
+                                            address,
+                                            messages,
+                                            dnsResolver
+                                        )
 
-                                            if( ret ) {
-                                                msg = ""
-                                                remainingCharacter = 35
-                                            } else {
-                                                withContext(Main) {
-                                                    Toast.makeText(context, "Test", LENGTH_SHORT).show()
-                                                }
+                                        if( ret ) {
+                                            msg = ""
+                                            remainingCharacter = 35
+                                        } else {
+                                            withContext(Main) {
+                                                Toast.makeText(context, "Test", LENGTH_SHORT).show()
                                             }
-                                            enableSendingMessage = true
+                                        }
+                                        enableSendingMessage = true
                                     }
                                  }
 
@@ -275,14 +272,14 @@ class TchatView {
                         Log.i("History", "Retrieve the history")
 
                         val msgList = dnsResolver.requestHistorique(
-                                community,
-                                address,
-                                10
-                            ).stream().map {
+                            community,
+                            address,
+                            10
+                        ).stream().map {
                                 element ->
-                                    val parts = element.split(":::")
-                                    Message(MessageStatus.RECEIVED, parts[0], parts[1], false)
-                            }.toList()
+                            val parts = element.split(":::")
+                            Message(MessageStatus.RECEIVED, parts[0], parts[1], false)
+                        }.toList()
 
                         val list = messages.stream().filter {
                                 e -> e.status == MessageStatus.SEND
@@ -290,13 +287,13 @@ class TchatView {
 
                         val listToRemove: MutableList<Message> = mutableListOf()
                         msgList.forEach {
-                            msg ->
-                                for (message in list) {
-                                    if(msg.user == message.user && msg.message == message.message) {
-                                        msg.send = true
-                                        listToRemove.add(message)
-                                    }
+                                msg ->
+                            for (message in list) {
+                                if(msg.user == message.user && msg.message == message.message) {
+                                    msg.send = true
+                                    listToRemove.add(message)
                                 }
+                            }
                         }
 
                         messages.removeAll(
@@ -359,6 +356,7 @@ class TchatView {
             gesturesEnabled = drawerState.isOpen,
             drawerContent = {
                 DrawerContentComponent(
+                    navController,
                     community,
                     closeDrawer = { coroutineScope.launch { drawerState.close() } }
                 )
@@ -373,6 +371,7 @@ class TchatView {
 
     @Composable
     fun DrawerContentComponent(
+        navController: NavController,
         community: String,
         closeDrawer: () -> Unit
     ) {
@@ -475,6 +474,34 @@ class TchatView {
                                     }
                                 })
                         }
+                    }
+                }
+                Spacer(modifier = Modifier.weight(1f))
+                Divider(
+                    thickness = 2.dp,
+                    color = MaterialTheme.colors.onBackground
+                )
+                IconButton(
+                    onClick = {
+                        navController.navigate("auth_page")
+                    }
+                ) {
+                    Row() {
+                        Icon(
+                            Icons.Filled.Home,
+                            "home",
+                            tint = MaterialTheme.colors.onBackground,
+                            modifier = Modifier
+                                .fillMaxWidth(0.2f)
+                                .align(Alignment.CenterVertically)
+                        )
+                        Text(
+                            text = "Retour à l'écran principal",
+                            color = MaterialTheme.colors.onBackground,
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .align(Alignment.CenterVertically)
+                        )
                     }
                 }
             }
