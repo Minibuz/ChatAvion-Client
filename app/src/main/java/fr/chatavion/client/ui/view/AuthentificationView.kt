@@ -62,8 +62,8 @@ class AuthentificationView {
                 communityAddress,
                 pseudo
             )
-            communityViewModel.insert(community)
             LaunchedEffect(true) {
+                communityViewModel.insert(community)
                 val id = withContext(IO) {
                     communityViewModel.getId(communityName, communityAddress)
                 }
@@ -199,7 +199,7 @@ class AuthentificationView {
     ): Boolean {
         var returnVal: Boolean
         withContext(IO) {
-            returnVal = if(testHttp()) {
+            returnVal = if (testHttp()) {
                 httpSender.communityChecker(address, community)
             } else {
                 dnsSender.findType(address)
@@ -213,13 +213,13 @@ class AuthentificationView {
         return returnVal
     }
 
-    private fun testHttp() : Boolean {
+    private fun testHttp(): Boolean {
         val url = URL("https://www.google.com")
         with(url.openConnection() as HttpURLConnection) {
             requestMethod = "GET"  // optional default is GET
 
             Log.i("Test HTTP", "\nSent 'GET' request to URL : $url; Response Code : $responseCode")
-            return responseCode==200
+            return responseCode == 200
         }
     }
 }
