@@ -174,11 +174,11 @@ class AuthentificationView {
                                 }
                             } else {
                                 enabled = true
-
                                 Utils.showErrorToast(
-                                    R.string.community_id_must_have_one_At.toString(),
+                                    context.getString(R.string.community_id_must_have_one_At),
                                     context
                                 )
+
                             }
                         }
                     },
