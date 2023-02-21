@@ -12,17 +12,8 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 
 class CommunityViewModel(application: Application) : AndroidViewModel(application) {
-//    val readAllData: LiveData<List<CommunityWithMessages>>
     private var communityDao: CommunityDAO =
         DataBaseConnection.getInstance(application).communityDao()
-
-//    init {
-//        readAllData = communityDao.getAll()
-//    }
-
-//    fun getAll(): LiveData<List<CommunityWithMessages>> {
-//        return communityDao.getAll()
-//    }
 
     fun getId(name: String, address: String): Int {
         return communityDao.getId(name, address)
@@ -33,7 +24,7 @@ class CommunityViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun delete(community: Community) {
-        viewModelScope.launch(IO) {
+        viewModelScope.launch {
             communityDao.delete(community)
         }
     }
