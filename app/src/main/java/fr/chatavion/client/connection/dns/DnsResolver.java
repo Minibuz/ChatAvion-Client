@@ -31,6 +31,14 @@ public class DnsResolver {
     public DnsResolver() {
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public boolean findType(String address) {
         ResolverResult<? extends Data> result;
         address = "chat." + address;
@@ -116,7 +124,7 @@ public class DnsResolver {
         return false;
     }
 
-    public List<String> requestHistorique(String cmt, String address, int number) {
+    public List<String> requestHistory(String cmt, String address, int number) {
         if (number < 1 || number > 10) {
             throw new IllegalArgumentException("Cannot get less than 1 message from history or more than 10.");
         }

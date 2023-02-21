@@ -5,9 +5,11 @@ import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
 import java.nio.charset.StandardCharsets
+import com.fasterxml.jackson.module.kotlin.*
 
 class HttpResolver {
 
+    private val mapper = jacksonObjectMapper()
     var id: Int = 0
 
     fun requestHistory(
@@ -16,6 +18,7 @@ class HttpResolver {
         nbMessage: Int,
     ) : List<String> {
         val url = URL("http://chat.$address/history/$community/$id?amount=$nbMessage")
+        val mutableList: MutableList<String> = mutableListOf()
 
         with(url.openConnection() as HttpURLConnection) {
             requestMethod = "GET"  // optional default is GET
@@ -24,13 +27,13 @@ class HttpResolver {
 
             inputStream.bufferedReader().use {
                 it.lines().forEach { line ->
-                    // Parse le résultat pour avoir les
-                    // message
-                    println(line)
+                    val list: List<HttpMessage> = mapper.readValue(line)
+                    id += list.size
+                    list.forEach { httpMessage -> mutableList.add("${httpMessage.user}:::${httpMessage.message}") }
                 }
             }
         }
-        return listOf()
+        return mutableList
     }
 
     fun sendMessage(

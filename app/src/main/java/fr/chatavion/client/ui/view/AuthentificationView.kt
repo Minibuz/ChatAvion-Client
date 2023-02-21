@@ -1,9 +1,7 @@
 package fr.chatavion.client.ui.view
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -32,6 +30,7 @@ import fr.chatavion.client.datastore.SettingsRepository
 import fr.chatavion.client.util.Utils
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 
 class AuthentificationView {
     private val sender = DnsResolver()
@@ -138,13 +137,21 @@ class AuthentificationView {
                                     if (isConnectionOk) {
                                         Log.i("Pseudo", "Setting user pseudo to $pseudo")
                                         settingsRepository.setPseudo(pseudo)
-                                        Utils.showInfoToast(
-                                            R.string.commuConnection.toString(),
-                                            context
-                                        )
+                                        withContext(Main) {
+                                            Utils.showInfoToast(
+                                                R.string.commuConnection.toString(),
+                                                context
+                                            )
+                                        }
+                                    } else {
+                                        withContext(Main) {
+                                            Utils.showErrorToast(
+                                                R.string.commuConnectionFailed.toString(),
+                                                context
+                                            )
+                                        }
                                     }
                                     enabled = true
-                                    Utils.showErrorToast(R.string.commuConnectionFailed.toString(), context)
                                 }
                             } else {
                                 enabled = true
