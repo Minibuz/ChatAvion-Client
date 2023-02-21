@@ -29,7 +29,6 @@ public class DnsResolver {
     private int id = 0;
 
     public DnsResolver() {
-        logger.info("Ca pue la merde");
     }
 
     public void setId(int id) {

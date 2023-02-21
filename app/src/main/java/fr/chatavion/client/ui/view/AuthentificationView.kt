@@ -33,6 +33,7 @@ import fr.chatavion.client.datastore.SettingsRepository
 import fr.chatavion.client.db.entity.Community
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 
 class AuthentificationView {
     private val sender = DnsResolver()
@@ -59,10 +60,16 @@ class AuthentificationView {
                 communityAddress,
                 pseudo
             )
-            val id = community.communityId
             communityViewModel.insert(community)
-            navController.navigate("tchat_page/${communityName}/${communityAddress}/${id}")
-            isConnectionOk = false
+            LaunchedEffect(true) {
+                val id = withContext(IO) {
+                    communityViewModel.getId(communityName, communityAddress)
+                }
+                Log.i("CommunityID", "$id")
+                withContext(Main) {
+                    navController.navigate("tchat_page/${communityName}/${communityAddress}/${id}")
+                }
+            }
         }
         Column(modifier = Modifier.fillMaxSize()) {
             Image(

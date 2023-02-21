@@ -59,6 +59,7 @@ class TchatView {
         communityId: Int,
         openDrawer: () -> Unit
     ) {
+        // TODO - TESTS TO REMOVE
         val com = communityViewModel.getAll()
         Log.i("COM", com.toString())
         Log.i("SIZE", com.value?.size.toString())
@@ -68,9 +69,9 @@ class TchatView {
                 communityWithMessages.community.name
             )
         }
+        // TODO - TESTS TO REMOVE
 
         val context = LocalContext.current
-
         val community = communityId.let {
             communityVM.getById(it).observeAsState().value
         }
@@ -246,7 +247,10 @@ class TchatView {
                         items(
                             community.messages
                         ) { message ->
-                            DisplayCenterText(message.message)
+                            DisplayCenterText(
+                                message.pseudo,
+                                message.message
+                            )
                         }
                     }
                 }
@@ -263,18 +267,23 @@ class TchatView {
                             communityAddress,
                             10
                         )
-                        // TODO :
-                        // msg = List<String>
-                        // Add in messageVM.insertAll() List<Message>
-                        // So for each String in List<String>,
-                        // split pseudo and message and add to
-                        // list while creating Message each time
 
-//                        val parts: List<String> = msg.split(":::")
-//
-//                        msg.stream().map { m -> Message(m) }
-//
-//                        messageVM.insertAll(msg)
+                        val list = ArrayList<Message>()
+
+                        msg.forEach { message ->
+                            run {
+                                val parts: List<String> = message.split(":::")
+                                list.add(
+                                    Message(
+                                        parts[0],
+                                        parts[1],
+                                        communityId
+                                    )
+                                )
+                            }
+                        }
+                        messageVM.insertAll(list)
+
                         delay(10_000L)
                     }
                 } catch (e: CancellationException) {
@@ -286,15 +295,14 @@ class TchatView {
     }
 
     @Composable
-    fun DisplayCenterText(text: String) {
+    fun DisplayCenterText(pseudo: String, message: String) {
         Column(
             horizontalAlignment = Alignment.Start,
             modifier = Modifier
         )
         {
-            val parts: List<String> = text.split(":::")
             Text(
-                text = parts[0].trim(),
+                text = pseudo.trim(),
                 color = MaterialTheme.colors.onPrimary,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.ExtraBold,
@@ -303,7 +311,7 @@ class TchatView {
             )
             Spacer(modifier = Modifier.size(3.dp))
             Text(
-                text = parts[1].trim(),
+                text = message.trim(),
                 color = MaterialTheme.colors.onPrimary,
                 fontSize = 14.sp,
                 softWrap = true,
@@ -334,7 +342,7 @@ class TchatView {
             },
             content = {
                 TchatView(
-                    navController, communityName, communityAddress, communityId
+                    navController, communityName, communityAddress, communityId,
                 ) { coroutineScope.launch { drawerState.open() } }
             }
         )
