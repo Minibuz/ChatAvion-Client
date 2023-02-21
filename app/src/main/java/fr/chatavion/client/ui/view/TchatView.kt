@@ -2,6 +2,7 @@ package fr.chatavion.client.ui.view
 
 import android.annotation.SuppressLint
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.activity.compose.BackHandler
@@ -42,6 +43,7 @@ import fr.chatavion.client.connection.dns.DnsResolver
 import fr.chatavion.client.connection.http.HttpResolver
 import fr.chatavion.client.datastore.SettingsRepository
 import fr.chatavion.client.ui.theme.White
+import fr.chatavion.client.util.Utils
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -51,6 +53,11 @@ import kotlin.streams.toList
 
 
 class TchatView {
+
+
+
+
+
 
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
@@ -67,6 +74,7 @@ class TchatView {
         Log.i("Ici", "On est au debut")
         val dnsResolver = DnsResolver()
         val httpResolver = HttpResolver()
+        var connectionIsDNS = true
         val messages = remember { mutableStateListOf<Message>() }
         var msg by remember { mutableStateOf("") }
         var remainingCharacter by remember { mutableStateOf(35) }
@@ -136,6 +144,14 @@ class TchatView {
                                 .testTag("connectionSwitch"),
                             onClick = {
                                 Log.i("wifi", "Wifi pushed")
+                                if(connectionIsDNS){
+                                    connectionIsDNS = false
+                                    Utils.showInfoToast(R.string.connectionSwitchHTTP.toString(), context)
+                                }
+                                else{
+                                    connectionIsDNS = true
+                                    Utils.showInfoToast(R.string.connectionSwitchDNS.toString(), context)
+                                }
                             }) {
                             Icon(Icons.Filled.Wifi, "wifi")
                         }
@@ -218,7 +234,9 @@ class TchatView {
                                             }
                                             enableSendingMessage = true
                                     }
-                                }
+                                 }
+
+
                             }) {
                             Icon(Icons.Filled.Send, "send")
                         }
@@ -297,6 +315,7 @@ class TchatView {
             }
         }
     }
+
 
     @Composable
     fun DisplayCenterText(message: Message) {
