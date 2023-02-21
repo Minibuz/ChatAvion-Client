@@ -84,11 +84,11 @@ public class DnsResolver {
                 return false;
             }
             // TODO Change the return of server to get the id of the latest message receive based on the server log
-            if(e.getAnswers().isEmpty()) {
+            if (e.getAnswers().isEmpty()) {
                 logger.warning(() -> "That community doesn't have any response.");
                 return false;
             }
-            for(var ip : e.getAnswers()) {
+            for (var ip : e.getAnswers()) {
                 if (A.class.equals(type)) {
                     id = Integer.parseInt(ip.toString().split("\\.")[3]);
                 } else if (AAAA.class.equals(type)) {
@@ -97,7 +97,6 @@ public class DnsResolver {
                     id = Integer.parseInt(ip.toString());
                 }
             }
-            System.out.println(id);
             return true;
         } catch (IOException e) {
             logger.warning(() -> address + " have an issue.");
@@ -143,7 +142,6 @@ public class DnsResolver {
             throw new IllegalArgumentException("Cannot get less than 1 message from history or more than 10.");
         }
         String cmtB32 = this.converter32.encodeAsString(cmt.getBytes(StandardCharsets.UTF_8));
-
         list.clear();
         try {
             for (int i = 0; i < number; i++) {
@@ -158,7 +156,6 @@ public class DnsResolver {
                     logger.info(() -> "No message with this id to retrieve. Stopping message recovery.");
                     return list;
                 }
-
                 List<Byte> msg = new ArrayList<>();
                 if (type == A.class) {
                     Set<A> answers = (Set<A>) result.getAnswers();
@@ -177,7 +174,6 @@ public class DnsResolver {
         } catch (IOException e) {
             return list;
         }
-
         return list;
     }
 
