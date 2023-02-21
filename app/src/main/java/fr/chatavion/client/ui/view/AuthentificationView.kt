@@ -62,7 +62,7 @@ class AuthentificationView {
                 communityAddress,
                 pseudo
             )
-            LaunchedEffect(true) {
+            LaunchedEffect("insertId") {
                 communityViewModel.insert(community)
                 val id = withContext(IO) {
                     communityViewModel.getId(communityName, communityAddress)

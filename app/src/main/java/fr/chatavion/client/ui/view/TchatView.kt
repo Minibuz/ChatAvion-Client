@@ -40,7 +40,6 @@ import fr.chatavion.client.connection.http.HttpResolver
 import fr.chatavion.client.datastore.SettingsRepository
 import fr.chatavion.client.db.entity.Message
 import fr.chatavion.client.db.entity.MessageStatus
-import fr.chatavion.client.messageViewModel
 import fr.chatavion.client.ui.theme.White
 import fr.chatavion.client.util.Utils
 import kotlinx.coroutines.*
@@ -51,7 +50,6 @@ import java.util.concurrent.CancellationException
 
 class TchatView {
     private val communityVM = communityViewModel
-    private val messageVM = messageViewModel
 
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
@@ -63,17 +61,12 @@ class TchatView {
         communityId: Int,
         openDrawer: () -> Unit
     ) {
-
         val context = LocalContext.current
         val community = communityId.let {
             communityVM.getById(it).observeAsState().value
         }
 
-        Log.i("CommunityName", community?.community?.name.toString())
-
-        val sender = DnsResolver()
         val settingsRepository = SettingsRepository(context = context)
-
         val dnsResolver = DnsResolver()
         val httpResolver = HttpResolver()
         val messages = remember { mutableStateListOf<Message>() }
@@ -244,8 +237,6 @@ class TchatView {
                                         enableSendingMessage = true
                                     }
                                 }
-
-
                             }) {
                             Icon(Icons.Filled.Send, "send")
                         }
@@ -265,9 +256,7 @@ class TchatView {
                     state = LazyListState(firstVisibleItemIndex = messages.size)
                 ) {
                     if (community != null) {
-                        items(
-                            community.messages
-                        ) { message ->
+                        items(messages) { message ->
                             DisplayCenterText(message)
                         }
                     }
@@ -306,7 +295,6 @@ class TchatView {
                             )
                             dnsResolver.id = httpResolver.id
                         }
-
                         delay(10_000L)
                     }
                 } catch (e: CancellationException) {
@@ -576,10 +564,10 @@ class TchatView {
     ): Boolean {
         var returnVal: Boolean
         withContext(IO) {
-            if (isDns) {
-                returnVal = senderDns.sendMessage(community, address, pseudo, message)
+            returnVal = if (isDns) {
+                senderDns.sendMessage(community, address, pseudo, message)
             } else {
-                returnVal = senderHttp.sendMessage(community, address, pseudo, message)
+                senderHttp.sendMessage(community, address, pseudo, message)
             }
         }
         if (returnVal) {
