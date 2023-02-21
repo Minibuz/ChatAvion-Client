@@ -1,7 +1,10 @@
 package fr.chatavion.client
 
 import android.app.Application
+import android.content.Context
 import android.os.Bundle
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,7 +23,11 @@ import fr.chatavion.client.ui.theme.ChatavionTheme
 import fr.chatavion.client.ui.view.AuthentificationView
 import fr.chatavion.client.ui.view.TchatView
 
+
 class MainActivity : ComponentActivity() {
+
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {

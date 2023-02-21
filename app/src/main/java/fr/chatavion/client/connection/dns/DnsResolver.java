@@ -31,6 +31,10 @@ public class DnsResolver {
     public DnsResolver() {
     }
 
+    public int getId() {
+        return id;
+    }
+
     public void setId(int id) {
         this.id = id;
     }
@@ -71,19 +75,37 @@ public class DnsResolver {
         return false;
     }
 
-    public boolean communityDetection(String community, String address) throws IOException {
-        logger.info("Before");
-        ResolverResult<? extends Data> e = ResolverApi.INSTANCE.resolve(community + ".connexion." + address, type);
-        logger.info("After");
-        if (!e.wasSuccessful()) {
-            logger.warning(() -> "That community doesn't exist for the given server.");
+    public boolean communityDetection(String address, String community) {
+        try {
+            ResolverResult<? extends Data> e = ResolverApi.INSTANCE.resolve(community + ".connexion." + address, type);
+            logger.info("After");
+            if (!e.wasSuccessful()) {
+                logger.warning(() -> "That community doesn't exist for the given server.");
+                return false;
+            }
+            // TODO Change the return of server to get the id of the latest message receive based on the server log
+            if(e.getAnswers().isEmpty()) {
+                logger.warning(() -> "That community doesn't have any response.");
+                return false;
+            }
+            for(var ip : e.getAnswers()) {
+                if (A.class.equals(type)) {
+                    id = Integer.parseInt(ip.toString().split("\\.")[3]);
+                } else if (AAAA.class.equals(type)) {
+                    id = Integer.parseInt(ip.toString().split(":")[7]);
+                } else if (TXT.class.equals(type)) {
+                    id = Integer.parseInt(ip.toString());
+                }
+            }
+            System.out.println(id);
+            return true;
+        } catch (IOException e) {
+            logger.warning(() -> address + " have an issue.");
             return false;
         }
-        // TODO Change the return of server to get the id of the latest message receive based on the server log
-        return !e.getAnswers().isEmpty();
     }
 
-    public boolean sendMessage(String community, String address, String pseudo, String message) throws IOException {
+    public boolean sendMessage(String community, String address, String pseudo, String message) {
         byte[] msgAsBytes = message.getBytes(StandardCharsets.UTF_8);
         if (msgAsBytes.length > 35) {
             logger.warning(() -> "Message cannot be more than 35 character as UTF_8 byte array.");
@@ -116,8 +138,7 @@ public class DnsResolver {
         return false;
     }
 
-    public List<String> requestHistorique(String cmt, String address, int number) {
-        logger.info(() -> "On retrieve " + id);
+    public List<String> requestHistory(String cmt, String address, int number) {
         if (number < 1 || number > 10) {
             throw new IllegalArgumentException("Cannot get less than 1 message from history or more than 10.");
         }
@@ -128,9 +149,7 @@ public class DnsResolver {
             for (int i = 0; i < number; i++) {
                 String request = type == A.class ? "m" + id : type == AAAA.class ? "m" + id + "o0" : "m" + id + "n0";
 
-                logger.info("Avant resolve TTT");
                 ResolverResult<? extends Data> result = ResolverApi.INSTANCE.resolve(request + "-" + cmtB32 + ".historique." + address, type);
-                logger.info("Après resolve APP");
                 if (!result.wasSuccessful()) {
                     logger.warning(() -> "Problem with recovering history.");
                     return List.of();

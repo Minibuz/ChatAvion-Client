@@ -1,9 +1,7 @@
 package fr.chatavion.client.ui.view
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -29,14 +27,21 @@ import androidx.navigation.NavController
 import fr.chatavion.client.R
 import fr.chatavion.client.communityViewModel
 import fr.chatavion.client.connection.dns.DnsResolver
+import fr.chatavion.client.connection.http.HttpResolver
 import fr.chatavion.client.datastore.SettingsRepository
 import fr.chatavion.client.db.entity.Community
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import fr.chatavion.client.util.Utils
+import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import java.net.*
 
 class AuthentificationView {
-    private val sender = DnsResolver()
+    private val dnsSender = DnsResolver()
+    private val httpSender = HttpResolver()
 
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
@@ -154,13 +159,27 @@ class AuthentificationView {
                                     if (isConnectionOk) {
                                         Log.i("Pseudo", "Setting user pseudo to $pseudo")
                                         settingsRepository.setPseudo(pseudo)
+                                        withContext(Main) {
+                                            Utils.showInfoToast(
+                                                R.string.commuConnection.toString(),
+                                                context
+                                            )
+                                        }
+                                    } else {
+                                        withContext(Main) {
+                                            Utils.showErrorToast(
+                                                R.string.commuConnectionFailed.toString(),
+                                                context
+                                            )
+                                        }
                                     }
                                     enabled = true
                                 }
                             } else {
                                 enabled = true
-                                showToast(
-                                    "Il doit y avoir un et un seul @",
+
+                                Utils.showErrorToast(
+                                    R.string.community_id_must_have_one_At.toString(),
                                     context
                                 )
                             }
@@ -177,27 +196,33 @@ class AuthentificationView {
         }
     }
 
-    private fun showToast(text: String, context: Context) {
-        Toast.makeText(
-            context,
-            text,
-            Toast.LENGTH_SHORT
-        ).show()
-    }
-
     private suspend fun sendButtonConnexion(
         address: String,
         community: String
     ): Boolean {
         var returnVal: Boolean
         withContext(IO) {
-            sender.findType(address)
-            returnVal = sender.communityDetection(community, address)
+            returnVal = if(testHttp()) {
+                httpSender.communityChecker(address, community)
+            } else {
+                dnsSender.findType(address)
+                dnsSender.communityDetection(address, community)
+            }
         }
         if (returnVal)
             Log.i("Connexion", "Success")
         else
             Log.i("Connexion", "Error")
         return returnVal
+    }
+
+    private fun testHttp() : Boolean {
+        val url = URL("https://www.google.com")
+        with(url.openConnection() as HttpURLConnection) {
+            requestMethod = "GET"  // optional default is GET
+
+            Log.i("Test HTTP", "\nSent 'GET' request to URL : $url; Response Code : $responseCode")
+            return responseCode==200
+        }
     }
 }
