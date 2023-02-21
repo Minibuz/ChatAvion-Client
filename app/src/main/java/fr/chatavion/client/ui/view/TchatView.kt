@@ -2,6 +2,7 @@ package fr.chatavion.client.ui.view
 
 import android.annotation.SuppressLint
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.activity.compose.BackHandler
@@ -14,10 +15,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Send
-import androidx.compose.material.icons.filled.Wifi
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -48,8 +46,15 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.CancellationException
+import kotlin.streams.toList
+
 
 class TchatView {
+
+
+
+
+
 
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
@@ -66,12 +71,12 @@ class TchatView {
         Log.i("Ici", "On est au debut")
         val dnsResolver = DnsResolver()
         val httpResolver = HttpResolver()
+        var connectionIsDNS = true
         val messages = remember { mutableStateListOf<Message>() }
         var msg by remember { mutableStateOf("") }
         var remainingCharacter by remember { mutableStateOf(35) }
         var enableSendingMessage by remember { mutableStateOf(true) }
         var displayBurgerMenu by remember { mutableStateOf(false) }
-        var connectionIsDNS by remember { mutableStateOf(true) }
         var pseudo by remember{ mutableStateOf("") }
 
         BackHandler(enabled = true) {
@@ -206,27 +211,25 @@ class TchatView {
                                     enableSendingMessage = false
 
                                     if (msg != "") {
-                                            Log.i("test", "$pseudo:$msg")
-                                            val ret = sendMessage(
-                                                msg,
-                                                pseudo,
-                                                community,
-                                                address,
-                                                messages,
-                                                dnsResolver,
-                                                httpResolver,
-                                                connectionIsDNS
-                                            )
+                                        Log.i("test", "$pseudo:$msg")
+                                        val ret = sendMessage(
+                                            msg,
+                                            pseudo,
+                                            community,
+                                            address,
+                                            messages,
+                                            dnsResolver
+                                        )
 
-                                            if( ret ) {
-                                                msg = ""
-                                                remainingCharacter = 35
-                                            } else {
-                                                withContext(Main) {
-                                                    Toast.makeText(context, "Test", LENGTH_SHORT).show()
-                                                }
+                                        if( ret ) {
+                                            msg = ""
+                                            remainingCharacter = 35
+                                        } else {
+                                            withContext(Main) {
+                                                Toast.makeText(context, "Test", LENGTH_SHORT).show()
                                             }
-                                            enableSendingMessage = true
+                                        }
+                                        enableSendingMessage = true
                                     }
                                  }
 
@@ -268,13 +271,37 @@ class TchatView {
                     while (true) {
                         Log.i("History", "Retrieve the history")
 
-                        if(connectionIsDNS) {
-                            dnsHistoryRetrieval(dnsResolver, community, address, messages)
-                            httpResolver.id = dnsResolver.id
-                        } else {
-                            httpHistoryRetrieval(httpResolver, community, address, messages)
-                            dnsResolver.id = httpResolver.id
+                        val msgList = dnsResolver.requestHistorique(
+                            community,
+                            address,
+                            10
+                        ).stream().map {
+                                element ->
+                            val parts = element.split(":::")
+                            Message(MessageStatus.RECEIVED, parts[0], parts[1], false)
+                        }.toList()
+
+                        val list = messages.stream().filter {
+                                e -> e.status == MessageStatus.SEND
+                        }.toList()
+
+                        val listToRemove: MutableList<Message> = mutableListOf()
+                        msgList.forEach {
+                                msg ->
+                            for (message in list) {
+                                if(msg.user == message.user && msg.message == message.message) {
+                                    msg.send = true
+                                    listToRemove.add(message)
+                                }
+                            }
                         }
+
+                        messages.removeAll(
+                            listToRemove
+                        )
+                        messages.addAll(
+                            msgList
+                        )
 
                         delay(10_000L)
                     }
@@ -285,6 +312,7 @@ class TchatView {
             }
         }
     }
+
 
     @Composable
     fun DisplayCenterText(message: Message) {
@@ -328,6 +356,7 @@ class TchatView {
             gesturesEnabled = drawerState.isOpen,
             drawerContent = {
                 DrawerContentComponent(
+                    navController,
                     community,
                     closeDrawer = { coroutineScope.launch { drawerState.close() } }
                 )
@@ -342,6 +371,7 @@ class TchatView {
 
     @Composable
     fun DrawerContentComponent(
+        navController: NavController,
         community: String,
         closeDrawer: () -> Unit
     ) {
@@ -446,6 +476,34 @@ class TchatView {
                         }
                     }
                 }
+                Spacer(modifier = Modifier.weight(1f))
+                Divider(
+                    thickness = 2.dp,
+                    color = MaterialTheme.colors.onBackground
+                )
+                IconButton(
+                    onClick = {
+                        navController.navigate("auth_page")
+                    }
+                ) {
+                    Row() {
+                        Icon(
+                            Icons.Filled.Home,
+                            "home",
+                            tint = MaterialTheme.colors.onBackground,
+                            modifier = Modifier
+                                .fillMaxWidth(0.2f)
+                                .align(Alignment.CenterVertically)
+                        )
+                        Text(
+                            text = "Retour à l'écran principal",
+                            color = MaterialTheme.colors.onBackground,
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .align(Alignment.CenterVertically)
+                        )
+                    }
+                }
             }
         }
     }
@@ -502,25 +560,19 @@ class TchatView {
     }
 
     private suspend fun sendMessage(
-        message: String,
+        text: String,
         pseudo: String,
         community: String,
         address: String,
         messages: SnapshotStateList<Message>,
-        senderDns: DnsResolver,
-        senderHttp: HttpResolver,
-        isDns: Boolean
+        sender: DnsResolver
     ): Boolean {
         var returnVal: Boolean
         withContext(IO) {
-            if(isDns) {
-                returnVal = senderDns.sendMessage(community, address, pseudo, message)
-            } else {
-                returnVal = senderHttp.sendMessage(community, address, pseudo, message)
-            }
+            returnVal = sender.sendMessage(community, address, pseudo, text)
         }
         if (returnVal) {
-            messages.add(Message(MessageStatus.SEND, pseudo, message, true))
+            messages.add(Message(MessageStatus.SEND, pseudo, text, true))
             Log.i("Message", "Success")
         } else
             Log.i("Message", "Error")
