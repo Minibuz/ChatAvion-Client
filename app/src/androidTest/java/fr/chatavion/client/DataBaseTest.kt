@@ -5,7 +5,6 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import fr.chatavion.client.db.DataBaseConnection
 import fr.chatavion.client.db.dao.CommunityDAO
-import fr.chatavion.client.db.dao.MessageDAO
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -14,7 +13,6 @@ import java.io.IOException
 //@RunWith(AndroidJUnit4::class)
 class DataBaseTest {
     private lateinit var communityDao: CommunityDAO
-    private lateinit var messageDao: MessageDAO
     private lateinit var db: DataBaseConnection
 
     @Before
@@ -24,7 +22,6 @@ class DataBaseTest {
             context, DataBaseConnection::class.java
         ).build()
         communityDao = db.communityDao()
-        messageDao = db.messageDao()
     }
 
     @After

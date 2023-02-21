@@ -7,7 +7,6 @@ import androidx.lifecycle.*
 import fr.chatavion.client.db.DataBaseConnection
 import fr.chatavion.client.db.dao.CommunityDAO
 import fr.chatavion.client.db.entity.Community
-import fr.chatavion.client.db.entity.CommunityWithMessages
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 
@@ -19,7 +18,7 @@ class CommunityViewModel(application: Application) : AndroidViewModel(applicatio
         return communityDao.getId(name, address)
     }
 
-    fun getById(id: Int): LiveData<CommunityWithMessages> {
+    fun getById(id: Int): LiveData<Community> {
         return communityDao.getById(id)
     }
 

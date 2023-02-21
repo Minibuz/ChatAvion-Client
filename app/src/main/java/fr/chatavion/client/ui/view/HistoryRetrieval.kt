@@ -11,8 +11,7 @@ fun dnsHistoryRetrieval(
     dnsResolver: DnsResolver,
     community: String,
     address: String,
-    messages: SnapshotStateList<Message>,
-    communityId: Int
+    messages: SnapshotStateList<Message>
 ) {
     historyRetrieval(
         dnsResolver.requestHistory(
@@ -20,8 +19,7 @@ fun dnsHistoryRetrieval(
             address,
             10
         ),
-        messages,
-        communityId
+        messages
     )
 }
 
@@ -29,8 +27,7 @@ fun httpHistoryRetrieval(
     httpResolver: HttpResolver,
     community: String,
     address: String,
-    messages: SnapshotStateList<Message>,
-    communityId: Int
+    messages: SnapshotStateList<Message>
 ) {
     historyRetrieval(
         httpResolver.requestHistory(
@@ -38,19 +35,17 @@ fun httpHistoryRetrieval(
             address,
             10
         ),
-        messages,
-        communityId
+        messages
     )
 }
 
 private fun historyRetrieval(
     history: List<String>,
-    messages: SnapshotStateList<Message>,
-    communityId: Int
+    messages: SnapshotStateList<Message>
 ) {
     val msgList = history.stream().map { element ->
         val parts = element.split(":::")
-        Message(parts[0], parts[1], communityId, MessageStatus.RECEIVED, false)
+        Message(parts[0], parts[1], MessageStatus.RECEIVED, false)
     }.toList()
 
     val list = messages.stream().filter { e ->

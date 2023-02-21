@@ -5,16 +5,13 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import fr.chatavion.client.db.dao.CommunityDAO
-import fr.chatavion.client.db.dao.MessageDAO
 import fr.chatavion.client.db.entity.Community
-import fr.chatavion.client.db.entity.Message
 
 @Database(
     version = 1,
-    entities = [Community::class, Message::class]
+    entities = [Community::class]
 )
 abstract class DataBaseConnection : RoomDatabase() {
-    abstract fun messageDao(): MessageDAO
     abstract fun communityDao(): CommunityDAO
 
     companion object {
