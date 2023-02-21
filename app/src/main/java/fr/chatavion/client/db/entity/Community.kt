@@ -1,14 +1,20 @@
 package fr.chatavion.client.db.entity
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "community")
+@Entity(
+    tableName = "community",
+    indices = [
+        Index(value = ["name", "address"], unique = true)
+    ]
+)
 data class Community(
-    @PrimaryKey
-    val communityId: Long,
     val name: String,
     val address: String,
-    val Pseudo: String
+    val pseudo: String,
+    @PrimaryKey(autoGenerate = true)
+    val communityId: Int = 0
 )
 

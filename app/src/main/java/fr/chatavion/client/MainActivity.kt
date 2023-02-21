@@ -1,5 +1,6 @@
 package fr.chatavion.client
 
+import android.app.Application
 import android.content.Context
 import android.os.Bundle
 import android.view.View
@@ -11,9 +12,13 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import fr.chatavion.client.db.viewModel.CommunityViewModel
+import fr.chatavion.client.db.viewModel.MessageViewModel
 import fr.chatavion.client.ui.theme.ChatavionTheme
 import fr.chatavion.client.ui.view.AuthentificationView
 import fr.chatavion.client.ui.view.TchatView
@@ -27,11 +32,25 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             ChatavionTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
+                    val context = LocalContext.current
+
+                    // Instantiation of ViewModels
+                    communityViewModel = viewModel(
+                        factory = CommunityViewModel.CommunityFactory(
+                            context.applicationContext as Application
+                        )
+                    )
+
+                    messageViewModel = viewModel(
+                        factory = MessageViewModel.MessageFactory(
+                            context.applicationContext as Application
+                        )
+                    )
+
                     NavigationBasicsApp()
                 }
             }
@@ -39,7 +58,8 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-
+lateinit var communityViewModel: CommunityViewModel
+lateinit var messageViewModel: MessageViewModel
 
 @Composable
 fun NavigationBasicsApp() {
@@ -53,13 +73,12 @@ fun NavigationBasicsApp() {
             authView.AuthentificationView(navController)
         }
 
-        composable("tchat_page/{pseudo}/{community}/{address}") { backStackEntry ->
-//            val sender = backStackEntry.arguments?.getBundle("sender")
-//            val pseudo = backStackEntry.arguments?.getString("pseudo")
+        composable("tchat_page/{community}/{address}/{id}") { backStackEntry ->
             val community = backStackEntry.arguments?.getString("community")
             val address = backStackEntry.arguments?.getString("address")
-            if (community != null && address != null) {
-                tchatView.DrawerAppComponent(navController, community, address)
+            val id = backStackEntry.arguments?.getString("id")
+            if (community != null && address != null && id != null) {
+                tchatView.DrawerAppComponent(navController, community, address, id.toInt())
             }
         }
     }

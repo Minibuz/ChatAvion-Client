@@ -13,7 +13,7 @@ plugins {
 }
 
 sonar {
-  properties {
-    property "sonar.projectKey", "ChatAvion-Client"
-  }
+    properties {
+        property "sonar.projectKey", "ChatAvion-Client"
+    }
 }

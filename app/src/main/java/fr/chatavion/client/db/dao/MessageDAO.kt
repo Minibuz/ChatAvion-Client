@@ -9,7 +9,7 @@ import fr.chatavion.client.db.entity.Message
 @Dao
 interface MessageDAO {
     @Insert
-    fun insertAll(vararg messages: Message)
+    fun insertAll(messages: List<Message>)
 
     @Query("SELECT * FROM message")
     fun getAll(): LiveData<List<Message>>

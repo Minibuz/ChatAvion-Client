@@ -25,9 +25,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import fr.chatavion.client.R
+import fr.chatavion.client.communityViewModel
 import fr.chatavion.client.connection.dns.DnsResolver
 import fr.chatavion.client.connection.http.HttpResolver
 import fr.chatavion.client.datastore.SettingsRepository
+import fr.chatavion.client.db.entity.Community
 import fr.chatavion.client.util.Utils
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
@@ -44,19 +46,32 @@ class AuthentificationView {
     fun AuthentificationView(navController: NavController) {
         val context = LocalContext.current
         val settingsRepository = SettingsRepository(context = context)
-        var id by remember { mutableStateOf("") }
+        var communityId by remember { mutableStateOf("") }
         var pseudo by remember { mutableStateOf("") }
-        var community by remember { mutableStateOf("") }
-        var address by remember { mutableStateOf("") }
+        var communityName by remember { mutableStateOf("") }
+        var communityAddress by remember { mutableStateOf("") }
         var enabled by remember { mutableStateOf(true) }
         var isRegisterOk by remember { mutableStateOf(false) }
         var isConnectionOk by remember { mutableStateOf(false) }
-        if (pseudo != "" && id != "") {
+        if (pseudo != "" && communityId != "") {
             isRegisterOk = true
         }
         if (isConnectionOk) {
-            navController.navigate("tchat_page/${pseudo}/${community}/${address}")
-            isConnectionOk = false
+            val community = Community(
+                communityName,
+                communityAddress,
+                pseudo
+            )
+            LaunchedEffect("insertId") {
+                communityViewModel.insert(community)
+                val id = withContext(IO) {
+                    communityViewModel.getId(communityName, communityAddress)
+                }
+                Log.i("CommunityID", "$id")
+                withContext(Main) {
+                    navController.navigate("tchat_page/${communityName}/${communityAddress}/${id}")
+                }
+            }
         }
         Column(modifier = Modifier.fillMaxSize()) {
             Image(
@@ -79,8 +94,8 @@ class AuthentificationView {
                     modifier = Modifier.padding(vertical = 16.dp)
                 )
                 TextField(
-                    value = id.replace("\n", ""),
-                    onValueChange = { id = it },
+                    value = communityId.replace("\n", ""),
+                    onValueChange = { communityId = it },
                     placeholder = { Text(text = stringResource(R.string.communityAtIpServ)) },
                     textStyle = TextStyle(fontSize = 16.sp),
                     modifier = Modifier
@@ -124,19 +139,20 @@ class AuthentificationView {
                         .testTag("connectionBtn"),
                     enabled = enabled,
                     onClick = {
-                        Log.d("FullPage", "Button pushed by $pseudo on $id")
+                        Log.d("FullPage", "Button pushed by $pseudo on $communityId")
                         enabled = false
                         if (isRegisterOk) {
-                            id = id.trim()
-                            val count = id.count { it == '@' }
+                            communityId = communityId.trim()
+                            val count = communityId.count { it == '@' }
                             if (count == 1) {
-                                val list = id.split("@")
-                                community = list[0]
-                                address = list[1]
-                                Log.i("Community", community)
-                                Log.i("Address", address)
+                                val list = communityId.split("@")
+                                communityName = list[0]
+                                communityAddress = list[1]
+                                Log.i("Community", communityName)
+                                Log.i("Address", communityAddress)
                                 CoroutineScope(IO).launch {
-                                    isConnectionOk = sendButtonConnexion(address, community)
+                                    isConnectionOk =
+                                        sendButtonConnexion(communityAddress, communityName)
                                     if (isConnectionOk) {
                                         Log.i("Pseudo", "Setting user pseudo to $pseudo")
                                         settingsRepository.setPseudo(pseudo)
@@ -183,7 +199,7 @@ class AuthentificationView {
     ): Boolean {
         var returnVal: Boolean
         withContext(IO) {
-            returnVal = if(testHttp()) {
+            returnVal = if (testHttp()) {
                 httpSender.communityChecker(address, community)
             } else {
                 dnsSender.findType(address)
@@ -197,13 +213,13 @@ class AuthentificationView {
         return returnVal
     }
 
-    private fun testHttp() : Boolean {
+    private fun testHttp(): Boolean {
         val url = URL("https://www.google.com")
         with(url.openConnection() as HttpURLConnection) {
             requestMethod = "GET"  // optional default is GET
 
             Log.i("Test HTTP", "\nSent 'GET' request to URL : $url; Response Code : $responseCode")
-            return responseCode==200
+            return responseCode == 200
         }
     }
 }
