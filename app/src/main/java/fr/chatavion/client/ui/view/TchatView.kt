@@ -35,12 +35,11 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import fr.chatavion.client.R
 import fr.chatavion.client.communityViewModel
-import fr.chatavion.client.connection.Message
-import fr.chatavion.client.connection.MessageStatus
 import fr.chatavion.client.connection.dns.DnsResolver
 import fr.chatavion.client.connection.http.HttpResolver
 import fr.chatavion.client.datastore.SettingsRepository
 import fr.chatavion.client.db.entity.Message
+import fr.chatavion.client.db.entity.MessageStatus
 import fr.chatavion.client.messageViewModel
 import fr.chatavion.client.ui.theme.White
 import fr.chatavion.client.util.Utils
@@ -83,7 +82,7 @@ class TchatView {
         var enableSendingMessage by remember { mutableStateOf(true) }
         var displayBurgerMenu by remember { mutableStateOf(false) }
         var connectionIsDNS by remember { mutableStateOf(true) }
-        var pseudo by remember{ mutableStateOf("") }
+        var pseudo by remember { mutableStateOf("") }
 
         BackHandler(enabled = true) {
             navController.navigate("auth_page")
@@ -146,13 +145,18 @@ class TchatView {
                                 .testTag("connectionSwitch"),
                             onClick = {
                                 Log.i("wifi", "Wifi pushed")
-                                if(connectionIsDNS){
+                                if (connectionIsDNS) {
                                     connectionIsDNS = false
-                                    Utils.showInfoToast(R.string.connectionSwitchHTTP.toString(), context)
-                                }
-                                else{
+                                    Utils.showInfoToast(
+                                        R.string.connectionSwitchHTTP.toString(),
+                                        context
+                                    )
+                                } else {
                                     connectionIsDNS = true
-                                    Utils.showInfoToast(R.string.connectionSwitchDNS.toString(), context)
+                                    Utils.showInfoToast(
+                                        R.string.connectionSwitchDNS.toString(),
+                                        context
+                                    )
                                 }
                             }) {
                             Icon(Icons.Filled.Wifi, "wifi")
@@ -214,21 +218,22 @@ class TchatView {
                             onClick = {
                                 CoroutineScope(IO).launch {
                                     enableSendingMessage = false
-                                    
+
                                     if (msg != "") {
                                         Log.i("test", "$pseudo:$msg")
                                         val ret = sendMessage(
                                             msg,
                                             pseudo,
-                                            community,
-                                            address,
+                                            communityName,
+                                            communityAddress,
+                                            communityId,
                                             messages,
                                             dnsResolver,
                                             httpResolver,
                                             connectionIsDNS
                                         )
 
-                                        if( ret ) {
+                                        if (ret) {
                                             msg = ""
                                             remainingCharacter = 35
                                         } else {
@@ -238,7 +243,7 @@ class TchatView {
                                         }
                                         enableSendingMessage = true
                                     }
-                                 }
+                                }
 
 
                             }) {
@@ -263,17 +268,14 @@ class TchatView {
                         items(
                             community.messages
                         ) { message ->
-                            DisplayCenterText(
-                                message.pseudo,
-                                message.message
-                            )
+                            DisplayCenterText(message)
                         }
                     }
                 }
             }
         }
 
-        CoroutineScope(Main).launch {
+        LaunchedEffect("pseudo") {
             settingsRepository.pseudo.collect { value ->
                 pseudo = value
             }
@@ -286,13 +288,25 @@ class TchatView {
                         Log.i("History", "Retrieve the history")
 
                         if (connectionIsDNS) {
-                            dnsHistoryRetrieval(dnsResolver, community, address, messages)
+                            dnsHistoryRetrieval(
+                                dnsResolver,
+                                communityName,
+                                communityAddress,
+                                messages,
+                                communityId
+                            )
                             httpResolver.id = dnsResolver.id
                         } else {
-                            httpHistoryRetrieval(httpResolver, community, address, messages)
+                            httpHistoryRetrieval(
+                                httpResolver,
+                                communityName,
+                                communityAddress,
+                                messages,
+                                communityId
+                            )
                             dnsResolver.id = httpResolver.id
                         }
-                        
+
                         delay(10_000L)
                     }
                 } catch (e: CancellationException) {
@@ -305,15 +319,15 @@ class TchatView {
 
 
     @Composable
-    fun DisplayCenterText(pseudo: String, message: String) {
+    fun DisplayCenterText(message: Message) {
         Column(
             horizontalAlignment = Alignment.Start,
             modifier = Modifier
         )
         {
             Text(
-                text = pseudo.trim(),
-                color = if(message.send) Color.Blue else MaterialTheme.colors.onPrimary,
+                text = message.pseudo.trim(),
+                color = if (message.send) Color.Blue else MaterialTheme.colors.onPrimary,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.ExtraBold,
                 modifier = Modifier
@@ -321,8 +335,8 @@ class TchatView {
             )
             Spacer(modifier = Modifier.size(3.dp))
             Text(
-                text = message.trim(),
-                color = if(message.status == MessageStatus.SEND) MaterialTheme.colors.primaryVariant else MaterialTheme.colors.onPrimary,
+                text = message.message.trim(),
+                color = if (message.status == MessageStatus.SEND) MaterialTheme.colors.primaryVariant else MaterialTheme.colors.onPrimary,
                 fontSize = 14.sp,
                 softWrap = true,
                 modifier = Modifier
@@ -362,7 +376,7 @@ class TchatView {
     @Composable
     fun DrawerContentComponent(
         navController: NavController,
-        community: String,
+        communityName: String,
         closeDrawer: () -> Unit
     ) {
         val context = LocalContext.current
@@ -554,6 +568,7 @@ class TchatView {
         pseudo: String,
         community: String,
         address: String,
+        communityId: Int,
         messages: SnapshotStateList<Message>,
         senderDns: DnsResolver,
         senderHttp: HttpResolver,
@@ -561,14 +576,22 @@ class TchatView {
     ): Boolean {
         var returnVal: Boolean
         withContext(IO) {
-            if(isDns) {
+            if (isDns) {
                 returnVal = senderDns.sendMessage(community, address, pseudo, message)
             } else {
                 returnVal = senderHttp.sendMessage(community, address, pseudo, message)
             }
         }
         if (returnVal) {
-            messages.add(Message(MessageStatus.SEND, pseudo, message, true))
+            messages.add(
+                Message(
+                    pseudo,
+                    message,
+                    communityId,
+                    MessageStatus.SEND,
+                    true
+                )
+            )
             Log.i("Message", "Success")
         } else
             Log.i("Message", "Error")

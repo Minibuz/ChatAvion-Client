@@ -1,17 +1,18 @@
 package fr.chatavion.client.ui.view
 
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import fr.chatavion.client.connection.Message
-import fr.chatavion.client.connection.MessageStatus
 import fr.chatavion.client.connection.dns.DnsResolver
 import fr.chatavion.client.connection.http.HttpResolver
+import fr.chatavion.client.db.entity.Message
+import fr.chatavion.client.db.entity.MessageStatus
 import kotlin.streams.toList
 
 fun dnsHistoryRetrieval(
     dnsResolver: DnsResolver,
     community: String,
     address: String,
-    messages: SnapshotStateList<Message>
+    messages: SnapshotStateList<Message>,
+    communityId: Int
 ) {
     historyRetrieval(
         dnsResolver.requestHistory(
@@ -19,7 +20,8 @@ fun dnsHistoryRetrieval(
             address,
             10
         ),
-        messages
+        messages,
+        communityId
     )
 }
 
@@ -27,7 +29,8 @@ fun httpHistoryRetrieval(
     httpResolver: HttpResolver,
     community: String,
     address: String,
-    messages: SnapshotStateList<Message>
+    messages: SnapshotStateList<Message>,
+    communityId: Int
 ) {
     historyRetrieval(
         httpResolver.requestHistory(
@@ -35,17 +38,19 @@ fun httpHistoryRetrieval(
             address,
             10
         ),
-        messages
+        messages,
+        communityId
     )
 }
 
 private fun historyRetrieval(
     history: List<String>,
-    messages: SnapshotStateList<Message>
+    messages: SnapshotStateList<Message>,
+    communityId: Int
 ) {
     val msgList = history.stream().map { element ->
         val parts = element.split(":::")
-        Message(MessageStatus.RECEIVED, parts[0], parts[1], false)
+        Message(parts[0], parts[1], communityId, MessageStatus.RECEIVED, false)
     }.toList()
 
     val list = messages.stream().filter { e ->
@@ -55,7 +60,7 @@ private fun historyRetrieval(
     val listToRemove: MutableList<Message> = mutableListOf()
     msgList.forEach { msg ->
         for (message in list) {
-            if (msg.user == message.user && msg.message == message.message) {
+            if (msg.pseudo == message.pseudo && msg.message == message.message) {
                 msg.send = true
                 listToRemove.add(message)
             }

@@ -8,6 +8,13 @@ data class Message(
     val pseudo: String,
     val message: String,
     val communityId: Int,
+    val status: MessageStatus,
+    var send: Boolean,
     @PrimaryKey(autoGenerate = true)
     val messageId: Int = 0
 )
+
+enum class MessageStatus {
+    SEND,
+    RECEIVED
+}
