@@ -10,11 +10,11 @@ import fr.chatavion.client.db.entity.CommunityWithMessages
 interface CommunityDAO {
 
     @Transaction
-    @Query("SELECT * FROM community WHERE communityId = (:communityID);")
-    fun getById(communityID: Int): LiveData<CommunityWithMessages>
+    @Query("SELECT * FROM community WHERE name = (:name) AND address = (:address)")
+    fun getById(name: String, address: String): LiveData<CommunityWithMessages>
 
     @Transaction
-    @Query("SELECT * FROM community;")
+    @Query("SELECT * FROM community")
     fun getAll(): LiveData<List<CommunityWithMessages>>
 
     @Insert
@@ -23,4 +23,12 @@ interface CommunityDAO {
 
     @Delete
     suspend fun delete(community: Community)
+
+    @Transaction
+    @Throws(SQLiteConstraintException::class)
+    @Query(
+        "SELECT communityId FROM community " +
+                "WHERE name=(:name) AND address = (:address)"
+    )
+    fun getId(name: String, address: String): Int
 }

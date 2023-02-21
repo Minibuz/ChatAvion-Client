@@ -24,8 +24,12 @@ class CommunityViewModel(application: Application) : AndroidViewModel(applicatio
         return communityDao.getAll()
     }
 
-    fun getById(id: Int): LiveData<CommunityWithMessages> {
-        return communityDao.getById(id)
+    fun getId(name: String, address: String): Int {
+        return communityDao.getId(name, address)
+    }
+
+    fun getById(name: String, address: String): LiveData<CommunityWithMessages> {
+        return communityDao.getById(name, address)
     }
 
     fun delete(community: Community) {
