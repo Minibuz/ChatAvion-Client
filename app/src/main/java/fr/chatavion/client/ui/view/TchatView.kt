@@ -139,11 +139,11 @@ class TchatView {
                                 Log.i("wifi", "Wifi pushed")
                                 if(connectionIsDNS){
                                     connectionIsDNS = false
-                                    Utils.showInfoToast(R.string.connectionSwitchHTTP.toString(), context)
+                                    Utils.showInfoToast(context.getString(R.string.connectionSwitchHTTP), context)
                                 }
                                 else{
                                     connectionIsDNS = true
-                                    Utils.showInfoToast(R.string.connectionSwitchDNS.toString(), context)
+                                    Utils.showInfoToast(context.getString(R.string.connectionSwitchDNS), context)
                                 }
                             }) {
                             Icon(Icons.Filled.Wifi, "wifi")

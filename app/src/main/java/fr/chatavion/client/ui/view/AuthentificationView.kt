@@ -138,21 +138,29 @@ class AuthentificationView {
                                     if (isConnectionOk) {
                                         Log.i("Pseudo", "Setting user pseudo to $pseudo")
                                         settingsRepository.setPseudo(pseudo)
-                                        Utils.showInfoToast(
-                                            R.string.commuConnection.toString(),
+
+                                        withContext(Dispatchers.Main) {
+                                            Utils.showInfoToast(
+                                                context.getString(R.string.commuConnection),
+                                                context
+                                            )
+                                        }
+                                    }
+                                    enabled = true
+                                    withContext(Dispatchers.Main) {
+                                        Utils.showErrorToast(
+                                            context.getString(R.string.commuConnectionFailed),
                                             context
                                         )
                                     }
-                                    enabled = true
-                                    Utils.showErrorToast(R.string.commuConnectionFailed.toString(), context)
                                 }
                             } else {
                                 enabled = true
-
                                 Utils.showErrorToast(
-                                    R.string.community_id_must_have_one_At.toString(),
+                                    context.getString(R.string.community_id_must_have_one_At),
                                     context
                                 )
+
                             }
                         }
                     },

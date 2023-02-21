@@ -9,7 +9,7 @@ const opts = {
   capabilities: {
     platformName: "Android",
     platformVersion: "8.1",//ANDROID VERSION OF EMULATOR
-    deviceName: "advtest", //EMULTAOR NAME IN DEVICE MANAGER
+    deviceName: "avdtest", //EMULTAOR NAME IN DEVICE MANAGER
     appPackage: "fr.chatavion.client", //PACKAGE WHERE TO BE TESTED ACTIVITY IS
     appActivity: ".MainActivity", //TO BE TESTED ACTIVITY NAME
     automationName: "UiAutomator2" //DONT TOUCH
