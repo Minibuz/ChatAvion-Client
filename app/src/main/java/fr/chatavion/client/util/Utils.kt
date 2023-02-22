@@ -20,7 +20,7 @@ object Utils {
 
     fun showErrorToast(text: String, context: Context){
         Toast.makeText(context,
-            text,
+            "ERROR: "+text,
             Toast.LENGTH_LONG
         ).show()
     }
