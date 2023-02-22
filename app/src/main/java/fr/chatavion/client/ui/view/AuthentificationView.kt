@@ -145,8 +145,8 @@ class AuthentificationView {
                             val count = communityId.count { it == '@' }
                             if (count == 1) {
                                 val list = communityId.split("@")
-                                communityName = list[0]
-                                communityAddress = list[1]
+                                communityName = list[0].lowercase().trim()
+                                communityAddress = list[1].lowercase().trim()
                                 Log.i("Community", communityName)
                                 Log.i("Address", communityAddress)
                                 CoroutineScope(IO).launch {
