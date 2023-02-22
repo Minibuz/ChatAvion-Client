@@ -1,6 +1,7 @@
 package fr.chatavion.client.ui.view
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
@@ -412,19 +413,23 @@ class TchatView {
         closeDrawer: () -> Unit
     ) {
         val context = LocalContext.current
-        val settingsRepository = SettingsRepository(context = context)
-
         var pseudoCurrent by remember { mutableStateOf("") }
-        var showUser by remember { mutableStateOf(false) }
-        if (showUser) {
-            // Add pages here
-            UserParameter(
+        var menu by remember { mutableStateOf(ParametersMenu.Parameters) }
+
+        when(menu){
+            ParametersMenu.Parameters -> {}
+            ParametersMenu.Pseudo -> {
+                UserParameter(
                 community = communityName,
                 currentPseudo = pseudoCurrent,
                 onClose = {
-                    showUser = false
+                    menu = ParametersMenu.Parameters
                 }
-            )
+            )}
+            ParametersMenu.Theme -> {}
+            ParametersMenu.Languages -> {}
+            ParametersMenu.Notifications -> {}
+            ParametersMenu.Advanced -> {}
         }
 
         Surface(
@@ -470,46 +475,12 @@ class TchatView {
                     modifier = Modifier
                         .fillMaxHeight(2 / 4f)
                 ) {
-                    LazyColumn {
-                        items (Parameters.values()) { parameter ->
-                            Column(
-                                modifier = Modifier.clickable(onClick = {
-                                    closeDrawer()
-                                }), content = {
-                                    Surface(
-                                        color = MaterialTheme.colors.background,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                    ) {
-                                        TextButton(
-                                            content = {
-                                                Text(
-                                                    color = MaterialTheme.colors.onBackground,
-                                                    text = UiText.StringResource(parameter.resId).asString(),
-                                                    textAlign = TextAlign.Center
-                                                )
-                                            },
-                                            modifier = Modifier.padding(8.dp),
-                                            onClick = {
-                                                Log.i("Parameters", "Parameters")
-                                                CoroutineScope(Dispatchers.Default).launch {
-                                                    settingsRepository.pseudo.collect { pseudo ->
-                                                        pseudoCurrent = pseudo
-                                                    }
-                                                }
-                                                showUser = true
-                                            },
-                                            colors = ButtonDefaults.buttonColors(MaterialTheme.colors.background),
-                                        )
-                                        Divider(
-                                            color = MaterialTheme.colors.onBackground,
-                                            thickness = 1.dp,
-                                            startIndent = (1 / 5f).dp
-                                        )
-                                    }
-                                })
-                        }
-                    }
+                    ParametersColumn(
+                        closeDrawer = closeDrawer,
+                        context = context,
+                        updateMenu = {menu = it},
+                        updatePseudo = {pseudoCurrent = it}
+                    )
                 }
                 Spacer(modifier = Modifier.weight(1f))
                 Divider(
@@ -543,6 +514,64 @@ class TchatView {
         }
     }
 
+    @Composable
+    fun ParametersColumn(
+        closeDrawer: () -> Unit,
+        context: Context,
+        updateMenu: (ParametersMenu) -> Unit,
+        updatePseudo: (String) -> Unit
+        ){
+        val settingsRepository = SettingsRepository(context = context)
+        LazyColumn {
+            items (Parameters.values()) { parameter ->
+                Column(
+                    modifier = Modifier.clickable(onClick = {
+                        closeDrawer()
+                    }), content = {
+                        Surface(
+                            color = MaterialTheme.colors.background,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        ) {
+                            TextButton(
+                                content = {
+                                    Text(
+                                        color = MaterialTheme.colors.onBackground,
+                                        text = UiText.StringResource(parameter.resId).asString(),
+                                        textAlign = TextAlign.Center
+                                    )
+                                },
+                                modifier = Modifier.padding(8.dp),
+                                onClick = {
+                                    Log.i("Parameters", "Parameters")
+                                    CoroutineScope(Dispatchers.Default).launch {
+                                        settingsRepository.pseudo.collect { pseudo ->
+                                            updatePseudo(pseudo)
+                                        }
+                                    }
+                                    updateMenu(ParametersMenu.Pseudo)
+                                },
+                                colors = ButtonDefaults.buttonColors(MaterialTheme.colors.background),
+                            )
+                            Divider(
+                                color = MaterialTheme.colors.onBackground,
+                                thickness = 1.dp,
+                                startIndent = (1 / 5f).dp
+                            )
+                        }
+                    })
+            }
+        }
+    }
+
+    enum class ParametersMenu(){
+        Parameters,
+        Pseudo,
+        Theme,
+        Languages,
+        Notifications,
+        Advanced
+    }
     enum class Parameters(@StringRes val resId: Int) {
         Pseudo(R.string.pseudo),
         Theme(R.string.theme),
