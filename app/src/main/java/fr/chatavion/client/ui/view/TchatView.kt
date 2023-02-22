@@ -78,6 +78,43 @@ class TchatView {
         var connectionIsDNS by remember { mutableStateOf(true) }
         var pseudo by remember { mutableStateOf("") }
 
+        // Popup
+        var showCommunityDetails by remember { mutableStateOf(false) }
+        if (showCommunityDetails) {
+            AlertDialog(
+                onDismissRequest = { showCommunityDetails = false },
+                backgroundColor = MaterialTheme.colors.background,
+                text = {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight(4 / 12f)
+                    ) {
+                        Column(
+                            verticalArrangement = Arrangement.Top,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "Community details",
+                                fontSize = 16.sp,
+                                color = MaterialTheme.colors.onBackground,
+                                textAlign = TextAlign.Center,
+                            )
+                            Spacer(modifier = Modifier.weight(1f))
+                            Text(
+                                text = "$communityName@$communityAddress",
+                                color = MaterialTheme.colors.onBackground,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
+                    }
+                },
+                confirmButton = {
+                    
+                })
+        }
+
         BackHandler(enabled = true) {
             navController.navigate("auth_page")
         }
@@ -99,6 +136,7 @@ class TchatView {
                                 border = BorderStroke(0.dp, Color.Transparent),
                                 onClick = {
                                     Log.i("test","test")
+                                    showCommunityDetails = true
                                 },
                                 modifier = Modifier
                                     .fillMaxSize(1f)
