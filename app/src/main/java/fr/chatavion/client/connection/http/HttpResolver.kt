@@ -6,6 +6,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.nio.charset.StandardCharsets
 import com.fasterxml.jackson.module.kotlin.*
+import java.io.IOException
 
 class HttpResolver {
 
@@ -20,18 +21,22 @@ class HttpResolver {
         val url = URL("http://chat.$address/history/$community/$id?amount=$nbMessage")
         val mutableList: MutableList<String> = mutableListOf()
 
-        with(url.openConnection() as HttpURLConnection) {
-            requestMethod = "GET"  // optional default is GET
+        try {
+            with(url.openConnection() as HttpURLConnection) {
+                requestMethod = "GET"  // optional default is GET
 
-            println("\nSent 'GET' request to URL : $url; Response Code : $responseCode")
+                println("\nSent 'GET' request to URL : $url; Response Code : $responseCode")
 
-            inputStream.bufferedReader().use {
-                it.lines().forEach { line ->
-                    val list: List<HttpMessage> = mapper.readValue(line)
-                    id += list.size
-                    list.forEach { httpMessage -> mutableList.add("${httpMessage.user}:::${httpMessage.message}") }
+                inputStream.bufferedReader().use {
+                    it.lines().forEach { line ->
+                        val list: List<HttpMessage> = mapper.readValue(line)
+                        id += list.size
+                        list.forEach { httpMessage -> mutableList.add("${httpMessage.user}:::${httpMessage.message}") }
+                    }
                 }
             }
+        } catch (e: IOException) {
+            Log.e("HTTPResolver", "Server doesn't exist")
         }
         return mutableList
     }
@@ -52,20 +57,24 @@ class HttpResolver {
         val payload = "{\"username\": \"$pseudo\", \"message\": \"$message\"}"
 
         var result = false
-        with(url.openConnection() as HttpURLConnection) {
-            setRequestProperty("Content-Type", "application/json")
-            setRequestProperty("Content-Length", payload.length.toString())
-            doOutput = true
+        try {
+            with(url.openConnection() as HttpURLConnection) {
+                setRequestProperty("Content-Type", "application/json")
+                setRequestProperty("Content-Length", payload.length.toString())
+                doOutput = true
 
-            val wr = OutputStreamWriter(outputStream)
-            wr.write(payload)
-            wr.flush()
+                val wr = OutputStreamWriter(outputStream)
+                wr.write(payload)
+                wr.flush()
 
-            inputStream.bufferedReader().use {
-                it.lines().forEach { line ->
-                    result = mapper.readValue(line)
+                inputStream.bufferedReader().use {
+                    it.lines().forEach { line ->
+                        result = mapper.readValue(line)
+                    }
                 }
             }
+        } catch (e: IOException) {
+            Log.e("HTTPResolver", "Server doesn't exist")
         }
         return result
     }
@@ -77,16 +86,20 @@ class HttpResolver {
         val url = URL("http://chat.$address/community/$community")
 
         var result = false
-        with(url.openConnection() as HttpURLConnection) {
-            requestMethod = "GET"  // optional default is GET
+        try {
+            with(url.openConnection() as HttpURLConnection) {
+                requestMethod = "GET"  // optional default is GET
 
-            println("\nSent 'GET' request to URL : $url; Response Code : $responseCode")
+                println("\nSent 'GET' request to URL : $url; Response Code : $responseCode")
 
-            inputStream.bufferedReader().use {
-                it.lines().forEach { line ->
-                    result = mapper.readValue(line)
+                inputStream.bufferedReader().use {
+                    it.lines().forEach { line ->
+                        result = mapper.readValue(line)
+                    }
                 }
             }
+        } catch (e: IOException) {
+            Log.e("HTTPResolver", "Server doesn't exist")
         }
         return result
     }

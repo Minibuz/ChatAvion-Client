@@ -34,6 +34,7 @@ import fr.chatavion.client.util.Utils
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import java.io.IOException
 import java.net.*
 
 class AuthentificationView {
@@ -194,6 +195,11 @@ class AuthentificationView {
         address: String,
         community: String
     ): Boolean {
+        if(address == "" || community == "") {
+            Log.e("Connexion", "Address or community is empty")
+            return false
+        }
+
         var returnVal: Boolean
         withContext(IO) {
             returnVal = if (testHttp()) {
@@ -212,11 +218,18 @@ class AuthentificationView {
 
     private fun testHttp(): Boolean {
         val url = URL("https://www.google.com")
-        with(url.openConnection() as HttpURLConnection) {
-            requestMethod = "GET"  // optional default is GET
+        try {
+            with(url.openConnection() as HttpURLConnection) {
+                requestMethod = "GET"  // optional default is GET
 
-            Log.i("Test HTTP", "\nSent 'GET' request to URL : $url; Response Code : $responseCode")
-            return responseCode == 200
+                Log.i(
+                    "Test HTTP",
+                    "\nSent 'GET' request to URL : $url; Response Code : $responseCode"
+                )
+                return responseCode == 200
+            }
+        } catch (e : IOException) {
+            return false
         }
     }
 }
