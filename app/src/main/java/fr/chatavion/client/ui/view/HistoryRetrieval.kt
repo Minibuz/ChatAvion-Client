@@ -65,7 +65,11 @@ private fun historyRetrieval(
     }
 
     list.removeAll(listOfChanged)
-    listToRemove.addAll(list)
+    if(list.isNotEmpty()) {
+        // TODO Toast here to main thread
+        // CoroutineScope(Main) {}
+        listToRemove.addAll(list)
+    }
 
     messages.removeAll(
         listToRemove
