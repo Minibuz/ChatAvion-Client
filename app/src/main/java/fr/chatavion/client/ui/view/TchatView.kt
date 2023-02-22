@@ -470,9 +470,8 @@ class TchatView {
                     modifier = Modifier
                         .fillMaxHeight(2 / 4f)
                 ) {
-                    Column {
-                        for (parameter in Parameters.values()) {
-                            //val screen = getScreenBasedOnIndex(index).name
+                    LazyColumn {
+                        items (Parameters.values()) { parameter ->
                             Column(
                                 modifier = Modifier.clickable(onClick = {
                                     closeDrawer()
