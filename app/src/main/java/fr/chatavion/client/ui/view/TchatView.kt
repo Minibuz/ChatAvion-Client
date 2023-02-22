@@ -5,6 +5,7 @@ import android.util.Log
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -93,12 +94,23 @@ class TchatView {
                             modifier = Modifier
                                 .fillMaxSize(4 / 5f)
                         ) {
-                            Text(
-                                text = communityName,
-                                color = MaterialTheme.colors.onPrimary,
+                            OutlinedButton(
+                                colors = ButtonDefaults.outlinedButtonColors(backgroundColor = Color.Transparent),
+                                border = BorderStroke(0.dp, Color.Transparent),
+                                onClick = {
+                                    Log.i("test","test")
+                                },
                                 modifier = Modifier
-                                    .wrapContentHeight()
-                            )
+                                    .fillMaxSize(1f)
+                            ) {
+                                Text(
+                                    text = communityName,
+                                    fontSize = 18.sp,
+                                    color = MaterialTheme.colors.onPrimary,
+                                    modifier = Modifier
+                                        .wrapContentSize(align = Alignment.Center)
+                                )
+                            }
                         }
                         BurgerMenuCommunity(displayBurgerMenu) {
                             displayBurgerMenu = !displayBurgerMenu
@@ -214,7 +226,6 @@ class TchatView {
                                             pseudo,
                                             communityName,
                                             communityAddress,
-                                            communityId,
                                             messages,
                                             dnsResolver,
                                             httpResolver,
@@ -276,8 +287,7 @@ class TchatView {
                                 dnsResolver,
                                 communityName,
                                 communityAddress,
-                                messages,
-                                communityId
+                                messages
                             )
                             httpResolver.id = dnsResolver.id
                         } else {
@@ -285,8 +295,7 @@ class TchatView {
                                 httpResolver,
                                 communityName,
                                 communityAddress,
-                                messages,
-                                communityId
+                                messages
                             )
                             dnsResolver.id = httpResolver.id
                         }
@@ -551,7 +560,6 @@ class TchatView {
         pseudo: String,
         community: String,
         address: String,
-        communityId: Int,
         messages: SnapshotStateList<Message>,
         senderDns: DnsResolver,
         senderHttp: HttpResolver,
@@ -570,7 +578,6 @@ class TchatView {
                 Message(
                     pseudo,
                     message,
-                    communityId,
                     MessageStatus.SEND,
                     true
                 )
