@@ -146,13 +146,16 @@ class AuthentificationView {
                                             )
                                         }
                                     }
-                                    enabled = true
-                                    withContext(Dispatchers.Main) {
-                                        Utils.showErrorToast(
-                                            context.getString(R.string.commuConnectionFailed),
-                                            context
-                                        )
+                                    else{
+                                        withContext(Dispatchers.Main) {
+                                            Utils.showErrorToast(
+                                                context.getString(R.string.commuConnectionFailed),
+                                                context
+                                            )
+                                        }
                                     }
+                                    enabled = true
+
                                 }
                             } else {
                                 enabled = true
