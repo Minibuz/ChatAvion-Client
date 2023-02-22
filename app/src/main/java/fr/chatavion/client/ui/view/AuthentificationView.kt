@@ -195,7 +195,7 @@ class AuthentificationView {
         address: String,
         community: String
     ): Boolean {
-        if(address == "" || community == "") {
+        if (address == "" || community == "") {
             Log.e("Connexion", "Address or community is empty")
             return false
         }
@@ -215,21 +215,21 @@ class AuthentificationView {
             Log.i("Connexion", "Error")
         return returnVal
     }
+}
 
-    private fun testHttp(): Boolean {
-        val url = URL("https://www.google.com")
-        try {
-            with(url.openConnection() as HttpURLConnection) {
-                requestMethod = "GET"  // optional default is GET
+fun testHttp(): Boolean {
+    val url = URL("https://www.google.com")
+    try {
+        with(url.openConnection() as HttpURLConnection) {
+            requestMethod = "GET"  // optional default is GET
 
-                Log.i(
-                    "Test HTTP",
-                    "\nSent 'GET' request to URL : $url; Response Code : $responseCode"
-                )
-                return responseCode == 200
-            }
-        } catch (e : IOException) {
-            return false
+            Log.i(
+                "Test HTTP",
+                "\nSent 'GET' request to URL : $url; Response Code : $responseCode"
+            )
+            return responseCode == 200
         }
+    } catch (e : IOException) {
+        return false
     }
 }

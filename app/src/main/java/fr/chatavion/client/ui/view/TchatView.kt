@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -23,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -39,6 +41,7 @@ import fr.chatavion.client.communityViewModel
 import fr.chatavion.client.connection.dns.DnsResolver
 import fr.chatavion.client.connection.http.HttpResolver
 import fr.chatavion.client.datastore.SettingsRepository
+import fr.chatavion.client.db.entity.Community
 import fr.chatavion.client.db.entity.Message
 import fr.chatavion.client.db.entity.MessageStatus
 import fr.chatavion.client.ui.theme.White
@@ -111,7 +114,7 @@ class TchatView {
                     }
                 },
                 confirmButton = {
-                    
+
                 })
         }
 
@@ -150,8 +153,14 @@ class TchatView {
                                 )
                             }
                         }
-                        BurgerMenuCommunity(displayBurgerMenu) {
-                            displayBurgerMenu = !displayBurgerMenu
+                        if (community != null) {
+                            BurgerMenuCommunity(navController, community, displayBurgerMenu) {
+                                displayBurgerMenu = !displayBurgerMenu
+                            }
+                        } else {
+                            BurgerMenuCommunity(navController, Community("empty", "empty", "empty"), displayBurgerMenu) {
+                                displayBurgerMenu = !displayBurgerMenu
+                            }
                         }
                         IconButton(
                             modifier = Modifier
@@ -567,27 +576,80 @@ class TchatView {
 
     @Composable
     fun BurgerMenuCommunity(
+        navController: NavController,
+        currentCommunity: Community,
         displayMenu: Boolean,
         onDismiss: () -> Unit
     ) {
         val context = LocalContext.current
+        val communities by communityVM.getAll().observeAsState(listOf())
 
+        val configuration = LocalConfiguration.current
+        val screenHeight = configuration.screenHeightDp.dp
+        val screenWidth = configuration.screenWidthDp.dp
+
+        val lazyListState = rememberLazyListState()
         DropdownMenu(
             expanded = displayMenu,
             onDismissRequest = { onDismiss() },
             modifier = Modifier
-                .fillMaxWidth(3 / 5f)
+                .fillMaxWidth()
                 .background(MaterialTheme.colors.background)
         ) {
-            for (i in 1..3) {
-                DropdownMenuItem(
-                    onClick = {
-                        Toast.makeText(context, "$i", LENGTH_SHORT).show()
-                    },
+            if (communities.isNotEmpty()) {
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .size(width = screenWidth, height = screenHeight/4)
                 ) {
-                    Text(text = "Communauté $i")
+                    LazyColumn(
+                        Modifier
+                            .fillMaxWidth()
+                            .background(color = MaterialTheme.colors.background)
+                            .padding(PaddingValues(horizontal = 0.dp, vertical = 2.dp)),
+                        verticalArrangement = Arrangement.spacedBy(5.dp),
+                        state = lazyListState
+                    ) {
+                        items(items = communities) { community ->
+                            if(community.communityId != currentCommunity.communityId) {
+                                DropdownMenuItem(
+                                    onClick = {
+                                        Toast.makeText(
+                                            context,
+                                            "${community.communityId}",
+                                            LENGTH_SHORT
+                                        ).show()
+                                        isCommunityStillAvailable(
+                                            communityAddress = community.address,
+                                            communityName = community.name
+                                        )
+                                        navController.navigate("tchat_page/${community.name}/${community.address}/${community.communityId}")
+                                    },
+                                ) {
+                                    Row() {
+                                        Text(
+                                            text = "${community.name}@${community.address}",
+                                            modifier = Modifier.align(Alignment.CenterVertically)
+                                        )
+                                        Spacer(modifier = Modifier.weight(1f))
+                                        IconButton(
+                                            onClick = {
+                                                Log.i("Community", "Deleting community $community")
+                                                communityViewModel.delete(community)
+                                            }
+                                        ) {
+                                            Icon(
+                                                Icons.Filled.Close,
+                                                "close",
+                                                tint = MaterialTheme.colors.onBackground,
+                                                modifier = Modifier
+                                                    .fillMaxWidth(0.2f)
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -624,5 +686,32 @@ class TchatView {
         } else
             Log.i("Message", "Error")
         return returnVal
+    }
+
+    private fun isCommunityStillAvailable(
+        communityName: String,
+        communityAddress: String,
+
+    ) : Boolean {
+        Log.i("Address", communityAddress)
+        Log.i("Community", communityName)
+        var isConnectionOk = false
+        CoroutineScope(IO).launch {
+            isConnectionOk = if (testHttp()) {
+                val httpSender = HttpResolver()
+                httpSender.communityChecker(communityAddress, communityName)
+            } else {
+                val dnsSender = DnsResolver()
+                dnsSender.findType(communityAddress)
+                dnsSender.communityDetection(communityAddress, communityName)
+            }
+
+            if (isConnectionOk) {
+                // Toast true
+            } else {
+                // Toast false
+            }
+        }
+        return isConnectionOk
     }
 }
