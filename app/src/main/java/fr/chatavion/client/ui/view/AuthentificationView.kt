@@ -68,9 +68,7 @@ class AuthentificationView {
                     communityViewModel.getId(communityName, communityAddress)
                 }
                 Log.i("CommunityID", "$id")
-                withContext(Main) {
-                    navController.navigate("tchat_page/${communityName}/${communityAddress}/${id}")
-                }
+                navController.navigate("tchat_page/${communityName}/${communityAddress}/${id}")
             }
         }
         Column(modifier = Modifier.fillMaxSize()) {
