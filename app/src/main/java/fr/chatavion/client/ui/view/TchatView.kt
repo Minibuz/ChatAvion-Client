@@ -5,6 +5,7 @@ import android.util.Log
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.activity.compose.BackHandler
+import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -41,6 +42,7 @@ import fr.chatavion.client.connection.http.HttpResolver
 import fr.chatavion.client.datastore.SettingsRepository
 import fr.chatavion.client.db.entity.Message
 import fr.chatavion.client.db.entity.MessageStatus
+import fr.chatavion.client.ui.UiText
 import fr.chatavion.client.ui.theme.White
 import fr.chatavion.client.util.Utils
 import kotlinx.coroutines.*
@@ -469,8 +471,8 @@ class TchatView {
                         .fillMaxHeight(2 / 4f)
                 ) {
                     Column {
-                        for (index in Parameters.values().indices) {
-                            val screen = getScreenBasedOnIndex(index).name
+                        for (parameter in Parameters.values()) {
+                            //val screen = getScreenBasedOnIndex(index).name
                             Column(
                                 modifier = Modifier.clickable(onClick = {
                                     closeDrawer()
@@ -484,7 +486,7 @@ class TchatView {
                                             content = {
                                                 Text(
                                                     color = MaterialTheme.colors.onBackground,
-                                                    text = screen,
+                                                    text = UiText.StringResource(parameter.resId).asString(),
                                                     textAlign = TextAlign.Center
                                                 )
                                             },
@@ -542,22 +544,12 @@ class TchatView {
         }
     }
 
-    /**
-     * Returns the corresponding DrawerAppScreen based on the index passed to it.
-     */
-    private fun getScreenBasedOnIndex(index: Int) = when (index) {
-        0 -> Parameters.Pseudo
-        1 -> Parameters.Theme
-        2 -> Parameters.Langue
-        3 -> Parameters.Notifications
-        else -> Parameters.Pseudo
-    }
-
-    enum class Parameters {
-        Pseudo,
-        Theme,
-        Langue,
-        Notifications
+    enum class Parameters(@StringRes val resId: Int) {
+        Pseudo(R.string.pseudo),
+        Theme(R.string.theme),
+        Languages(R.string.langue),
+        Notifications(R.string.notifications),
+        Advanced(R.string.advanced_parameters)
     }
 
     enum class AdvanceParameters {
