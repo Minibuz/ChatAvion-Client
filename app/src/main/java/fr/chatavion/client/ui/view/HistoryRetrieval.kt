@@ -50,16 +50,25 @@ private fun historyRetrieval(
 
     val list = messages.stream().filter { e ->
         e.status == MessageStatus.SEND
-    }.toList()
+    }.toList().toMutableList()
 
     val listToRemove: MutableList<Message> = mutableListOf()
+    val listOfChanged: MutableList<Message> = mutableListOf()
     msgList.forEach { msg ->
         for (message in list) {
             if (msg.pseudo == message.pseudo && msg.message == message.message) {
                 msg.send = true
+                listOfChanged.add(msg)
                 listToRemove.add(message)
             }
         }
+    }
+
+    list.removeAll(listOfChanged)
+    if(list.isNotEmpty()) {
+        // TODO Toast here to main thread
+        // CoroutineScope(Main) {}
+        listToRemove.addAll(list)
     }
 
     messages.removeAll(
