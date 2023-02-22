@@ -25,7 +25,7 @@
     <string name="light">Light</string>
     <string name="dark">Dark</string>
     <string name="msgError">Message could not be sent because of an internal error</string>
-    <string name="commuConnection">Connection succeeded</string>
+    <string name="commuConnection">Connection success</string>
     <string name="commuConnectionFailed">Connection failed</string>
     <string name="connectionSwitchDNS">Switched to DNS</string>
     <string name="connectionSwitchHTTP">Switched to HTTP</string>

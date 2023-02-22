@@ -157,14 +157,14 @@ class AuthentificationView {
                                         settingsRepository.setPseudo(pseudo)
                                         withContext(Main) {
                                             Utils.showInfoToast(
-                                                R.string.commuConnection.toString(),
+                                                context.getString(R.string.commuConnection),
                                                 context
                                             )
                                         }
                                     } else {
                                         withContext(Main) {
                                             Utils.showErrorToast(
-                                                R.string.commuConnectionFailed.toString(),
+                                                context.getString(R.string.commuConnectionFailed),
                                                 context
                                             )
                                         }

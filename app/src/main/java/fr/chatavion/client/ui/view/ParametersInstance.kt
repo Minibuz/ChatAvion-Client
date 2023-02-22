@@ -9,10 +9,14 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -22,6 +26,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun UserParameter(
     currentPseudo: String,
@@ -109,7 +114,10 @@ fun UserParameter(
                                 colors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.background),
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(10.dp))
-                                    .fillMaxWidth(0.8f),
+                                    .fillMaxWidth(0.8f).semantics {
+                                        testTagsAsResourceId = true
+                                    }
+                                    .testTag("pseudoChangeTextField"),
                                 value = if (current == "") currentPseudo else current.replace(
                                     "\n",
                                     ""
@@ -124,7 +132,10 @@ fun UserParameter(
                                     }
                                 },
                                 modifier = Modifier
-                                    .align(Alignment.CenterVertically),
+                                    .align(Alignment.CenterVertically).semantics {
+                                        testTagsAsResourceId = true
+                                    }
+                                    .testTag("confirmPseudoChange"),
                                 content = {
                                     Icon(
                                         Icons.Filled.Done,

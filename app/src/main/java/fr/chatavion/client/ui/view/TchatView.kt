@@ -357,6 +357,7 @@ class TchatView {
     }
 
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     fun DisplayCenterText(message: Message) {
         Column(
@@ -371,6 +372,10 @@ class TchatView {
                 fontWeight = FontWeight.ExtraBold,
                 modifier = Modifier
                     .fillMaxWidth()
+                    .semantics {
+                        testTagsAsResourceId = true
+                    }
+                    .testTag("pseudoTag")
             )
             Spacer(modifier = Modifier.size(3.dp))
             Text(
@@ -380,6 +385,10 @@ class TchatView {
                 softWrap = true,
                 modifier = Modifier
                     .fillMaxWidth()
+                    .semantics {
+                        testTagsAsResourceId = true
+                    }
+                    .testTag("messageTag")
             )
         }
     }
@@ -412,6 +421,7 @@ class TchatView {
         )
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     fun DrawerContentComponent(
         navController: NavController,
@@ -487,7 +497,10 @@ class TchatView {
                                     Surface(
                                         color = MaterialTheme.colors.background,
                                         modifier = Modifier
-                                            .fillMaxWidth()
+                                            .fillMaxWidth().semantics {
+                                                testTagsAsResourceId = true
+                                            }
+                                            .testTag(Parameters.values()[index].toString()+"Tag")
                                     ) {
                                         TextButton(
                                             content = {
