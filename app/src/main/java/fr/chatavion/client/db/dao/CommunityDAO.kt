@@ -1,24 +1,23 @@
 package fr.chatavion.client.db.dao
 
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
-import androidx.room.Transaction
+import androidx.room.*
 import fr.chatavion.client.db.entity.Community
-import fr.chatavion.client.db.entity.CommunityWithMessages
 
 @Dao
 interface CommunityDAO {
 
     @Transaction
-    @Query("SELECT * FROM community WHERE communityId = :communityID")
-    fun getById(communityID: Int): LiveData<CommunityWithMessages>
+    @Query("SELECT * FROM community WHERE communityId = (:id)")
+    fun getById(id: Int): LiveData<Community>
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(community: Community)
+
+    @Delete
+    suspend fun delete(community: Community)
 
     @Transaction
-    @Query("SELECT * FROM community")
-    fun getAll(): LiveData<List<CommunityWithMessages>>
-
-    @Insert
-    fun insert(community: Community)
+    @Query("SELECT communityId FROM community WHERE name = (:name) AND address = (:address) LIMIT 1")
+    fun getId(name: String, address: String): Int
 }
