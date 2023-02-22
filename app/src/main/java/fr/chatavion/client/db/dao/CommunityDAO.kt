@@ -22,6 +22,6 @@ interface CommunityDAO {
     suspend fun delete(community: Community)
 
     @Transaction
-    @Query("SELECT communityId FROM community WHERE name = (:name) AND address = (:address) LIMIT 1")
+    @Query("SELECT communityId FROM community WHERE name = (:name) AND address = (:address)")
     fun getId(name: String, address: String): Int
 }
