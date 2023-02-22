@@ -22,6 +22,10 @@ class CommunityViewModel(application: Application) : AndroidViewModel(applicatio
         return communityDao.getById(id)
     }
 
+    fun getAll(): LiveData<List<Community>> {
+        return communityDao.getAll()
+    }
+
     fun delete(community: Community) {
         viewModelScope.launch {
             communityDao.delete(community)
