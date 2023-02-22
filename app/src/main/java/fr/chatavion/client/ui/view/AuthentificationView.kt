@@ -68,9 +68,7 @@ class AuthentificationView {
                     communityViewModel.getId(communityName, communityAddress)
                 }
                 Log.i("CommunityID", "$id")
-                withContext(Main) {
-                    navController.navigate("tchat_page/${communityName}/${communityAddress}/${id}")
-                }
+                navController.navigate("tchat_page/${communityName}/${communityAddress}/${id}")
             }
         }
         Column(modifier = Modifier.fillMaxSize()) {
@@ -162,15 +160,7 @@ class AuthentificationView {
                                                 context
                                             )
                                         }
-                                    } else {
-                                        withContext(Main) {
-                                            Utils.showErrorToast(
-                                                R.string.commuConnectionFailed.toString(),
-                                                context
-                                            )
-                                        }
-                                    }
-                                    else{
+                                    } else{
                                         withContext(Dispatchers.Main) {
                                             Utils.showErrorToast(
                                                 context.getString(R.string.commuConnectionFailed),
@@ -178,10 +168,7 @@ class AuthentificationView {
                                             )
                                         }
                                     }
-                                    enabled = true
-                                }
                             } else {
-                                enabled = true
                                 Utils.showErrorToast(
                                     context.getString(R.string.community_id_must_have_one_At),
                                     context
@@ -189,6 +176,7 @@ class AuthentificationView {
 
                             }
                         }
+                        enabled = true
                     },
                     colors = ButtonDefaults.buttonColors(MaterialTheme.colors.secondary)
                 ) {

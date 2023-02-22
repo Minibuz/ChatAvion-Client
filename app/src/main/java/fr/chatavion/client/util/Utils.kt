@@ -13,10 +13,9 @@ object Utils {
         ).show()
     }
 
-    fun showErrorToast(text: String, context: Context) {
-        Toast.makeText(
-            context,
-            text,
+    fun showErrorToast(text: String, context: Context){
+        Toast.makeText(context,
+            "ERROR: "+text,
             Toast.LENGTH_LONG
         ).show()
     }
