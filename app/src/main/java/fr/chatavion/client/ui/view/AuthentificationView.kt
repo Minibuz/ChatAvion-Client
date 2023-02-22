@@ -168,10 +168,8 @@ class AuthentificationView {
                                             )
                                         }
                                     }
-                                    enabled = true
                                 }
                             } else {
-                                enabled = true
                                 Utils.showErrorToast(
                                     context.getString(R.string.community_id_must_have_one_At),
                                     context
@@ -179,6 +177,7 @@ class AuthentificationView {
 
                             }
                         }
+                        enabled = true
                     },
                     colors = ButtonDefaults.buttonColors(MaterialTheme.colors.secondary)
                 ) {
