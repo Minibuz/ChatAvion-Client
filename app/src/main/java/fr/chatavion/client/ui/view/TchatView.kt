@@ -1,7 +1,6 @@
 package fr.chatavion.client.ui.view
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
@@ -417,20 +416,13 @@ class TchatView {
         var menu by remember { mutableStateOf(Parameters.Main) }
         val settingsRepository = SettingsRepository(context = context)
 
-        when(menu){
-            Parameters.Main -> {}
-            Parameters.Pseudo -> {
-                UserParameter(
-                community = communityName,
-                currentPseudo = pseudoCurrent,
-                onClose = {
-                    menu = Parameters.Main
-                }
-            )}
-            Parameters.Theme -> {}
-            Parameters.Languages -> {}
-            Parameters.Notifications -> {}
-            Parameters.Advanced -> {}
+        if(menu == Parameters.Pseudo){
+            UserParameter(
+            community = communityName,
+            currentPseudo = pseudoCurrent,
+            onClose = {
+                menu = Parameters.Main
+            })
         }
 
         Surface(
@@ -476,28 +468,43 @@ class TchatView {
                     modifier = Modifier
                         .fillMaxHeight(2 / 4f)
                 ) {
-                    ParametersColumn(
-                        closeDrawer = closeDrawer,
-                        parametersSet = Parameters.values() as Array<Param>,
-                        updateMenu =
-                        {
-                            when(it) {
-                                Parameters.Pseudo -> {
-                                    Log.i("Parameters", "Parameters")
-                                    CoroutineScope(Dispatchers.Default).launch {
-                                        settingsRepository.pseudo.collect { pseudo ->
-                                            pseudoCurrent = pseudo
+                    when(menu){
+                        Parameters.Main -> {
+                            ParametersColumn(
+                                closeDrawer = closeDrawer,
+                                parametersSet = Parameters.values() as Array<Param>,
+                                updateMenu =
+                                {
+                                    when(it) {
+                                        Parameters.Pseudo -> {
+                                            Log.i("Parameters", "Pseudo touched")
+                                            CoroutineScope(Dispatchers.Default).launch {
+                                                settingsRepository.pseudo.collect { pseudo ->
+                                                    pseudoCurrent = pseudo
+                                                }
+                                            }
+                                            menu = Parameters.Pseudo
                                         }
+                                        Parameters.Theme -> {}
+                                        Parameters.Languages -> {
+                                            Log.i("Parameters", "Language touched")
+                                            menu = Parameters.Languages
+                                        }
+                                        Parameters.Notifications -> {}
+                                        Parameters.Advanced -> {}
                                     }
-                                    menu = Parameters.Pseudo
                                 }
-                                Parameters.Theme -> {}
-                                Parameters.Languages -> {}
-                                Parameters.Notifications -> {}
-                                Parameters.Advanced -> {}
-                            }
+                            )
                         }
-                    )
+                        Parameters.Languages -> {
+                            ParametersColumn(
+                                closeDrawer = closeDrawer,
+                                parametersSet = Language.values() as Array<Param>,
+                                updateMenu = {}
+                            )
+                        }
+                        else -> {}
+                    }
                 }
                 Spacer(modifier = Modifier.weight(1f))
                 Divider(
@@ -589,14 +596,13 @@ class TchatView {
         }
     }
 
-    enum class Language(@StringRes val resId: Int) {
+    enum class Language(@StringRes val resId: Int) : Param{
         French(R.string.french),
-        English(R.string.english)
-    }
+        English(R.string.english);
 
-    enum class AdvanceParameters {
-        Messages,
-        Connexion
+        override fun getId(): Int {
+            return this.resId
+        }
     }
 
     @Composable
