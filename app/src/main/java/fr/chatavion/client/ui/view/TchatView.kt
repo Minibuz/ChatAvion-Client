@@ -68,7 +68,7 @@ class TchatView {
     ) {
         val context = LocalContext.current
 
-        val community by communityVM.getById(communityId).observeAsState(Community("","",""))
+        val community by communityVM.getById(communityId).observeAsState(Community(communityName,communityAddress,"", communityId))
 
         val dnsResolver = DnsResolver()
         val httpResolver = HttpResolver()
@@ -151,7 +151,7 @@ class TchatView {
                                 )
                             }
                         }
-                        BurgerMenuCommunity(navController, community, displayBurgerMenu) {
+                        BurgerMenuCommunity(navController, communityId, displayBurgerMenu) {
                             displayBurgerMenu = !displayBurgerMenu
                         }
                         IconButton(
@@ -574,7 +574,7 @@ class TchatView {
     fun ParametersColumn(
         parametersSet: Array<Param>,
         updateMenu: (Param) -> Unit
-        ){
+    ){
         LazyColumn {
             items (parametersSet) { parameter ->
                 Column(
@@ -587,7 +587,11 @@ class TchatView {
                                     .semantics {
                                         testTagsAsResourceId = true
                                     }
-                                    .testTag(UiText.StringResource(parameter.getId()).toString())
+                                    .testTag(
+                                        UiText
+                                            .StringResource(parameter.getId())
+                                            .toString()
+                                    )
                             ) {
                                 TextButton(
                                     content = {
@@ -672,7 +676,7 @@ class TchatView {
     @Composable
     fun BurgerMenuCommunity(
         navController: NavController,
-        currentCommunity: Community,
+        communityId: Int,
         displayMenu: Boolean,
         onDismiss: () -> Unit
     ) {
@@ -705,7 +709,8 @@ class TchatView {
                         state = lazyListState
                     ) {
                         items(items = communities) { community ->
-                            if(community.communityId != currentCommunity.communityId) {
+                            Log.i("test", "${community.communityId} + $communityId")
+                            if(community.communityId != communityId) {
                                 DropdownMenuItem(
                                     onClick = {
                                         Toast.makeText(
@@ -787,7 +792,7 @@ class TchatView {
         communityName: String,
         communityAddress: String,
 
-    ) : Boolean {
+        ) : Boolean {
         Log.i("Address", communityAddress)
         Log.i("Community", communityName)
         var isConnectionOk = false

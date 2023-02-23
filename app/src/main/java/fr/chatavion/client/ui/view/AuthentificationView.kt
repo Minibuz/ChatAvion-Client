@@ -65,6 +65,7 @@ class AuthentificationView {
             )
             LaunchedEffect("insertId") {
                 communityViewModel.insert(community)
+                delay(250L)
                 val id = withContext(IO) {
                     communityViewModel.getId(communityName, communityAddress)
                 }
