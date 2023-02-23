@@ -467,7 +467,7 @@ class TchatView {
                 )
                 Box(
                     modifier = Modifier
-                        .fillMaxHeight(2 / 4f)
+                        .fillMaxHeight(3 / 4f)
                 ) {
                     when(menu){
                         Parameters.Main -> {
@@ -493,8 +493,15 @@ class TchatView {
                                             Log.i("Parameters", "Language touched")
                                             menu = Parameters.Languages
                                         }
-                                        Parameters.Notifications -> {}
-                                        Parameters.Advanced -> {}
+                                        Parameters.Messages -> {
+                                            Log.i("Parameters", "Messages touched")
+                                            menu = Parameters.Messages
+                                        }
+                                        Parameters.NetworkConnection -> {
+                                            Log.i("Parameters", "Messages touched")
+                                            menu = Parameters.NetworkConnection
+                                        }
+                                        else -> {}
                                     }
                                 }
                             )
@@ -511,6 +518,18 @@ class TchatView {
                                 updateMenu = {}
                             )
                         }
+                        Parameters.Messages -> {
+                            ParametersColumn(
+                                parametersSet = Messages.values() as Array<Param>,
+                                updateMenu = {}
+                            )
+                        }
+                        Parameters.NetworkConnection -> {
+                            ParametersColumn(
+                                parametersSet = NetworkConnection.values() as Array<Param>,
+                                updateMenu = {}
+                            )
+                        }
                         else -> {}
                     }
                 }
@@ -524,7 +543,7 @@ class TchatView {
                         navController.navigate("auth_page")
                     }
                 ) {
-                    Row() {
+                    Row {
                         Icon(
                             Icons.Filled.Home,
                             "home",
@@ -596,7 +615,9 @@ class TchatView {
         Theme(R.string.theme),
         Languages(R.string.langue),
         Notifications(R.string.notifications),
-        Advanced(R.string.advanced_parameters);
+        Advanced(R.string.advanced_parameters),
+        Messages(R.string.messages),
+        NetworkConnection(R.string.network_connection);
         override fun getId(): Int {
             return this.resId
         }
@@ -614,6 +635,25 @@ class TchatView {
     enum class Theme(@StringRes val resId: Int) : Param{
         French(R.string.light),
         English(R.string.dark);
+
+        override fun getId(): Int {
+            return this.resId
+        }
+    }
+
+    enum class Messages(@StringRes val resId: Int) : Param{
+        RefreshTime(R.string.refresh_time),
+        LoadingHistory(R.string.loading_history),
+        Encoding(R.string.encoding);
+
+        override fun getId(): Int {
+            return this.resId
+        }
+    }
+
+    enum class NetworkConnection(@StringRes val resId: Int) : Param{
+        TransactionTypeDNS(R.string.transaction_type_dns),
+        ProtocolChoice(R.string.protocol_choice);
 
         override fun getId(): Int {
             return this.resId
