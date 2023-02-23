@@ -485,7 +485,10 @@ class TchatView {
                                             }
                                             menu = Parameters.Pseudo
                                         }
-                                        Parameters.Theme -> {}
+                                        Parameters.Theme -> {
+                                            Log.i("Parameters", "Theme touched")
+                                            menu = Parameters.Theme
+                                        }
                                         Parameters.Languages -> {
                                             Log.i("Parameters", "Language touched")
                                             menu = Parameters.Languages
@@ -499,6 +502,12 @@ class TchatView {
                         Parameters.Languages -> {
                             ParametersColumn(
                                 parametersSet = Language.values() as Array<Param>,
+                                updateMenu = {}
+                            )
+                        }
+                        Parameters.Theme -> {
+                            ParametersColumn(
+                                parametersSet = Theme.values() as Array<Param>,
                                 updateMenu = {}
                             )
                         }
@@ -596,6 +605,15 @@ class TchatView {
     enum class Language(@StringRes val resId: Int) : Param{
         French(R.string.french),
         English(R.string.english);
+
+        override fun getId(): Int {
+            return this.resId
+        }
+    }
+
+    enum class Theme(@StringRes val resId: Int) : Param{
+        French(R.string.light),
+        English(R.string.dark);
 
         override fun getId(): Int {
             return this.resId
