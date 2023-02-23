@@ -40,6 +40,7 @@ import fr.chatavion.client.R
 import fr.chatavion.client.communityViewModel
 import fr.chatavion.client.connection.dns.DnsResolver
 import fr.chatavion.client.connection.http.HttpResolver
+import fr.chatavion.client.datastore.SettingsRepository
 import fr.chatavion.client.db.entity.Community
 import fr.chatavion.client.db.entity.Message
 import fr.chatavion.client.db.entity.MessageStatus
@@ -403,6 +404,7 @@ class TchatView {
         )
     }
 
+    @OptIn(ExperimentalMaterialApi::class)
     @Composable
     fun DrawerContentComponent(
         navController: NavController,
@@ -567,6 +569,7 @@ class TchatView {
         }
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     fun ParametersColumn(
         parametersSet: Array<Param>,
@@ -584,7 +587,7 @@ class TchatView {
                                     .semantics {
                                         testTagsAsResourceId = true
                                     }
-                                    .testTag(Parameters.values()[index].toString()
+                                    .testTag(UiText.StringResource(parameter.getId()).toString())
                             ) {
                                 TextButton(
                                     content = {
