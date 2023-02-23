@@ -8,11 +8,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
@@ -21,7 +21,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import fr.chatavion.client.R
-import fr.chatavion.client.datastore.SettingsRepository
+import fr.chatavion.client.communityViewModel
+import fr.chatavion.client.db.entity.Community
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
@@ -29,13 +30,12 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun UserParameter(
-    currentPseudo: String,
+    pseudo: String,
+    communityId: Int,
     onClose: () -> Unit,
-    community: String
 ) {
-    var current by remember { mutableStateOf("") }
-    val context = LocalContext.current
-    val settingsRepository = SettingsRepository(context = context)
+    var current by remember { mutableStateOf(pseudo) }
+    val community by communityViewModel.getById(communityId).observeAsState(Community("","",""))
 
     Surface(
         color = MaterialTheme.colors.background
@@ -114,11 +114,12 @@ fun UserParameter(
                                 colors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.background),
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(10.dp))
-                                    .fillMaxWidth(0.8f).semantics {
+                                    .fillMaxWidth(0.8f)
+                                    .semantics {
                                         testTagsAsResourceId = true
                                     }
                                     .testTag("pseudoChangeTextField"),
-                                value = if (current == "") currentPseudo else current.replace(
+                                value = current.replace(
                                     "\n",
                                     ""
                                 ),
@@ -127,12 +128,19 @@ fun UserParameter(
                                 })
                             IconButton(
                                 onClick = {
-                                    CoroutineScope(IO).launch {
-                                        settingsRepository.setPseudo(current)
+                                    if(current != "") {
+                                        CoroutineScope(IO).launch {
+                                            community.pseudo = current
+                                            communityViewModel.insert(community = community)
+                                        }
+                                        // TODO Toast username changed
+                                    } else {
+                                        // TODO Toast username cannot be empty
                                     }
                                 },
                                 modifier = Modifier
-                                    .align(Alignment.CenterVertically).semantics {
+                                    .align(Alignment.CenterVertically)
+                                    .semantics {
                                         testTagsAsResourceId = true
                                     }
                                     .testTag("confirmPseudoChange"),
@@ -147,7 +155,7 @@ fun UserParameter(
                         }
                         Text(
                             color = MaterialTheme.colors.onBackground,
-                            text = stringResource(id = R.string.explication_pseudo_community)+" '$community'"
+                            text = stringResource(id = R.string.explication_pseudo_community)
                         )
                     }
                 }

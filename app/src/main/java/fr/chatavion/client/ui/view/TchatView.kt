@@ -40,7 +40,6 @@ import fr.chatavion.client.R
 import fr.chatavion.client.communityViewModel
 import fr.chatavion.client.connection.dns.DnsResolver
 import fr.chatavion.client.connection.http.HttpResolver
-import fr.chatavion.client.datastore.SettingsRepository
 import fr.chatavion.client.db.entity.Community
 import fr.chatavion.client.db.entity.Message
 import fr.chatavion.client.db.entity.MessageStatus
@@ -66,11 +65,9 @@ class TchatView {
         openDrawer: () -> Unit
     ) {
         val context = LocalContext.current
-        val community = communityId.let {
-            communityVM.getById(it).observeAsState().value
-        }
 
-        val settingsRepository = SettingsRepository(context = context)
+        val community by communityVM.getById(communityId).observeAsState(Community("","",""))
+
         val dnsResolver = DnsResolver()
         val httpResolver = HttpResolver()
         val messages = remember { mutableStateListOf<Message>() }
@@ -79,7 +76,6 @@ class TchatView {
         var enableSendingMessage by remember { mutableStateOf(true) }
         var displayBurgerMenu by remember { mutableStateOf(false) }
         var connectionIsDNS by remember { mutableStateOf(true) }
-        var pseudo by remember { mutableStateOf("") }
 
         // Popup
         var showCommunityDetails by remember { mutableStateOf(false) }
@@ -153,14 +149,8 @@ class TchatView {
                                 )
                             }
                         }
-                        if (community != null) {
-                            BurgerMenuCommunity(navController, community, displayBurgerMenu) {
-                                displayBurgerMenu = !displayBurgerMenu
-                            }
-                        } else {
-                            BurgerMenuCommunity(navController, Community("empty", "empty", "empty"), displayBurgerMenu) {
-                                displayBurgerMenu = !displayBurgerMenu
-                            }
+                        BurgerMenuCommunity(navController, community, displayBurgerMenu) {
+                            displayBurgerMenu = !displayBurgerMenu
                         }
                         IconButton(
                             modifier = Modifier
@@ -267,10 +257,10 @@ class TchatView {
                                     enableSendingMessage = false
 
                                     if (msg != "") {
-                                        Log.i("test", "$pseudo:$msg")
+                                        Log.i("test", "${community.pseudo}:$msg")
                                         val ret = sendMessage(
                                             msg,
-                                            pseudo,
+                                            community.pseudo,
                                             communityName,
                                             communityAddress,
                                             messages,
@@ -308,18 +298,10 @@ class TchatView {
                     verticalArrangement = Arrangement.spacedBy(15.dp),
                     state = LazyListState(firstVisibleItemIndex = messages.size)
                 ) {
-                    if (community != null) {
-                        items(messages) { message ->
-                            DisplayCenterText(message)
-                        }
+                    items(messages) { message ->
+                        DisplayCenterText(message)
                     }
                 }
-            }
-        }
-
-        LaunchedEffect("pseudo") {
-            settingsRepository.pseudo.collect { value ->
-                pseudo = value
             }
         }
 
@@ -409,7 +391,7 @@ class TchatView {
             drawerContent = {
                 DrawerContentComponent(
                     navController,
-                    communityName,
+                    communityId,
                     closeDrawer = { coroutineScope.launch { drawerState.close() } }
                 )
             },
@@ -425,19 +407,15 @@ class TchatView {
     @Composable
     fun DrawerContentComponent(
         navController: NavController,
-        communityName: String,
+        communityId: Int,
         closeDrawer: () -> Unit
     ) {
-        val context = LocalContext.current
-        val settingsRepository = SettingsRepository(context = context)
-
-        var pseudoCurrent by remember { mutableStateOf("") }
+        val community by communityVM.getById(communityId).observeAsState(Community("","",""))
         var showUser by remember { mutableStateOf(false) }
         if (showUser) {
-            // Add pages here
             UserParameter(
-                community = communityName,
-                currentPseudo = pseudoCurrent,
+                pseudo = community.pseudo,
+                communityId = community.communityId,
                 onClose = {
                     showUser = false
                 }
@@ -497,10 +475,11 @@ class TchatView {
                                     Surface(
                                         color = MaterialTheme.colors.background,
                                         modifier = Modifier
-                                            .fillMaxWidth().semantics {
+                                            .fillMaxWidth()
+                                            .semantics {
                                                 testTagsAsResourceId = true
                                             }
-                                            .testTag(Parameters.values()[index].toString()+"Tag")
+                                            .testTag(Parameters.values()[index].toString() + "Tag")
                                     ) {
                                         TextButton(
                                             content = {
@@ -513,11 +492,6 @@ class TchatView {
                                             modifier = Modifier.padding(8.dp),
                                             onClick = {
                                                 Log.i("Parameters", "Parameters")
-                                                CoroutineScope(Dispatchers.Default).launch {
-                                                    settingsRepository.pseudo.collect { pseudo ->
-                                                        pseudoCurrent = pseudo
-                                                    }
-                                                }
                                                 showUser = true
                                             },
                                             colors = ButtonDefaults.buttonColors(MaterialTheme.colors.background),
@@ -720,9 +694,9 @@ class TchatView {
             }
 
             if (isConnectionOk) {
-                // Toast true
+                // TODO Toast if true
             } else {
-                // Toast false
+                // TODO Toast if false
             }
         }
         return isConnectionOk
