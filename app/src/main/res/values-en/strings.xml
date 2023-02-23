@@ -3,7 +3,7 @@
     <string name="id_community">Community Id</string>
     <string name="communityAtIpServ">community@IPserver</string>
     <string name="pseudo">Pseudo</string>
-    <string name="community_id_must_have_one_At">The community Id must contain one \\\"@\\\"</string>
+    <string name="community_id_must_have_one_At">The community Id must contain one "@"</string>
     <string name="join_community">Join</string>
     <string name="parameters">Parameters</string>
     <string name="theme">Theme</string>
