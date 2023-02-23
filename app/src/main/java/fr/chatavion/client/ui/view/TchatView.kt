@@ -403,6 +403,7 @@ class TchatView {
         )
     }
 
+    @OptIn(ExperimentalMaterialApi::class)
     @Composable
     fun DrawerContentComponent(
         navController: NavController,
@@ -437,6 +438,9 @@ class TchatView {
                         color = MaterialTheme.colors.background,
                         modifier = Modifier
                             .fillMaxSize(),
+                        onClick = {
+                            menu = Parameters.Main
+                        }
                     ) {
                         Row {
                             Icon(
@@ -448,7 +452,7 @@ class TchatView {
                                     .align(Alignment.CenterVertically)
                             )
                             Text(
-                                text = "Paramètres",
+                                text = UiText.StringResource(R.string.parameters).asString(),
                                 color = MaterialTheme.colors.onBackground,
                                 modifier = Modifier
                                     .padding(16.dp)
