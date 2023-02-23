@@ -414,17 +414,17 @@ class TchatView {
     ) {
         val context = LocalContext.current
         var pseudoCurrent by remember { mutableStateOf("") }
-        var menu by remember { mutableStateOf(Parameters.Parameter) }
+        var menu by remember { mutableStateOf(Parameters.Main) }
         val settingsRepository = SettingsRepository(context = context)
 
         when(menu){
-            Parameters.Parameter -> {}
+            Parameters.Main -> {}
             Parameters.Pseudo -> {
                 UserParameter(
                 community = communityName,
                 currentPseudo = pseudoCurrent,
                 onClose = {
-                    menu = Parameters.Parameter
+                    menu = Parameters.Main
                 }
             )}
             Parameters.Theme -> {}
@@ -543,28 +543,31 @@ class TchatView {
                     modifier = Modifier.clickable(onClick = {
                         closeDrawer()
                     }), content = {
-                        Surface(
-                            color = MaterialTheme.colors.background,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                        ) {
-                            TextButton(
-                                content = {
-                                    Text(
-                                        color = MaterialTheme.colors.onBackground,
-                                        text = UiText.StringResource(parameter.getId()).asString(),
-                                        textAlign = TextAlign.Center
-                                    )
-                                },
-                                modifier = Modifier.padding(8.dp),
-                                onClick = { updateMenu(parameter) },
-                                colors = ButtonDefaults.buttonColors(MaterialTheme.colors.background),
-                            )
-                            Divider(
-                                color = MaterialTheme.colors.onBackground,
-                                thickness = 1.dp,
-                                startIndent = (1 / 5f).dp
-                            )
+                        if (parameter.getId() != R.string.parameters) {
+                            Surface(
+                                color = MaterialTheme.colors.background,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                            ) {
+                                TextButton(
+                                    content = {
+                                        Text(
+                                            color = MaterialTheme.colors.onBackground,
+                                            text = UiText.StringResource(parameter.getId())
+                                                .asString(),
+                                            textAlign = TextAlign.Center
+                                        )
+                                    },
+                                    modifier = Modifier.padding(8.dp),
+                                    onClick = { updateMenu(parameter) },
+                                    colors = ButtonDefaults.buttonColors(MaterialTheme.colors.background),
+                                )
+                                Divider(
+                                    color = MaterialTheme.colors.onBackground,
+                                    thickness = 1.dp,
+                                    startIndent = (1 / 5f).dp
+                                )
+                            }
                         }
                     })
             }
@@ -574,16 +577,8 @@ class TchatView {
     interface Param {
         fun getId(): Int
     }
-    enum class ParametersMenu(){
-        Parameters,
-        Pseudo,
-        Theme,
-        Languages,
-        Notifications,
-        Advanced
-    }
     enum class Parameters(@StringRes val resId: Int) : Param {
-        Parameter(R.string.parameters),
+        Main(R.string.parameters),
         Pseudo(R.string.pseudo),
         Theme(R.string.theme),
         Languages(R.string.langue),
