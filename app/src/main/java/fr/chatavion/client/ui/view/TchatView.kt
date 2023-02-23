@@ -574,7 +574,7 @@ class TchatView {
             items (parametersSet) { parameter ->
                 Column(
                     content = {
-                        if (parameter.getId() != R.string.parameters) {
+                        if (parameter.getId() != R.string.parameters && parameter.getId() != R.string.notifications && parameter.getId() != R.string.advanced_parameters) {
                             Surface(
                                 color = MaterialTheme.colors.background,
                                 modifier = Modifier
