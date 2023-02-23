@@ -5,9 +5,9 @@ import android.util.Log
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.activity.compose.BackHandler
+import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -40,9 +40,11 @@ import fr.chatavion.client.R
 import fr.chatavion.client.communityViewModel
 import fr.chatavion.client.connection.dns.DnsResolver
 import fr.chatavion.client.connection.http.HttpResolver
+import fr.chatavion.client.datastore.SettingsRepository
 import fr.chatavion.client.db.entity.Community
 import fr.chatavion.client.db.entity.Message
 import fr.chatavion.client.db.entity.MessageStatus
+import fr.chatavion.client.ui.UiText
 import fr.chatavion.client.ui.theme.White
 import fr.chatavion.client.util.Utils
 import kotlinx.coroutines.*
@@ -391,8 +393,7 @@ class TchatView {
             drawerContent = {
                 DrawerContentComponent(
                     navController,
-                    communityId,
-                    closeDrawer = { coroutineScope.launch { drawerState.close() } }
+                    communityId
                 )
             },
             content = {
@@ -403,21 +404,25 @@ class TchatView {
         )
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
+    @OptIn(ExperimentalMaterialApi::class)
     @Composable
     fun DrawerContentComponent(
         navController: NavController,
         communityId: Int,
-        closeDrawer: () -> Unit
     ) {
         val community by communityVM.getById(communityId).observeAsState(Community("","",""))
-        var showUser by remember { mutableStateOf(false) }
-        if (showUser) {
+
+        val context = LocalContext.current
+        var pseudoCurrent by remember { mutableStateOf("") }
+        var menu by remember { mutableStateOf(Parameters.Main) }
+        val settingsRepository = SettingsRepository(context = context)
+
+        if(menu == Parameters.Pseudo){
             UserParameter(
                 pseudo = community.pseudo,
                 communityId = community.communityId,
                 onClose = {
-                    showUser = false
+                    menu = Parameters.Main
                 }
             )
         }
@@ -437,6 +442,9 @@ class TchatView {
                         color = MaterialTheme.colors.background,
                         modifier = Modifier
                             .fillMaxSize(),
+                        onClick = {
+                            menu = Parameters.Main
+                        }
                     ) {
                         Row {
                             Icon(
@@ -448,7 +456,7 @@ class TchatView {
                                     .align(Alignment.CenterVertically)
                             )
                             Text(
-                                text = "Paramètres",
+                                text = UiText.StringResource(R.string.parameters).asString(),
                                 color = MaterialTheme.colors.onBackground,
                                 modifier = Modifier
                                     .padding(16.dp)
@@ -463,47 +471,70 @@ class TchatView {
                 )
                 Box(
                     modifier = Modifier
-                        .fillMaxHeight(2 / 4f)
+                        .fillMaxHeight(3 / 4f)
                 ) {
-                    Column {
-                        for (index in Parameters.values().indices) {
-                            val screen = getScreenBasedOnIndex(index).name
-                            Column(
-                                modifier = Modifier.clickable(onClick = {
-                                    closeDrawer()
-                                }), content = {
-                                    Surface(
-                                        color = MaterialTheme.colors.background,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .semantics {
-                                                testTagsAsResourceId = true
+                    when(menu){
+                        Parameters.Main -> {
+                            ParametersColumn(
+                                parametersSet = Parameters.values() as Array<Param>,
+                                updateMenu =
+                                {
+                                    when(it) {
+                                        Parameters.Pseudo -> {
+                                            Log.i("Parameters", "Pseudo touched")
+                                            CoroutineScope(Dispatchers.Default).launch {
+                                                settingsRepository.pseudo.collect { pseudo ->
+                                                    pseudoCurrent = pseudo
+                                                }
                                             }
-                                            .testTag(Parameters.values()[index].toString() + "Tag")
-                                    ) {
-                                        TextButton(
-                                            content = {
-                                                Text(
-                                                    color = MaterialTheme.colors.onBackground,
-                                                    text = screen,
-                                                    textAlign = TextAlign.Center
-                                                )
-                                            },
-                                            modifier = Modifier.padding(8.dp),
-                                            onClick = {
-                                                Log.i("Parameters", "Parameters")
-                                                showUser = true
-                                            },
-                                            colors = ButtonDefaults.buttonColors(MaterialTheme.colors.background),
-                                        )
-                                        Divider(
-                                            color = MaterialTheme.colors.onBackground,
-                                            thickness = 1.dp,
-                                            startIndent = (1 / 5f).dp
-                                        )
+                                            menu = Parameters.Pseudo
+                                        }
+                                        Parameters.Theme -> {
+                                            Log.i("Parameters", "Theme touched")
+                                            menu = Parameters.Theme
+                                        }
+                                        Parameters.Languages -> {
+                                            Log.i("Parameters", "Language touched")
+                                            menu = Parameters.Languages
+                                        }
+                                        Parameters.Messages -> {
+                                            Log.i("Parameters", "Messages touched")
+                                            menu = Parameters.Messages
+                                        }
+                                        Parameters.NetworkConnection -> {
+                                            Log.i("Parameters", "Messages touched")
+                                            menu = Parameters.NetworkConnection
+                                        }
+                                        else -> {}
                                     }
-                                })
+                                }
+                            )
                         }
+                        Parameters.Languages -> {
+                            ParametersColumn(
+                                parametersSet = Language.values() as Array<Param>,
+                                updateMenu = {}
+                            )
+                        }
+                        Parameters.Theme -> {
+                            ParametersColumn(
+                                parametersSet = Theme.values() as Array<Param>,
+                                updateMenu = {}
+                            )
+                        }
+                        Parameters.Messages -> {
+                            ParametersColumn(
+                                parametersSet = Messages.values() as Array<Param>,
+                                updateMenu = {}
+                            )
+                        }
+                        Parameters.NetworkConnection -> {
+                            ParametersColumn(
+                                parametersSet = NetworkConnection.values() as Array<Param>,
+                                updateMenu = {}
+                            )
+                        }
+                        else -> {}
                     }
                 }
                 Spacer(modifier = Modifier.weight(1f))
@@ -538,27 +569,104 @@ class TchatView {
         }
     }
 
-    /**
-     * Returns the corresponding DrawerAppScreen based on the index passed to it.
-     */
-    private fun getScreenBasedOnIndex(index: Int) = when (index) {
-        0 -> Parameters.Pseudo
-        1 -> Parameters.Theme
-        2 -> Parameters.Langue
-        3 -> Parameters.Notifications
-        else -> Parameters.Pseudo
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Composable
+    fun ParametersColumn(
+        parametersSet: Array<Param>,
+        updateMenu: (Param) -> Unit
+        ){
+        LazyColumn {
+            items (parametersSet) { parameter ->
+                Column(
+                    content = {
+                        if (parameter.getId() != R.string.parameters && parameter.getId() != R.string.notifications && parameter.getId() != R.string.advanced_parameters) {
+                            Surface(
+                                color = MaterialTheme.colors.background,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .semantics {
+                                        testTagsAsResourceId = true
+                                    }
+                                    .testTag(UiText.StringResource(parameter.getId()).toString())
+                            ) {
+                                TextButton(
+                                    content = {
+                                        Text(
+                                            color = MaterialTheme.colors.onBackground,
+                                            text = UiText.StringResource(parameter.getId())
+                                                .asString(),
+                                            textAlign = TextAlign.Center
+                                        )
+                                    },
+                                    modifier = Modifier.padding(8.dp),
+                                    onClick = { updateMenu(parameter) },
+                                    colors = ButtonDefaults.buttonColors(MaterialTheme.colors.background),
+                                )
+                                Divider(
+                                    color = MaterialTheme.colors.onBackground,
+                                    thickness = 1.dp,
+                                    startIndent = (1 / 5f).dp
+                                )
+                            }
+                        }
+                    }
+                )
+            }
+        }
     }
 
-    enum class Parameters {
-        Pseudo,
-        Theme,
-        Langue,
-        Notifications
+    interface Param {
+        fun getId(): Int
+    }
+    enum class Parameters(@StringRes val resId: Int) : Param {
+        Main(R.string.parameters),
+        Pseudo(R.string.pseudo),
+        Theme(R.string.theme),
+        Languages(R.string.langue),
+        Notifications(R.string.notifications),
+        Advanced(R.string.advanced_parameters),
+        Messages(R.string.messages),
+        NetworkConnection(R.string.network_connection);
+        override fun getId(): Int {
+            return this.resId
+        }
     }
 
-    enum class AdvanceParameters {
-        Messages,
-        Connexion
+    enum class Language(@StringRes val resId: Int) : Param{
+        French(R.string.french),
+        English(R.string.english);
+
+        override fun getId(): Int {
+            return this.resId
+        }
+    }
+
+    enum class Theme(@StringRes val resId: Int) : Param{
+        French(R.string.light),
+        English(R.string.dark);
+
+        override fun getId(): Int {
+            return this.resId
+        }
+    }
+
+    enum class Messages(@StringRes val resId: Int) : Param{
+        RefreshTime(R.string.refresh_time),
+        LoadingHistory(R.string.loading_history),
+        Encoding(R.string.encoding);
+
+        override fun getId(): Int {
+            return this.resId
+        }
+    }
+
+    enum class NetworkConnection(@StringRes val resId: Int) : Param{
+        TransactionTypeDNS(R.string.transaction_type_dns),
+        ProtocolChoice(R.string.protocol_choice);
+
+        override fun getId(): Int {
+            return this.resId
+        }
     }
 
     @Composable
