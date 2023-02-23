@@ -15,7 +15,7 @@ interface CommunityDAO {
     @Query("SELECT * FROM community")
     fun getAll(): LiveData<List<Community>>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(community: Community)
 
     @Delete

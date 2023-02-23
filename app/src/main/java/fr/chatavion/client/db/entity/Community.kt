@@ -13,7 +13,7 @@ import androidx.room.PrimaryKey
 data class Community(
     val name: String,
     val address: String,
-    val pseudo: String,
+    var pseudo: String,
     @PrimaryKey(autoGenerate = true)
     val communityId: Int = 0
 )
