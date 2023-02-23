@@ -393,8 +393,7 @@ class TchatView {
             drawerContent = {
                 DrawerContentComponent(
                     navController,
-                    communityName,
-                    closeDrawer = { coroutineScope.launch { drawerState.close() } }
+                    communityName
                 )
             },
             content = {
@@ -409,7 +408,6 @@ class TchatView {
     fun DrawerContentComponent(
         navController: NavController,
         communityName: String,
-        closeDrawer: () -> Unit
     ) {
         val context = LocalContext.current
         var pseudoCurrent by remember { mutableStateOf("") }
@@ -471,7 +469,6 @@ class TchatView {
                     when(menu){
                         Parameters.Main -> {
                             ParametersColumn(
-                                closeDrawer = closeDrawer,
                                 parametersSet = Parameters.values() as Array<Param>,
                                 updateMenu =
                                 {
@@ -498,7 +495,6 @@ class TchatView {
                         }
                         Parameters.Languages -> {
                             ParametersColumn(
-                                closeDrawer = closeDrawer,
                                 parametersSet = Language.values() as Array<Param>,
                                 updateMenu = {}
                             )
@@ -540,16 +536,13 @@ class TchatView {
 
     @Composable
     fun ParametersColumn(
-        closeDrawer: () -> Unit,
         parametersSet: Array<Param>,
         updateMenu: (Param) -> Unit
         ){
         LazyColumn {
             items (parametersSet) { parameter ->
                 Column(
-                    modifier = Modifier.clickable(onClick = {
-                        closeDrawer()
-                    }), content = {
+                    content = {
                         if (parameter.getId() != R.string.parameters) {
                             Surface(
                                 color = MaterialTheme.colors.background,
@@ -576,7 +569,8 @@ class TchatView {
                                 )
                             }
                         }
-                    })
+                    }
+                )
             }
         }
     }
