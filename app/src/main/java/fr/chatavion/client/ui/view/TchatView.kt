@@ -414,22 +414,23 @@ class TchatView {
     ) {
         val context = LocalContext.current
         var pseudoCurrent by remember { mutableStateOf("") }
-        var menu by remember { mutableStateOf(ParametersMenu.Parameters) }
+        var menu by remember { mutableStateOf(Parameters.Parameter) }
+        val settingsRepository = SettingsRepository(context = context)
 
         when(menu){
-            ParametersMenu.Parameters -> {}
-            ParametersMenu.Pseudo -> {
+            Parameters.Parameter -> {}
+            Parameters.Pseudo -> {
                 UserParameter(
                 community = communityName,
                 currentPseudo = pseudoCurrent,
                 onClose = {
-                    menu = ParametersMenu.Parameters
+                    menu = Parameters.Parameter
                 }
             )}
-            ParametersMenu.Theme -> {}
-            ParametersMenu.Languages -> {}
-            ParametersMenu.Notifications -> {}
-            ParametersMenu.Advanced -> {}
+            Parameters.Theme -> {}
+            Parameters.Languages -> {}
+            Parameters.Notifications -> {}
+            Parameters.Advanced -> {}
         }
 
         Surface(
@@ -477,9 +478,25 @@ class TchatView {
                 ) {
                     ParametersColumn(
                         closeDrawer = closeDrawer,
-                        context = context,
-                        updateMenu = {menu = it},
-                        updatePseudo = {pseudoCurrent = it}
+                        parametersSet = Parameters.values() as Array<Param>,
+                        updateMenu =
+                        {
+                            when(it) {
+                                Parameters.Pseudo -> {
+                                    Log.i("Parameters", "Parameters")
+                                    CoroutineScope(Dispatchers.Default).launch {
+                                        settingsRepository.pseudo.collect { pseudo ->
+                                            pseudoCurrent = pseudo
+                                        }
+                                    }
+                                    menu = Parameters.Pseudo
+                                }
+                                Parameters.Theme -> {}
+                                Parameters.Languages -> {}
+                                Parameters.Notifications -> {}
+                                Parameters.Advanced -> {}
+                            }
+                        }
                     )
                 }
                 Spacer(modifier = Modifier.weight(1f))
@@ -517,13 +534,11 @@ class TchatView {
     @Composable
     fun ParametersColumn(
         closeDrawer: () -> Unit,
-        context: Context,
-        updateMenu: (ParametersMenu) -> Unit,
-        updatePseudo: (String) -> Unit
+        parametersSet: Array<Param>,
+        updateMenu: (Param) -> Unit
         ){
-        val settingsRepository = SettingsRepository(context = context)
         LazyColumn {
-            items (Parameters.values()) { parameter ->
+            items (parametersSet) { parameter ->
                 Column(
                     modifier = Modifier.clickable(onClick = {
                         closeDrawer()
@@ -537,20 +552,12 @@ class TchatView {
                                 content = {
                                     Text(
                                         color = MaterialTheme.colors.onBackground,
-                                        text = UiText.StringResource(parameter.resId).asString(),
+                                        text = UiText.StringResource(parameter.getId()).asString(),
                                         textAlign = TextAlign.Center
                                     )
                                 },
                                 modifier = Modifier.padding(8.dp),
-                                onClick = {
-                                    Log.i("Parameters", "Parameters")
-                                    CoroutineScope(Dispatchers.Default).launch {
-                                        settingsRepository.pseudo.collect { pseudo ->
-                                            updatePseudo(pseudo)
-                                        }
-                                    }
-                                    updateMenu(ParametersMenu.Pseudo)
-                                },
+                                onClick = { updateMenu(parameter) },
                                 colors = ButtonDefaults.buttonColors(MaterialTheme.colors.background),
                             )
                             Divider(
@@ -564,6 +571,9 @@ class TchatView {
         }
     }
 
+    interface Param {
+        fun getId(): Int
+    }
     enum class ParametersMenu(){
         Parameters,
         Pseudo,
@@ -572,12 +582,21 @@ class TchatView {
         Notifications,
         Advanced
     }
-    enum class Parameters(@StringRes val resId: Int) {
+    enum class Parameters(@StringRes val resId: Int) : Param {
+        Parameter(R.string.parameters),
         Pseudo(R.string.pseudo),
         Theme(R.string.theme),
         Languages(R.string.langue),
         Notifications(R.string.notifications),
-        Advanced(R.string.advanced_parameters)
+        Advanced(R.string.advanced_parameters);
+        override fun getId(): Int {
+            return this.resId
+        }
+    }
+
+    enum class Language(@StringRes val resId: Int) {
+        French(R.string.french),
+        English(R.string.english)
     }
 
     enum class AdvanceParameters {
