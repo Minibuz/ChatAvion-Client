@@ -45,12 +45,15 @@ private fun historyRetrieval(
 ) {
     val msgList = history.stream().map { element ->
         val parts = element.split(":::")
-        Message(parts[0], parts[1], MessageStatus.RECEIVED, false)
+        Message(parts[0], parts[1], MessageStatus.RECEIVED, 0,false)
     }.toList()
 
     val list = messages.stream().filter { e ->
         e.status == MessageStatus.SEND
+    }.map { element ->
+        Message(element.pseudo, element.message, element.status, element.times-1, element.send)
     }.toList().toMutableList()
+
 
     val listToRemove: MutableList<Message> = mutableListOf()
     val listOfChanged: MutableList<Message> = mutableListOf()
@@ -68,7 +71,11 @@ private fun historyRetrieval(
     if(list.isNotEmpty()) {
         // TODO Toast here to main thread
         // CoroutineScope(Main) {}
-        listToRemove.addAll(list)
+        for(msg in list) {
+            if(msg.times == 0) {
+                listToRemove.add(msg)
+            }
+        }
     }
 
     messages.removeAll(

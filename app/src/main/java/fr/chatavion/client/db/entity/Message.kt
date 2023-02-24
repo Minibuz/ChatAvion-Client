@@ -4,6 +4,7 @@ data class Message(
     val pseudo: String,
     val message: String,
     val status: MessageStatus,
+    var times: Int,
     var send: Boolean,
 )
 

@@ -778,6 +778,7 @@ class TchatView {
                     pseudo,
                     message,
                     MessageStatus.SEND,
+                    3,
                     true
                 )
             )
