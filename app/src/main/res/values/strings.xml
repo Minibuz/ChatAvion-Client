@@ -31,4 +31,5 @@
     <string name="commuConnectionFailed">La connexion a echoué</string>
     <string name="connectionSwitchDNS">Passage en mode DNS</string>
     <string name="connectionSwitchHTTP">Passage en mode HTTP</string>
+    <string name ="commuSwitch">Connexion a la communauté </string>
 </resources>

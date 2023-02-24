@@ -279,8 +279,8 @@ class TchatView {
                                                 Toast.makeText(context, "Test", LENGTH_SHORT).show()
                                             }
                                         }
-                                        enableSendingMessage = true
                                     }
+                                    enableSendingMessage = true
                                 }
                             }) {
                             Icon(Icons.Filled.Send, "send")
@@ -713,11 +713,10 @@ class TchatView {
                             if(community.communityId != communityId) {
                                 DropdownMenuItem(
                                     onClick = {
-                                        Toast.makeText(
-                                            context,
-                                            "${community.communityId}",
-                                            LENGTH_SHORT
-                                        ).show()
+
+                                        Utils.showInfoToast(context.getString(R.string.commuSwitch) +" "+ community.name, context)
+
+
                                         isCommunityStillAvailable(
                                             communityAddress = community.address,
                                             communityName = community.name
