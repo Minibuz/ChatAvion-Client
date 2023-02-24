@@ -29,4 +29,6 @@
     <string name="commuConnectionFailed">Connection failed</string>
     <string name="connectionSwitchDNS">Switched to DNS</string>
     <string name="connectionSwitchHTTP">Switched to HTTP</string>
+    <string name ="commuSwitch">Switched to community </string>
+
 </resources>
