@@ -5,6 +5,7 @@ data class Message(
     val message: String,
     val status: MessageStatus,
     var send: Boolean,
+    var sendRetry : Int,
 )
 
 enum class MessageStatus {

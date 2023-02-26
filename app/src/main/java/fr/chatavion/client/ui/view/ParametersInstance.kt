@@ -35,7 +35,7 @@ fun UserParameter(
     onClose: () -> Unit,
 ) {
     var current by remember { mutableStateOf(pseudo) }
-    val community by communityViewModel.getById(communityId).observeAsState(Community("","",""))
+    val community by communityViewModel.getById(communityId).observeAsState(Community("","","", 0))
 
     Surface(
         color = MaterialTheme.colors.background

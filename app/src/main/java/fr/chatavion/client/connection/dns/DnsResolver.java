@@ -36,6 +36,10 @@ public class DnsResolver {
     }
 
     public void setId(int id) {
+        if (id < 0) {
+            this.id = 0;
+            return;
+        }
         this.id = id;
     }
 
@@ -97,6 +101,7 @@ public class DnsResolver {
                     id = Integer.parseInt(ip.toString());
                 }
             }
+            logger.info(() -> id + "");
             return true;
         } catch (IOException e) {
             logger.warning(() -> address + " have an issue.");

@@ -60,12 +60,13 @@ fun NavigationBasicsApp() {
             authView.AuthentificationView(navController)
         }
 
-        composable("tchat_page/{community}/{address}/{id}") { backStackEntry ->
+        composable("tchat_page/{community}/{address}/{id}/{idLast}") { backStackEntry ->
             val community = backStackEntry.arguments?.getString("community")
             val address = backStackEntry.arguments?.getString("address")
             val id = backStackEntry.arguments?.getString("id")
-            if (community != null && address != null && id != null) {
-                tchatView.DrawerAppComponent(navController, community, address, id.toInt())
+            val idLast = backStackEntry.arguments?.getString("idLast")
+            if (community != null && address != null && id != null && idLast != null) {
+                tchatView.DrawerAppComponent(navController, community, address, id.toInt(), idLast.toInt())
             }
         }
     }
