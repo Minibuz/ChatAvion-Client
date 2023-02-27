@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -417,6 +418,8 @@ class TchatView {
         var menu by remember { mutableStateOf(Parameters.Main) }
         val settingsRepository = SettingsRepository(context = context)
 
+        val topAndBottomFraction = 1/12f
+
         if(menu == Parameters.Pseudo){
             UserParameter(
                 pseudo = community.pseudo,
@@ -433,42 +436,24 @@ class TchatView {
             Column(
                 modifier = Modifier.fillMaxSize()
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(0.15f)
-                ) {
-                    Surface(
-                        color = MaterialTheme.colors.background,
-                        modifier = Modifier
-                            .fillMaxSize(),
-                        onClick = {
-                            menu = Parameters.Main
-                        }
-                    ) {
-                        Row {
-                            Icon(
-                                Icons.Filled.Menu,
-                                "menu",
-                                tint = MaterialTheme.colors.onBackground,
-                                modifier = Modifier
-                                    .fillMaxWidth(0.2f)
-                                    .align(Alignment.CenterVertically)
-                            )
-                            Text(
-                                text = UiText.StringResource(R.string.parameters).asString(),
-                                color = MaterialTheme.colors.onBackground,
-                                modifier = Modifier
-                                    .padding(16.dp)
-                                    .align(Alignment.CenterVertically)
-                            )
-                        }
-                    }
-                }
+                //<TOP DRAWER***************************
+                TopDrawer(
+                    updateMenu = {
+                        Log.i("Top drawer", "Touched")
+                        menu = Parameters.Main
+                    },
+                    heightFraction = topAndBottomFraction,
+                    icon = Icons.Filled.Menu,
+                    resId = R.string.parameters
+                )
+                //TOP DRAWER***************************>
+
                 Divider(
                     thickness = 2.dp,
                     color = MaterialTheme.colors.onBackground
                 )
+
+                //<MIDDLE DRAWER***************************
                 Box(
                     modifier = Modifier
                         .fillMaxHeight(3 / 4f)
@@ -537,11 +522,15 @@ class TchatView {
                         else -> {}
                     }
                 }
+                //MIDDLE DRAWER***************************>
+
                 Spacer(modifier = Modifier.weight(1f))
                 Divider(
                     thickness = 2.dp,
                     color = MaterialTheme.colors.onBackground
                 )
+
+                //<BOTTOM DRAWER***************************
                 IconButton(
                     onClick = {
                         navController.navigate("auth_page")
@@ -565,7 +554,44 @@ class TchatView {
                         )
                     }
                 }
+                //<BOTTOM DRAWER***************************
             }
+        }
+    }
+
+    @OptIn(ExperimentalMaterialApi::class)
+    @Composable
+    fun TopDrawer(
+        updateMenu: () -> Unit,
+        heightFraction : Float,
+        icon: ImageVector,
+        @StringRes resId: Int
+    ){
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(heightFraction)
+                .background(MaterialTheme.colors.background)
+        ) {
+            IconButton(
+                onClick = updateMenu,
+                modifier = Modifier
+                    .fillMaxWidth(1 / 5f)
+                    .align(Alignment.CenterVertically)
+            ) {
+                Icon(
+                    icon,
+                    UiText.StringResource(resId).asString(),
+                    tint = MaterialTheme.colors.onBackground
+                )
+            }
+            Text(
+                text = UiText.StringResource(resId).asString(),
+                color = MaterialTheme.colors.onBackground,
+                modifier = Modifier
+                    .padding(16.dp)
+                    .align(Alignment.CenterVertically)
+            )
         }
     }
 
