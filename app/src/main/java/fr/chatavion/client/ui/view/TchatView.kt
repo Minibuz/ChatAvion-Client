@@ -585,7 +585,8 @@ class TchatView {
                                 communityId = community.communityId,
                                 onClose = {
                                     menu = Parameters.Main
-                                }
+                                },
+                                heightFraction = 1f - topAndBottomFraction
                             )
                         }
                         else -> {}
@@ -692,8 +693,7 @@ class TchatView {
                                     content = {
                                         Text(
                                             color = MaterialTheme.colors.onBackground,
-                                            text = UiText.StringResource(parameter.getId())
-                                                .asString(),
+                                            text = UiText.StringResource(parameter.getId()).asString(),
                                             textAlign = TextAlign.Center
                                         )
                                     },
