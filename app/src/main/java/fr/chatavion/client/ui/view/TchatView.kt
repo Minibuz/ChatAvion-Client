@@ -429,13 +429,7 @@ class TchatView {
         val topAndBottomFraction = 1/12f
 
         if(menu == Parameters.Pseudo){
-            UserParameter(
-                pseudo = community.pseudo,
-                communityId = community.communityId,
-                onClose = {
-                    menu = Parameters.Main
-                }
-            )
+
         }
 
         Surface(
@@ -455,7 +449,15 @@ class TchatView {
                         )
                     }
                     Parameters.Pseudo -> {
-                        //TODO Later
+                        TopDrawer(
+                            updateMenu = {
+                                Log.i("Top drawer", "Touched")
+                                menu = Parameters.Main
+                            },
+                            heightFraction = topAndBottomFraction,
+                            icon = Icons.Filled.ArrowBack,
+                            resId = R.string.pseudo
+                        )
                     }
                     Parameters.Language -> {
                         TopDrawer(
@@ -575,6 +577,15 @@ class TchatView {
                             ParametersColumn(
                                 parametersSet = NetworkConnection.values() as Array<Param>,
                                 updateMenu = {}
+                            )
+                        }
+                        Parameters.Pseudo -> {
+                            UserParameter(
+                                pseudo = community.pseudo,
+                                communityId = community.communityId,
+                                onClose = {
+                                    menu = Parameters.Main
+                                }
                             )
                         }
                         else -> {}
