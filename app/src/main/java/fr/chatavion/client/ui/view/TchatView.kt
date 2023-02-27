@@ -8,6 +8,7 @@ import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -149,7 +150,8 @@ class TchatView {
                                     fontSize = 18.sp,
                                     color = MaterialTheme.colors.onPrimary,
                                     modifier = Modifier
-                                        .wrapContentSize(align = Alignment.Center).semantics {
+                                        .wrapContentSize(align = Alignment.Center)
+                                        .semantics {
                                             testTagsAsResourceId = true
                                         }
                                         .testTag("commName")
@@ -417,7 +419,7 @@ class TchatView {
     @Composable
     fun DrawerContentComponent(
         navController: NavController,
-        communityId: Int,
+        communityId: Int
     ) {
         val community by communityVM.getById(communityId).observeAsState(Community("","","", -1))
 
@@ -426,225 +428,183 @@ class TchatView {
         var menu by remember { mutableStateOf(Parameters.Main) }
         val settingsRepository = SettingsRepository(context = context)
 
-        val topAndBottomFraction = 1/12f
-
-        if(menu == Parameters.Pseudo){
-
-        }
-
-        Surface(
-            color = MaterialTheme.colors.background
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = MaterialTheme.colors.background),
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Column(
-                modifier = Modifier.fillMaxSize()
+            //Top Drawer
+            when (menu) {
+                Parameters.Main -> {
+                    TopDrawer(
+                        onClickedIcon = { Log.i("Top drawer", "Touched") },
+                        icon = Icons.Filled.Menu,
+                        resId = R.string.parameters
+                    )
+                }
+                Parameters.Pseudo -> {
+                    TopDrawer(
+                        onClickedIcon = {
+                            Log.i("Top drawer", "Touched")
+                            menu = Parameters.Main
+                        },
+                        icon = Icons.Filled.ArrowBack,
+                        resId = R.string.pseudo
+                    )
+                }
+                Parameters.Language -> {
+                    TopDrawer(
+                        onClickedIcon = {
+                            Log.i("Top drawer", "Touched")
+                            menu = Parameters.Main
+                        },
+                        icon = Icons.Filled.ArrowBack,
+                        resId = R.string.langue
+                    )
+                }
+                Parameters.Theme -> {
+                    TopDrawer(
+                        onClickedIcon = {
+                            Log.i("Top drawer", "Touched")
+                            menu = Parameters.Main
+                        },
+                        icon = Icons.Filled.ArrowBack,
+                        resId = R.string.theme
+                    )
+                }
+                Parameters.Messages -> {
+                    TopDrawer(
+                        onClickedIcon = {
+                            Log.i("Top drawer", "Touched")
+                            menu = Parameters.Main
+                        },
+                        icon = Icons.Filled.ArrowBack,
+                        resId = R.string.messages
+                    )
+                }
+                Parameters.NetworkConnection -> {
+                    TopDrawer(
+                        onClickedIcon = {
+                            Log.i("Top drawer", "Touched")
+                            menu = Parameters.Main
+                        },
+                        icon = Icons.Filled.ArrowBack,
+                        resId = R.string.network_connection
+                    )
+                }
+                else -> {}
+            }
+            Divider(
+                thickness = 2.dp,
+                color = MaterialTheme.colors.onBackground
+            )
+            //Middle Drawer
+            Box(
+                modifier = Modifier.weight(1f),
             ) {
-                //<TOP DRAWER***************************
-                when (menu) {
+                when(menu){
                     Parameters.Main -> {
-                        TopDrawer(
-                            updateMenu = { Log.i("Top drawer", "Touched") },
-                            heightFraction = topAndBottomFraction,
-                            icon = Icons.Filled.Menu,
-                            resId = R.string.parameters
-                        )
-                    }
-                    Parameters.Pseudo -> {
-                        TopDrawer(
-                            updateMenu = {
-                                Log.i("Top drawer", "Touched")
-                                menu = Parameters.Main
-                            },
-                            heightFraction = topAndBottomFraction,
-                            icon = Icons.Filled.ArrowBack,
-                            resId = R.string.pseudo
+                        ParametersColumn(
+                            parametersSet = Parameters.values() as Array<Param>,
+                            updateMenu =
+                            {
+                                when(it) {
+                                    Parameters.Pseudo -> {
+                                        Log.i("Parameters", "Pseudo touched")
+                                        CoroutineScope(Dispatchers.Default).launch {
+                                            settingsRepository.pseudo.collect { pseudo ->
+                                                pseudoCurrent = pseudo
+                                            }
+
+                                        }
+                                        menu = Parameters.Pseudo
+                                    }
+                                    Parameters.Theme -> {
+                                        Log.i("Parameters", "Theme touched")
+                                        menu = Parameters.Theme
+                                    }
+                                    Parameters.Language -> {
+                                        Log.i("Parameters", "Language touched")
+                                        menu = Parameters.Language
+                                    }
+                                    Parameters.Messages -> {
+                                        Log.i("Parameters", "Messages touched")
+                                        menu = Parameters.Messages
+                                    }
+                                    Parameters.NetworkConnection -> {
+                                        Log.i("Parameters", "Messages touched")
+                                        menu = Parameters.NetworkConnection
+                                    }
+                                    else -> {}
+                                }
+                            }
                         )
                     }
                     Parameters.Language -> {
-                        TopDrawer(
-                            updateMenu = {
-                                Log.i("Top drawer", "Touched")
-                                menu = Parameters.Main
-                            },
-                            heightFraction = topAndBottomFraction,
-                            icon = Icons.Filled.ArrowBack,
-                            resId = R.string.langue
+                        ParametersColumn(
+                            parametersSet = Language.values() as Array<Param>,
+                            updateMenu = {}
                         )
                     }
                     Parameters.Theme -> {
-                        TopDrawer(
-                            updateMenu = {
-                                Log.i("Top drawer", "Touched")
-                                menu = Parameters.Main
-                            },
-                            heightFraction = topAndBottomFraction,
-                            icon = Icons.Filled.ArrowBack,
-                            resId = R.string.theme
+                        ParametersColumn(
+                            parametersSet = Theme.values() as Array<Param>,
+                            updateMenu = {}
                         )
                     }
                     Parameters.Messages -> {
-                        TopDrawer(
-                            updateMenu = {
-                                Log.i("Top drawer", "Touched")
-                                menu = Parameters.Main
-                            },
-                            heightFraction = topAndBottomFraction,
-                            icon = Icons.Filled.ArrowBack,
-                            resId = R.string.messages
+                        ParametersColumn(
+                            parametersSet = Messages.values() as Array<Param>,
+                            updateMenu = {}
                         )
                     }
                     Parameters.NetworkConnection -> {
-                        TopDrawer(
-                            updateMenu = {
-                                Log.i("Top drawer", "Touched")
+                        ParametersColumn(
+                            parametersSet = NetworkConnection.values() as Array<Param>,
+                            updateMenu = {}
+                        )
+                    }
+                    Parameters.Pseudo -> {
+                        UserParameter(
+                            pseudo = community.pseudo,
+                            communityId = community.communityId,
+                            onClose = {
                                 menu = Parameters.Main
                             },
-                            heightFraction = topAndBottomFraction,
-                            icon = Icons.Filled.ArrowBack,
-                            resId = R.string.network_connection
                         )
                     }
                     else -> {}
                 }
-                //TOP DRAWER***************************>
-
-                Divider(
-                    thickness = 2.dp,
-                    color = MaterialTheme.colors.onBackground
-                )
-
-                //<MIDDLE DRAWER***************************
-                Box(
-                    modifier = Modifier
-                        .fillMaxHeight(3 / 4f)
+            }
+            //Bottom Drawer
+            if(menu == Parameters.Main) {
+                Column(
+                    verticalArrangement = Arrangement.Bottom
                 ) {
-                    when(menu){
-                        Parameters.Main -> {
-                            ParametersColumn(
-                                parametersSet = Parameters.values() as Array<Param>,
-                                updateMenu =
-                                {
-                                    when(it) {
-                                        Parameters.Pseudo -> {
-                                            Log.i("Parameters", "Pseudo touched")
-                                            CoroutineScope(Dispatchers.Default).launch {
-                                                settingsRepository.pseudo.collect { pseudo ->
-                                                    pseudoCurrent = pseudo
-                                                }
-
-                                            }
-                                            menu = Parameters.Pseudo
-                                        }
-                                        Parameters.Theme -> {
-                                            Log.i("Parameters", "Theme touched")
-                                            menu = Parameters.Theme
-                                        }
-                                        Parameters.Language -> {
-                                            Log.i("Parameters", "Language touched")
-                                            menu = Parameters.Language
-                                        }
-                                        Parameters.Messages -> {
-                                            Log.i("Parameters", "Messages touched")
-                                            menu = Parameters.Messages
-                                        }
-                                        Parameters.NetworkConnection -> {
-                                            Log.i("Parameters", "Messages touched")
-                                            menu = Parameters.NetworkConnection
-                                        }
-                                        else -> {}
-                                    }
-                                }
-                            )
-                        }
-                        Parameters.Language -> {
-                            ParametersColumn(
-                                parametersSet = Language.values() as Array<Param>,
-                                updateMenu = {}
-                            )
-                        }
-                        Parameters.Theme -> {
-                            ParametersColumn(
-                                parametersSet = Theme.values() as Array<Param>,
-                                updateMenu = {}
-                            )
-                        }
-                        Parameters.Messages -> {
-                            ParametersColumn(
-                                parametersSet = Messages.values() as Array<Param>,
-                                updateMenu = {}
-                            )
-                        }
-                        Parameters.NetworkConnection -> {
-                            ParametersColumn(
-                                parametersSet = NetworkConnection.values() as Array<Param>,
-                                updateMenu = {}
-                            )
-                        }
-                        Parameters.Pseudo -> {
-                            UserParameter(
-                                pseudo = community.pseudo,
-                                communityId = community.communityId,
-                                onClose = {
-                                    menu = Parameters.Main
-                                },
-                                heightFraction = 1f - topAndBottomFraction
-                            )
-                        }
-                        else -> {}
-                    }
+                    Divider(
+                        thickness = 2.dp,
+                        color = MaterialTheme.colors.onBackground
+                    )
+                    BottomDrawer(navController = navController)
                 }
-                //MIDDLE DRAWER***************************>
-
-                Spacer(modifier = Modifier.weight(1f))
-                Divider(
-                    thickness = 2.dp,
-                    color = MaterialTheme.colors.onBackground
-                )
-
-                //<BOTTOM DRAWER***************************
-                IconButton(
-                    onClick = {
-                        navController.navigate("auth_page")
-                    }
-                ) {
-                    Row() {
-                        Icon(
-                            Icons.Filled.Home,
-                            "home",
-                            tint = MaterialTheme.colors.onBackground,
-                            modifier = Modifier
-                                .fillMaxWidth(0.2f)
-                                .align(Alignment.CenterVertically)
-                        )
-                        Text(
-                            text = "Retour à l'écran principal",
-                            color = MaterialTheme.colors.onBackground,
-                            modifier = Modifier
-                                .padding(16.dp)
-                                .align(Alignment.CenterVertically)
-                        )
-                    }
-                }
-                //<BOTTOM DRAWER***************************
             }
         }
     }
 
-    @OptIn(ExperimentalMaterialApi::class)
     @Composable
     fun TopDrawer(
-        updateMenu: () -> Unit,
-        heightFraction : Float,
+        onClickedIcon: () -> Unit,
         icon: ImageVector,
         @StringRes resId: Int
     ){
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(heightFraction)
                 .background(MaterialTheme.colors.background)
         ) {
             IconButton(
-                onClick = updateMenu,
+                onClick = onClickedIcon,
                 modifier = Modifier
                     .fillMaxWidth(1 / 5f)
                     .align(Alignment.CenterVertically)
@@ -659,7 +619,7 @@ class TchatView {
                 text = UiText.StringResource(resId).asString(),
                 color = MaterialTheme.colors.onBackground,
                 modifier = Modifier
-                    .padding(16.dp)
+                    .padding(8.dp)
                     .align(Alignment.CenterVertically)
             )
         }
@@ -671,46 +631,70 @@ class TchatView {
         parametersSet: Array<Param>,
         updateMenu: (Param) -> Unit
     ){
-        LazyColumn {
+        LazyColumn() {
             items (parametersSet) { parameter ->
-                Column(
-                    content = {
-                        if (parameter.getId() != R.string.parameters && parameter.getId() != R.string.notifications && parameter.getId() != R.string.advanced_parameters) {
-                            Surface(
-                                color = MaterialTheme.colors.background,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .semantics {
-                                        testTagsAsResourceId = true
-                                    }
-                                    .testTag(
-                                        UiText
-                                            .StringResource(parameter.getId())
-                                            .toString()
-                                    )
-                            ) {
-                                TextButton(
-                                    content = {
-                                        Text(
-                                            color = MaterialTheme.colors.onBackground,
-                                            text = UiText.StringResource(parameter.getId()).asString(),
-                                            textAlign = TextAlign.Center
-                                        )
-                                    },
-                                    modifier = Modifier.padding(8.dp),
-                                    onClick = { updateMenu(parameter) },
-                                    colors = ButtonDefaults.buttonColors(MaterialTheme.colors.background),
-                                )
-                                Divider(
-                                    color = MaterialTheme.colors.onBackground,
-                                    thickness = 1.dp,
-                                    startIndent = (1 / 5f).dp
-                                )
+                if (parameter.getId() != R.string.parameters && parameter.getId() != R.string.notifications && parameter.getId() != R.string.advanced_parameters) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .semantics {
+                                testTagsAsResourceId = true
                             }
+                            .testTag(
+                                UiText
+                                    .StringResource(parameter.getId())
+                                    .toString()
+                            )
+                            .background(MaterialTheme.colors.background),
+                        content = {
+                            TextButton(
+                                content = {
+                                    Text(
+                                        color = MaterialTheme.colors.onBackground,
+                                        text = UiText.StringResource(parameter.getId()).asString(),
+                                        textAlign = TextAlign.Center
+                                    )
+                                },
+                                modifier = Modifier.padding(8.dp),
+                                onClick = { updateMenu(parameter) },
+                            )
+                            Divider(
+                                color = MaterialTheme.colors.onBackground,
+                                thickness = 1.dp,
+                                startIndent = (1 / 5f).dp
+                            )
+
                         }
-                    }
-                )
+                    )
+                }
             }
+        }
+    }
+
+    @Composable
+    fun BottomDrawer(
+        navController: NavController
+    ){
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { navController.navigate("auth_page") }
+                .padding(8.dp)
+        ) {
+            Icon(
+                Icons.Filled.Home,
+                "home",
+                tint = MaterialTheme.colors.onBackground,
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+            )
+            Text(
+                text = "Retour à l'écran principal",
+                color = MaterialTheme.colors.onBackground,
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .padding(8.dp)
+            )
         }
     }
 

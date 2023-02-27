@@ -36,7 +36,6 @@ fun UserParameter(
     pseudo: String,
     communityId: Int,
     onClose: () -> Unit,
-    heightFraction : Float
 ) {
 
     val context = LocalContext.current
@@ -44,8 +43,7 @@ fun UserParameter(
     val community by communityViewModel.getById(communityId).observeAsState(Community("","","", 0))
 
     Column(modifier = Modifier
-        .fillMaxSize()
-        .fillMaxHeight(heightFraction)
+        .fillMaxWidth()
         .background(MaterialTheme.colors.background)
         .padding(8.dp)
     ) {
