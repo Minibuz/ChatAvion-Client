@@ -45,14 +45,6 @@ class SettingsRepositoryTest {
     }
 
     @Test
-    fun testGetAndSetProtocolChoice() = runBlocking {
-        val testProtocolChoice = SettingsRepository.Protocol.Http
-        repository.setProtocol(testProtocolChoice)
-        val protocolChoice = repository.protocol.first()
-        assertEquals(testProtocolChoice, protocolChoice)
-    }
-
-    @Test
     fun testGetAndSetLanguage() = runBlocking {
         val testLanguage = SettingsRepository.Language.English
         repository.setLanguage(testLanguage)
@@ -74,14 +66,6 @@ class SettingsRepositoryTest {
         repository.setHistoryLoading(testHistoryLoading)
         val historyLoading = repository.historyLoading.first()
         assertEquals(testHistoryLoading, historyLoading)
-    }
-
-    @Test
-    fun testGetAndSetEncoding() = runBlocking {
-        val testEncoding = "Test Encoding"
-        repository.setEncoding(testEncoding)
-        val encoding = repository.encoding.first()
-        assertEquals(testEncoding, encoding)
     }
 }
 
