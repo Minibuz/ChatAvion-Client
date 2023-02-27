@@ -437,15 +437,64 @@ class TchatView {
                 modifier = Modifier.fillMaxSize()
             ) {
                 //<TOP DRAWER***************************
-                TopDrawer(
-                    updateMenu = {
-                        Log.i("Top drawer", "Touched")
-                        menu = Parameters.Main
-                    },
-                    heightFraction = topAndBottomFraction,
-                    icon = Icons.Filled.Menu,
-                    resId = R.string.parameters
-                )
+                when (menu) {
+                    Parameters.Main -> {
+                        TopDrawer(
+                            updateMenu = { Log.i("Top drawer", "Touched") },
+                            heightFraction = topAndBottomFraction,
+                            icon = Icons.Filled.Menu,
+                            resId = R.string.parameters
+                        )
+                    }
+                    Parameters.Pseudo -> {
+                        //TODO Later
+                    }
+                    Parameters.Language -> {
+                        TopDrawer(
+                            updateMenu = {
+                                Log.i("Top drawer", "Touched")
+                                menu = Parameters.Main
+                            },
+                            heightFraction = topAndBottomFraction,
+                            icon = Icons.Filled.ArrowBack,
+                            resId = R.string.langue
+                        )
+                    }
+                    Parameters.Theme -> {
+                        TopDrawer(
+                            updateMenu = {
+                                Log.i("Top drawer", "Touched")
+                                menu = Parameters.Main
+                            },
+                            heightFraction = topAndBottomFraction,
+                            icon = Icons.Filled.ArrowBack,
+                            resId = R.string.theme
+                        )
+                    }
+                    Parameters.Messages -> {
+                        TopDrawer(
+                            updateMenu = {
+                                Log.i("Top drawer", "Touched")
+                                menu = Parameters.Main
+                            },
+                            heightFraction = topAndBottomFraction,
+                            icon = Icons.Filled.ArrowBack,
+                            resId = R.string.messages
+                        )
+                    }
+                    Parameters.NetworkConnection -> {
+                        TopDrawer(
+                            updateMenu = {
+                                Log.i("Top drawer", "Touched")
+                                menu = Parameters.Main
+                            },
+                            heightFraction = topAndBottomFraction,
+                            icon = Icons.Filled.ArrowBack,
+                            resId = R.string.network_connection
+                        )
+                    }
+                    else -> {}
+                }
                 //TOP DRAWER***************************>
 
                 Divider(
@@ -478,9 +527,9 @@ class TchatView {
                                             Log.i("Parameters", "Theme touched")
                                             menu = Parameters.Theme
                                         }
-                                        Parameters.Languages -> {
+                                        Parameters.Language -> {
                                             Log.i("Parameters", "Language touched")
-                                            menu = Parameters.Languages
+                                            menu = Parameters.Language
                                         }
                                         Parameters.Messages -> {
                                             Log.i("Parameters", "Messages touched")
@@ -495,7 +544,7 @@ class TchatView {
                                 }
                             )
                         }
-                        Parameters.Languages -> {
+                        Parameters.Language -> {
                             ParametersColumn(
                                 parametersSet = Language.values() as Array<Param>,
                                 updateMenu = {}
@@ -652,7 +701,7 @@ class TchatView {
         Main(R.string.parameters),
         Pseudo(R.string.pseudo),
         Theme(R.string.theme),
-        Languages(R.string.langue),
+        Language(R.string.langue),
         Notifications(R.string.notifications),
         Advanced(R.string.advanced_parameters),
         Messages(R.string.messages),
