@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
@@ -23,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import fr.chatavion.client.R
 import fr.chatavion.client.communityViewModel
 import fr.chatavion.client.db.entity.Community
+import fr.chatavion.client.util.Utils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
@@ -34,7 +36,10 @@ fun UserParameter(
     communityId: Int,
     onClose: () -> Unit,
 ) {
+
+    val context = LocalContext.current
     var current by remember { mutableStateOf(pseudo) }
+    val scope = rememberCoroutineScope()
     val community by communityViewModel.getById(communityId).observeAsState(Community("","","", 0))
 
     Surface(
@@ -133,8 +138,12 @@ fun UserParameter(
                                             community.pseudo = current
                                             communityViewModel.insert(community = community)
                                         }
+                                        onClose()
+
                                         // TODO Toast username changed
+                                        Utils.showInfoToast(context.getString(R.string.uNameChanged),context)
                                     } else {
+                                        Utils.showInfoToast(context.getString(R.string.newUNameEmpty), context)
                                         // TODO Toast username cannot be empty
                                     }
                                 },

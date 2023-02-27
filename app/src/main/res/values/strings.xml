@@ -32,4 +32,7 @@
     <string name="connectionSwitchDNS">Passage en mode DNS</string>
     <string name="connectionSwitchHTTP">Passage en mode HTTP</string>
     <string name ="commuSwitch">Connexion a la communauté </string>
+    <string name="uNameChanged">Pseudo modifié</string>
+    <string name="newUNameEmpty">Le nouveau pseudo ne peut pas être vide </string>
+
 </resources>
