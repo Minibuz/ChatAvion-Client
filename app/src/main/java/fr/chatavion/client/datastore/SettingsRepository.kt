@@ -31,11 +31,9 @@ class SettingsRepository(context: Context) {
         // Define other preference keys
         val PSEUDO_KEY = stringPreferencesKey("pseudo")
         val DNS_TYPE_TRANSACTION_KEY = stringPreferencesKey("dns_type_transaction")
-        val PROTOCOL_KEY = stringPreferencesKey("protocol")
         val LANGUAGE_KEY = stringPreferencesKey("language")
         val REFRESH_TIME_KEY = longPreferencesKey("refresh_time")
         val HISTORY_LOADING_KEY = intPreferencesKey("history_loading")
-        val ENCODING_KEY = stringPreferencesKey("encoding")
     }
 
     /**
@@ -49,7 +47,7 @@ class SettingsRepository(context: Context) {
      * Enumeration of the available protocols.
      */
     enum class Protocol {
-        Dns, Http
+        Http
     }
 
     /**
@@ -148,24 +146,6 @@ class SettingsRepository(context: Context) {
         }
     }
 
-    val protocol: Flow<Protocol>
-        get() = dataStore.data.catch { exception ->
-            if (exception is IOException) {
-                emit(emptyPreferences())
-            } else {
-                throw exception
-            }
-        }.map { preferences ->
-            val protocolName = preferences[PROTOCOL_KEY] ?: Protocol.Dns.name
-            Protocol.valueOf(protocolName)
-        }
-
-    suspend fun setProtocol(protocol: Protocol) {
-        dataStore.edit { preferences ->
-            preferences[PROTOCOL_KEY] = protocol.name
-        }
-    }
-
     /**
      * Flow for retrieving the current language of the app.
      * @return A flow of `Language`.
@@ -182,6 +162,11 @@ class SettingsRepository(context: Context) {
             Language.valueOf(languageName)
         }
 
+    /**
+     * Sets the Language type preference in the DataStore.
+     *
+     * @param language The Language type to set
+     */
     suspend fun setLanguage(language: Language) {
         dataStore.edit { preferences ->
             preferences[LANGUAGE_KEY] = language.name
@@ -203,6 +188,11 @@ class SettingsRepository(context: Context) {
             preferences[REFRESH_TIME_KEY] ?: 0L
         }
 
+    /**
+     * Sets the refresh time type preference in the DataStore.
+     *
+     * @param refreshTime The refresh time to set
+     */
     suspend fun setRefreshTime(refreshTime: Long) {
         dataStore.edit { preferences ->
             preferences[REFRESH_TIME_KEY] = refreshTime
@@ -224,34 +214,14 @@ class SettingsRepository(context: Context) {
             preferences[HISTORY_LOADING_KEY] ?: 0
         }
 
+    /**
+     * Sets the history loading type preference in the DataStore.
+     *
+     * @param historyLoading The history loading number to set
+     */
     suspend fun setHistoryLoading(historyLoading: Int) {
         dataStore.edit { preferences ->
             preferences[HISTORY_LOADING_KEY] = historyLoading
-        }
-    }
-
-    /**
-     * Flow for retrieving the current encoding of the app.
-     * @return A flow of `String`.
-     */
-    val encoding: Flow<String>
-        get() = dataStore.data.catch { exception ->
-            if (exception is IOException) {
-                emit(emptyPreferences())
-            } else {
-                throw exception
-            }
-        }.map { preferences ->
-            preferences[ENCODING_KEY] ?: ""
-        }
-
-    /**
-     * Sets the theme preference in the DataStore.
-     * @param theme The theme to set.
-     */
-    suspend fun setEncoding(encoding: String) {
-        dataStore.edit { preferences ->
-            preferences[ENCODING_KEY] = encoding
         }
     }
 }
