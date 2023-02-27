@@ -76,7 +76,7 @@ class TchatView {
         val httpResolver = HttpResolver()
         val messages = remember { mutableStateListOf<Message>() }
         var msg by remember { mutableStateOf("") }
-        var remainingCharacter by remember { mutableStateOf(35) }
+        var remainingCharacter by remember { mutableStateOf(160) }
         var enableSendingMessage by remember { mutableStateOf(true) }
         var displayBurgerMenu by remember { mutableStateOf(false) }
         var connectionIsDNS by remember { mutableStateOf(true) }
@@ -229,7 +229,7 @@ class TchatView {
                             onValueChange = {
                                 msg = it
                                 remainingCharacter =
-                                    35 - msg.toByteArray(StandardCharsets.UTF_8).size
+                                    160 - msg.toByteArray(StandardCharsets.UTF_8).size
                             },
                             placeholder = { Text(text = stringResource(R.string.message_text)) },
                             textStyle = TextStyle(fontSize = 16.sp),
@@ -238,7 +238,7 @@ class TchatView {
                     }
                     Column {
                         Text(
-                            text = "$remainingCharacter/35",
+                            text = "$remainingCharacter/160",
                             color = if (remainingCharacter < 0) MaterialTheme.colors.error else MaterialTheme.colors.primaryVariant,
                             textAlign = TextAlign.Center,
                             modifier = Modifier
@@ -278,7 +278,7 @@ class TchatView {
 
                                         if (ret) {
                                             msg = ""
-                                            remainingCharacter = 35
+                                            remainingCharacter = 160
                                         } else {
                                             withContext(Main) {
                                                 Toast.makeText(context, "Test", LENGTH_SHORT).show()
