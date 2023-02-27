@@ -141,9 +141,9 @@ fun UserParameter(
                                         onClose()
 
                                         // TODO Toast username changed
-                                        Utils.showInfoToast("Username changed",context)
+                                        Utils.showInfoToast(context.getString(R.string.uNameChanged),context)
                                     } else {
-                                        Utils.showInfoToast("New username cannot be empty", context)
+                                        Utils.showInfoToast(context.getString(R.string.newUNameEmpty), context)
                                         // TODO Toast username cannot be empty
                                     }
                                 },

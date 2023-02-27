@@ -30,5 +30,7 @@
     <string name="connectionSwitchDNS">Switched to DNS</string>
     <string name="connectionSwitchHTTP">Switched to HTTP</string>
     <string name ="commuSwitch">Switched to community </string>
+    <string name="uNameChanged">Username edited</string>
+    <string name="newUNameEmpty">UNew username cannot be empty</string>
 
 </resources>
