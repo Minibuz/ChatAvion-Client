@@ -1,5 +1,6 @@
 package fr.chatavion.client.ui.view
 
+import android.util.Log
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import fr.chatavion.client.connection.dns.DnsResolver
 import fr.chatavion.client.connection.http.HttpResolver
@@ -72,8 +73,10 @@ private fun historyRetrieval(
         // TODO Toast here to main thread
         // CoroutineScope(Main) {}
         for(msg in list) {
-            if(msg.times == 0) {
-                listToRemove.add(msg)
+            if(msg.sendRetry == 0) {
+                listToRemove.remove(msg)
+            } else {
+                msg.sendRetry --
             }
         }
     }
