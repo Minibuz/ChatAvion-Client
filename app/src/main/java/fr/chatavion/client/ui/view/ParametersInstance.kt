@@ -40,7 +40,7 @@ fun UserParameter(
     val context = LocalContext.current
     var current by remember { mutableStateOf(pseudo) }
     val scope = rememberCoroutineScope()
-    val community by communityViewModel.getById(communityId).observeAsState(Community("","",""))
+    val community by communityViewModel.getById(communityId).observeAsState(Community("","","", 0))
 
     Surface(
         color = MaterialTheme.colors.background

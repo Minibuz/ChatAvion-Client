@@ -64,11 +64,12 @@ class TchatView {
         communityName: String,
         communityAddress: String,
         communityId: Int,
+        lastId: Int,
         openDrawer: () -> Unit
     ) {
         val context = LocalContext.current
 
-        val community by communityVM.getById(communityId).observeAsState(Community(communityName,communityAddress,"", communityId))
+        val community by communityVM.getById(communityId).observeAsState(Community(communityName,communityAddress,"", lastId, communityId))
 
         val dnsResolver = DnsResolver()
         val httpResolver = HttpResolver()
@@ -313,6 +314,9 @@ class TchatView {
         LaunchedEffect(true) {
             withContext(IO) {
                 try {
+                    dnsResolver.id = community.idLastMessage - 9
+                    httpResolver.id = community.idLastMessage - 9
+
                     while (true) {
                         Log.i("History", "Retrieve the history")
 
@@ -385,7 +389,8 @@ class TchatView {
         navController: NavController,
         communityName: String,
         communityAddress: String,
-        communityId: Int
+        communityId: Int,
+        lastId: Int,
     ) {
         val drawerState = rememberDrawerState(DrawerValue.Closed)
         val coroutineScope = rememberCoroutineScope()
@@ -401,7 +406,7 @@ class TchatView {
             },
             content = {
                 TchatView(
-                    navController, communityName, communityAddress, communityId,
+                    navController, communityName, communityAddress, communityId, lastId
                 ) { coroutineScope.launch { drawerState.open() } }
             }
         )
@@ -413,7 +418,7 @@ class TchatView {
         navController: NavController,
         communityId: Int,
     ) {
-        val community by communityVM.getById(communityId).observeAsState(Community("","",""))
+        val community by communityVM.getById(communityId).observeAsState(Community("","","", -1))
 
         val context = LocalContext.current
         var pseudoCurrent by remember { mutableStateOf("") }
@@ -782,7 +787,8 @@ class TchatView {
                     pseudo,
                     message,
                     MessageStatus.SEND,
-                    true
+                    true,
+                    3
                 )
             )
             Log.i("Message", "Success")

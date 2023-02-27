@@ -54,6 +54,7 @@ class AuthentificationView {
         var enabled by remember { mutableStateOf(true) }
         var isRegisterOk by remember { mutableStateOf(false) }
         var isConnectionOk by remember { mutableStateOf(false) }
+        var idLast by remember { mutableStateOf(0) }
         if (pseudo != "" && communityId != "") {
             isRegisterOk = true
         }
@@ -61,7 +62,8 @@ class AuthentificationView {
             val community = Community(
                 communityName,
                 communityAddress,
-                pseudo
+                pseudo,
+                idLast
             )
             LaunchedEffect("insertId") {
                 communityViewModel.insert(community)
@@ -70,7 +72,7 @@ class AuthentificationView {
                     communityViewModel.getId(communityName, communityAddress)
                 }
                 Log.i("CommunityID", "$id")
-                navController.navigate("tchat_page/${communityName}/${communityAddress}/${id}")
+                navController.navigate("tchat_page/${communityName}/${communityAddress}/${id}/${idLast}")
             }
         }
         Column(modifier = Modifier.fillMaxSize()) {
@@ -151,11 +153,12 @@ class AuthentificationView {
                                 Log.i("Community", communityName)
                                 Log.i("Address", communityAddress)
                                 CoroutineScope(IO).launch {
-                                    isConnectionOk =
-                                        sendButtonConnexion(communityAddress, communityName)
+                                    val value = sendButtonConnexion(communityAddress, communityName)
+                                    isConnectionOk = value != -1
                                     if (isConnectionOk) {
                                         Log.i("Pseudo", "Setting user pseudo to $pseudo")
                                         settingsRepository.setPseudo(pseudo)
+                                        idLast = value
                                         withContext(Main) {
                                             Utils.showInfoToast(
                                                 context.getString(R.string.commuConnection),
@@ -195,25 +198,25 @@ class AuthentificationView {
     private suspend fun sendButtonConnexion(
         address: String,
         community: String
-    ): Boolean {
+    ): Int {
         if (address == "" || community == "") {
             Log.e("Connexion", "Address or community is empty")
-            return false
+            return -1
         }
 
-        var returnVal: Boolean
+        var returnVal: Int
         withContext(IO) {
-            returnVal = if (testHttp()) {
+            if (!testHttp()) {
                 httpSender.communityChecker(address, community)
+                dnsSender.id = httpSender.id
+                returnVal = httpSender.id
             } else {
                 dnsSender.findType(address)
                 dnsSender.communityDetection(address, community)
+                httpSender.id = dnsSender.id
+                returnVal = dnsSender.id
             }
         }
-        if (returnVal)
-            Log.i("Connexion", "Success")
-        else
-            Log.i("Connexion", "Error")
         return returnVal
     }
 }
@@ -231,6 +234,7 @@ fun testHttp(): Boolean {
             return responseCode == 200
         }
     } catch (e : IOException) {
+        Log.i("Test HTTP", "Cannot use HTTP")
         return false
     }
 }
