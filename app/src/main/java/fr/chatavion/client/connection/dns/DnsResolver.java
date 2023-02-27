@@ -8,6 +8,8 @@ import org.minidns.record.A;
 import org.minidns.record.AAAA;
 import org.minidns.record.Data;
 import org.minidns.record.TXT;
+import org.xbill.DNS.Lookup;
+import org.xbill.DNS.Type;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -15,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -109,37 +112,58 @@ public class DnsResolver {
         }
     }
 
-    public boolean sendMessage(String community, String address, String pseudo, String message) {
+    public Boolean sendMessage(String community, String address, String pseudo, String message) {
         byte[] msgAsBytes = message.getBytes(StandardCharsets.UTF_8);
-        if (msgAsBytes.length > 35) {
-            logger.warning(() -> "Message cannot be more than 35 character as UTF_8 byte array.");
+        if(msgAsBytes.length > 160) {
+            logger.warning("Message cannot be more than 70 character as UTF_8 byte array.");
             return false;
         }
         String msgB32 = this.converter32.encodeAsString(msgAsBytes);
         String cmtB32 = this.converter32.encodeAsString(community.getBytes(StandardCharsets.UTF_8));
         String userB32 = this.converter32.encodeAsString(pseudo.getBytes(StandardCharsets.UTF_8));
 
-        for (int retries = 0; retries < NUMBER_OF_RETRIES; retries++) {
-            ResolverResult<? extends Data> result;
-            try {
-                result = ResolverApi.INSTANCE.resolve(
-                        cmtB32 + "." + userB32 + "." + msgB32 + ".message." + address, type);
-            } catch (IOException e) {
-                logger.warning(() -> "Error : " + e.getMessage());
-                return false;
-            }
+        // TODO Generate random id for the messages
+        Random r = new Random();
+        int randomId = r.nextInt(65536);
+        int maxSplit = (short) (msgB32.length()/35);
 
-            if (!result.wasSuccessful()) {
-                logger.info(() -> "Server hasn't received the message.\nResending the message.");
-                continue;
-            }
+        int index = 0;
+        List<String> listPart = new ArrayList<>();
+        for(int i = 0; i < msgB32.length()-35; i+=35, index++ ) {
+            String partSend = randomId + "-" +
+                    maxSplit +
+                    index + "-" +
+                    msgB32.substring(i, i+35);
+            listPart.add(partSend);
+        }
+        listPart.add(randomId + "-" +
+                maxSplit +
+                maxSplit + "-" +
+                msgB32.substring(35 * index));
 
-            if (result.getAnswers().size() == 1) {
-                logger.info(() -> "Server received the message.");
-                return true;
+        for(String msgPart : listPart) {
+            for (int retries = 0; retries < NUMBER_OF_RETRIES; retries++) {
+                ResolverResult<? extends Data> result;
+                try {
+                    result = ResolverApi.INSTANCE.resolve(
+                            cmtB32 + "." + userB32 + "." + msgPart + ".message." + address, type);
+                } catch (IOException e) {
+                    logger.warning(() -> "Error : " + e.getMessage());
+                    return false;
+                }
+
+                if (!result.wasSuccessful()) {
+                    logger.warning(() -> "Server hasn't received the message.\nResending the message.");
+                    continue;
+                }
+
+                if (result.getAnswers().size() == 1) {
+                    logger.info(() -> "Server received the message.");
+                    retries = NUMBER_OF_RETRIES;
+                }
             }
         }
-        return false;
+        return true;
     }
 
     public List<String> requestHistory(String cmt, String address, int number) {
@@ -148,33 +172,51 @@ public class DnsResolver {
         }
         String cmtB32 = this.converter32.encodeAsString(cmt.getBytes(StandardCharsets.UTF_8));
         list.clear();
+
         try {
             for (int i = 0; i < number; i++) {
-                String request = type == A.class ? "m" + id : type == AAAA.class ? "m" + id + "o0" : "m" + id + "n0";
+                var doRetrieve = true;
+                var part = 0;
+                String message = "";
+                do {
+                    String request = type == TXT.class ? "m" + id : type == AAAA.class ? "m" + id + "o" + part : "m" + id + "n" + part;
 
-                ResolverResult<? extends Data> result = ResolverApi.INSTANCE.resolve(request + "-" + cmtB32 + ".historique." + address, type);
-                if (!result.wasSuccessful()) {
-                    logger.warning(() -> "Problem with recovering history.");
-                    return List.of();
-                }
-                if (result.getAnswers().isEmpty()) {
-                    logger.info(() -> "No message with this id to retrieve. Stopping message recovery.");
-                    return list;
-                }
-                List<Byte> msg = new ArrayList<>();
-                if (type == A.class) {
-                    Set<A> answers = (Set<A>) result.getAnswers();
-                    mergeResultTypeA(answers, msg);
-                } else if (type == AAAA.class) {
-                    Set<AAAA> answers = (Set<AAAA>) result.getAnswers();
-                    mergeResultTypeAAAA(answers, msg);
-                } else {
-                    Set<TXT> answers = (Set<TXT>) result.getAnswers();
-                    mergeResultTypeTXT(answers, msg);
-                }
-                String message = new String(converter32.decode(ArrayUtils.toPrimitive(msg.toArray(new Byte[0]))));
-                id++;
-                list.add(message);
+                    ResolverResult<? extends Data> result = ResolverApi.INSTANCE.resolve(request + "-" + cmtB32 + ".historique." + address, type);
+                    if (!result.wasSuccessful()) {
+                        logger.warning(() -> "Problem with recovering history.");
+                        return List.of();
+                    }
+                    if (result.getAnswers().isEmpty()) {
+                        logger.info(() -> "No message with this id to retrieve. Stopping message recovery.");
+                        return list;
+                    }
+
+                    List<Byte> msg = new ArrayList<>();
+                    if (type == A.class) {
+                        Set<A> answers = (Set<A>) result.getAnswers();
+                        mergeResultTypeA(answers, msg);
+                    } else if (type == AAAA.class) {
+                        Set<AAAA> answers = (Set<AAAA>) result.getAnswers();
+                        mergeResultTypeAAAA(answers, msg);
+                    } else {
+                        Set<TXT> answers = (Set<TXT>) result.getAnswers();
+                        mergeResultTypeTXT(answers, msg);
+                    }
+                    var fullMessageWithId = new String(converter32.decode(ArrayUtils.toPrimitive(msg.toArray(new Byte[0]))));
+                    System.out.println(fullMessageWithId);
+                    if(fullMessageWithId.startsWith("0")) {
+                        message += fullMessageWithId.substring(1);
+                        if ("".equals(message)) {
+                            return list;
+                        }
+                        id++;
+                        list.add(message);
+                        doRetrieve = false;
+                    } else if (fullMessageWithId.startsWith("1")) {
+                        message += fullMessageWithId.substring(1);
+                        part++;
+                    }
+                } while(doRetrieve);
             }
         } catch (IOException e) {
             return list;

@@ -48,7 +48,7 @@ class HttpResolver {
         message: String,
     ) : Boolean {
         val msgAsBytes = message.toByteArray(StandardCharsets.UTF_8)
-        if (msgAsBytes.size > 35) {
+        if (msgAsBytes.size > 160) {
             Log.w("HttpSender","Message cannot be more than 35 character as UTF_8 byte array.")
             return false
         }
