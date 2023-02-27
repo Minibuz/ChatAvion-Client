@@ -1,5 +1,6 @@
 package fr.chatavion.client.ui.view
 
+import android.util.Log
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import fr.chatavion.client.connection.dns.DnsResolver
 import fr.chatavion.client.connection.http.HttpResolver
@@ -45,7 +46,8 @@ private fun historyRetrieval(
 ) {
     val msgList = history.stream().map { element ->
         val parts = element.split(":::")
-        Message(parts[0], parts[1], MessageStatus.RECEIVED, false)
+        Log.i("test", element)
+        Message(parts[0], parts[1], MessageStatus.RECEIVED, false, 0)
     }.toList()
 
     val list = messages.stream().filter { e ->
@@ -68,7 +70,14 @@ private fun historyRetrieval(
     if(list.isNotEmpty()) {
         // TODO Toast here to main thread
         // CoroutineScope(Main) {}
-        listToRemove.addAll(list)
+        for(msg in list) {
+            if(msg.sendRetry == 0) {
+                listToRemove.remove(msg)
+            } else {
+                msg.sendRetry --
+            }
+        }
+        // listToRemove.addAll(list)
     }
 
     messages.removeAll(

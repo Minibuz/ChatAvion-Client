@@ -14,6 +14,7 @@ data class Community(
     val name: String,
     val address: String,
     var pseudo: String,
+    var idLastMessage: Int,
     @PrimaryKey(autoGenerate = true)
     val communityId: Int = 0
 )
