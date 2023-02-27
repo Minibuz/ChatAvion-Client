@@ -149,7 +149,10 @@ class TchatView {
                                     fontSize = 18.sp,
                                     color = MaterialTheme.colors.onPrimary,
                                     modifier = Modifier
-                                        .wrapContentSize(align = Alignment.Center)
+                                        .wrapContentSize(align = Alignment.Center).semantics {
+                                            testTagsAsResourceId = true
+                                        }
+                                        .testTag("commName")
                                 )
                             }
                         }
@@ -161,7 +164,7 @@ class TchatView {
                                 .semantics {
                                     testTagsAsResourceId = true
                                 }
-                                .testTag("paramSwitch"),
+                                .testTag("commDropDown"),
                             onClick = {
                                 Log.i("expandMore", "ExpandMore pushed")
                                 displayBurgerMenu = !displayBurgerMenu
@@ -175,7 +178,7 @@ class TchatView {
                                 .semantics {
                                     testTagsAsResourceId = true
                                 }
-                                .testTag("commDropDown"),
+                                .testTag("paramSwitch"),
                             onClick = {
                                 Log.i("menu", "Menu pushed")
                                 openDrawer()
@@ -525,6 +528,7 @@ class TchatView {
                                                 settingsRepository.pseudo.collect { pseudo ->
                                                     pseudoCurrent = pseudo
                                                 }
+
                                             }
                                             menu = Parameters.Pseudo
                                         }
@@ -859,7 +863,7 @@ class TchatView {
                     message,
                     MessageStatus.SEND,
                     true,
-                    3
+                    3,
                 )
             )
             Log.i("Message", "Success")
