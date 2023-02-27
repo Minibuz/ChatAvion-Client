@@ -783,8 +783,8 @@ class TchatView {
                     pseudo,
                     message,
                     MessageStatus.SEND,
+                    true,
                     3,
-                    true
                 )
             )
             Log.i("Message", "Success")
