@@ -548,7 +548,9 @@ class TchatView {
                                             Log.i("Parameters", "Messages touched")
                                             menu = Parameters.NetworkConnection
                                         }
-                                        else -> {}
+                                        else -> {
+                                            Log.i("Error", "Unknown option")
+                                        }
                                     }
                                 }
                             )
@@ -577,7 +579,9 @@ class TchatView {
                                 updateMenu = {}
                             )
                         }
-                        else -> {}
+                        else -> {
+                            Log.i("Error", "Unknown option")
+                        }
                     }
                 }
                 //MIDDLE DRAWER***************************>
@@ -706,6 +710,7 @@ class TchatView {
     interface Param {
         fun getId(): Int
     }
+
     enum class Parameters(@StringRes val resId: Int) : Param {
         Main(R.string.parameters),
         Pseudo(R.string.pseudo),
