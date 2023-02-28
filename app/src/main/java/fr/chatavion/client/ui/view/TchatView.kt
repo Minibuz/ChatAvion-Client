@@ -20,6 +20,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -97,7 +98,7 @@ class TchatView {
                     ) {
                         Column(
                             verticalArrangement = Arrangement.Top,
-                            horizontalAlignment = Alignment.CenterHorizontally
+                            horizontalAlignment = CenterHorizontally
                         ) {
                             Text(
                                 text = "Community details",
@@ -161,18 +162,18 @@ class TchatView {
                         BurgerMenuCommunity(navController, communityId, displayBurgerMenu) {
                             displayBurgerMenu = !displayBurgerMenu
                         }
-                        IconButton(
-                            modifier = Modifier
-                                .semantics {
-                                    testTagsAsResourceId = true
-                                }
-                                .testTag("commDropDown"),
-                            onClick = {
-                                Log.i("expandMore", "ExpandMore pushed")
-                                displayBurgerMenu = !displayBurgerMenu
-                            }) {
-                            Icon(Icons.Filled.ExpandMore, "expandMore")
-                        }
+                            IconButton(
+                                modifier = Modifier
+                                    .semantics {
+                                        testTagsAsResourceId = true
+                                    }
+                                    .testTag("commDropDown"),
+                                onClick = {
+                                    Log.i("expandMore", "ExpandMore pushed")
+                                    displayBurgerMenu = !displayBurgerMenu
+                                }) {
+                                Icon(Icons.Filled.ExpandMore, "expandMore")
+                            }
                     },
                     navigationIcon = {
                         IconButton(
@@ -205,7 +206,13 @@ class TchatView {
                                     Utils.showInfoToast(context.getString(R.string.connectionSwitchDNS), context)
                                 }
                             }) {
-                            Icon(Icons.Filled.Wifi, "wifi")
+                            Column {
+                                Icon(
+                                    Icons.Filled.Wifi,
+                                    "wifi",
+                                modifier = Modifier.align(CenterHorizontally))
+                                Text(text = if(connectionIsDNS) "DNS" else "HTTP")
+                            }
                         }
                     }
                 )
@@ -689,7 +696,7 @@ class TchatView {
                     .align(Alignment.CenterVertically)
             )
             Text(
-                text = "Retour à l'écran principal",
+                text = stringResource(id = R.string.back_main_screen),
                 color = MaterialTheme.colors.onBackground,
                 modifier = Modifier
                     .align(Alignment.CenterVertically)

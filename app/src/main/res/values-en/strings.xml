@@ -33,5 +33,6 @@
     <string name="uNameChanged">Username edited</string>
     <string name="newUNameEmpty">New username cannot be empty</string>
     <string name="messageTooLong">Message is taking more than 160 characters.</string>
+    <string name="back_login_screen">Return to login screen</string>
 
 </resources>

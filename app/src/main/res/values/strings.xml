@@ -35,5 +35,6 @@
     <string name="uNameChanged">Pseudo modifié</string>
     <string name="newUNameEmpty">Le nouveau pseudo ne peut pas être vide </string>
     <string name="messageTooLong">Le message fait plus de 160 charactères.</string>
+    <string name="back_login_screen">Retour à l\'écran de connexion</string>
 
 </resources>
