@@ -19,6 +19,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -91,6 +92,15 @@ class AuthentificationView {
                     .verticalScroll(rememberScrollState())
                     .align(Alignment.CenterHorizontally)
             ) {
+
+                Text(
+                    context.getString(R.string.app_name),
+                    fontFamily = FontFamily.Monospace,
+                    style = TextStyle(fontWeight = FontWeight.Bold),
+                    fontSize= 30.sp,
+                    modifier = Modifier.padding(vertical = 20.dp)
+                        .align(Alignment.CenterHorizontally)
+                )
                 Text(
                     stringResource(R.string.id_community),
                     style = TextStyle(fontWeight = FontWeight.Bold),
