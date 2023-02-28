@@ -236,7 +236,7 @@ class TchatView {
                                 }
                                 .testTag("msgEditField"),
                             onValueChange = {
-                                msg = it.trim()
+                                msg = it
                                 remainingCharacter =
                                     160 - msg.toByteArray(StandardCharsets.UTF_8).size
                             },
@@ -272,6 +272,7 @@ class TchatView {
                                 CoroutineScope(IO).launch {
                                     enableSendingMessage = false
 
+                                    msg = msg.trim()
                                     if (msg != "") {
                                         Log.i("test", "${community.pseudo}:$msg")
                                         val ret = sendMessage(
