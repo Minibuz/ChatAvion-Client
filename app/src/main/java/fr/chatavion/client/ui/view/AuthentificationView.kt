@@ -30,6 +30,7 @@ import fr.chatavion.client.connection.dns.DnsResolver
 import fr.chatavion.client.connection.http.HttpResolver
 import fr.chatavion.client.datastore.SettingsRepository
 import fr.chatavion.client.db.entity.Community
+import fr.chatavion.client.ui.PSEUDO_SIZE
 import fr.chatavion.client.util.Utils
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
@@ -114,7 +115,7 @@ class AuthentificationView {
                 )
                 TextField(
                     value = pseudo.replace("\n", ""),
-                    onValueChange = { if (it.length <= 35) pseudo = it },
+                    onValueChange = { if (it.length <= PSEUDO_SIZE) pseudo = it },
                     placeholder = { Text(text = stringResource(R.string.default_pseudo)) },
                     textStyle = TextStyle(fontSize = 16.sp),
                     modifier = Modifier
@@ -153,18 +154,18 @@ class AuthentificationView {
                                 Log.i("Community", communityName)
                                 Log.i("Address", communityAddress)
                                 CoroutineScope(IO).launch {
-                                    val value = sendButtonConnexion(communityAddress, communityName)
-                                    isConnectionOk = value != -1
-                                    if (isConnectionOk) {
+                                    val isConnected = sendButtonConnexion(communityAddress, communityName)
+                                    if (isConnected) {
                                         Log.i("Pseudo", "Setting user pseudo to $pseudo")
                                         settingsRepository.setPseudo(pseudo)
-                                        idLast = value
+                                        idLast = dnsSender.id
                                         withContext(Main) {
                                             Utils.showInfoToast(
                                                 context.getString(R.string.commuConnection),
                                                 context
                                             )
                                         }
+                                        isConnectionOk = true
                                     } else {
                                         withContext(Main) {
                                             Utils.showErrorToast(
@@ -198,23 +199,23 @@ class AuthentificationView {
     private suspend fun sendButtonConnexion(
         address: String,
         community: String
-    ): Int {
+    ): Boolean {
         if (address == "" || community == "") {
             Log.e("Connexion", "Address or community is empty")
-            return -1
+            return false
         }
 
-        var returnVal: Int
+        var returnVal: Boolean
         withContext(IO) {
             if (!testHttp()) {
                 httpSender.communityChecker(address, community)
                 dnsSender.id = httpSender.id
-                returnVal = httpSender.id
+                returnVal = httpSender.isConnected
             } else {
                 dnsSender.findType(address)
                 dnsSender.communityDetection(address, community)
                 httpSender.id = dnsSender.id
-                returnVal = dnsSender.id
+                returnVal = dnsSender.isConnected
             }
         }
         return returnVal

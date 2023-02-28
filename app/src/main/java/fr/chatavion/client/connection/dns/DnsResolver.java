@@ -22,6 +22,8 @@ import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import fr.chatavion.client.ui.ConstantKt;
+
 public class DnsResolver {
 
     private static final Logger logger = Logger.getLogger(DnsResolver.class.getName());
@@ -30,6 +32,7 @@ public class DnsResolver {
     private Class<? extends Data> type = A.class;
     private final List<String> list = new ArrayList<>();
     private int id = 0;
+    private boolean isConnected = false;
 
     public DnsResolver() {
     }
@@ -43,7 +46,12 @@ public class DnsResolver {
             this.id = 0;
             return;
         }
+        this.isConnected = true;
         this.id = id;
+    }
+
+    public boolean isConnected() {
+        return isConnected;
     }
 
     public boolean findType(String address) {
@@ -85,6 +93,7 @@ public class DnsResolver {
     public boolean communityDetection(String address, String community) {
         try {
             ResolverResult<? extends Data> e = ResolverApi.INSTANCE.resolve(community + ".connexion." + address, type);
+            isConnected = false;
             logger.info("After");
             if (!e.wasSuccessful()) {
                 logger.warning(() -> "That community doesn't exist for the given server.");
@@ -104,7 +113,7 @@ public class DnsResolver {
                     id = Integer.parseInt(ip.toString());
                 }
             }
-            logger.info(() -> id + "");
+            isConnected = true;
             return true;
         } catch (IOException e) {
             logger.warning(() -> address + " have an issue.");
@@ -114,8 +123,8 @@ public class DnsResolver {
 
     public Boolean sendMessage(String community, String address, String pseudo, String message) {
         byte[] msgAsBytes = message.getBytes(StandardCharsets.UTF_8);
-        if(msgAsBytes.length > 160) {
-            logger.warning("Message cannot be more than 70 character as UTF_8 byte array.");
+        if(msgAsBytes.length > ConstantKt.getMESSAGE_SIZE()) {
+            logger.warning("Message cannot be more than 160 character as UTF_8 byte array.");
             return false;
         }
         String msgB32 = this.converter32.encodeAsString(msgAsBytes);
