@@ -432,7 +432,7 @@ class TchatView {
 
         val context = LocalContext.current
         var pseudoCurrent by remember { mutableStateOf("") }
-        var menu by remember { mutableStateOf(Parameters.Main) }
+        var menu by remember { mutableStateOf(R.string.parameters) }
         val settingsRepository = SettingsRepository(context = context)
 
         Column(
@@ -443,58 +443,68 @@ class TchatView {
         ) {
             //Top Drawer
             when (menu) {
-                Parameters.Main -> {
+                R.string.parameters -> {
                     TopDrawer(
                         onClickedIcon = { Log.i("Top drawer", "Touched") },
                         icon = Icons.Filled.Menu,
                         resId = R.string.parameters
                     )
                 }
-                Parameters.Pseudo -> {
+                R.string.pseudo -> {
                     TopDrawer(
                         onClickedIcon = {
                             Log.i("Top drawer", "Touched")
-                            menu = Parameters.Main
+                            menu = R.string.parameters
                         },
                         icon = Icons.Filled.ArrowBack,
                         resId = R.string.pseudo
                     )
                 }
-                Parameters.Language -> {
+                R.string.theme -> {
                     TopDrawer(
                         onClickedIcon = {
                             Log.i("Top drawer", "Touched")
-                            menu = Parameters.Main
-                        },
-                        icon = Icons.Filled.ArrowBack,
-                        resId = R.string.langue
-                    )
-                }
-                Parameters.Theme -> {
-                    TopDrawer(
-                        onClickedIcon = {
-                            Log.i("Top drawer", "Touched")
-                            menu = Parameters.Main
+                            menu = R.string.parameters
                         },
                         icon = Icons.Filled.ArrowBack,
                         resId = R.string.theme
                     )
                 }
-                Parameters.Messages -> {
+                R.string.langue -> {
                     TopDrawer(
                         onClickedIcon = {
                             Log.i("Top drawer", "Touched")
-                            menu = Parameters.Main
+                            menu = R.string.parameters
+                        },
+                        icon = Icons.Filled.ArrowBack,
+                        resId = R.string.langue
+                    )
+                }
+                R.string.advanced_parameters -> {
+                    TopDrawer(
+                        onClickedIcon = {
+                            Log.i("Top drawer", "Touched")
+                            menu = R.string.parameters
+                        },
+                        icon = Icons.Filled.ArrowBack,
+                        resId = R.string.advanced_parameters
+                    )
+                }
+                R.string.messages -> {
+                    TopDrawer(
+                        onClickedIcon = {
+                            Log.i("Top drawer", "Touched")
+                            menu = R.string.advanced_parameters
                         },
                         icon = Icons.Filled.ArrowBack,
                         resId = R.string.messages
                     )
                 }
-                Parameters.NetworkConnection -> {
+                R.string.network_connection -> {
                     TopDrawer(
                         onClickedIcon = {
                             Log.i("Top drawer", "Touched")
-                            menu = Parameters.Main
+                            menu = R.string.advanced_parameters
                         },
                         icon = Icons.Filled.ArrowBack,
                         resId = R.string.network_connection
@@ -511,13 +521,13 @@ class TchatView {
                 modifier = Modifier.weight(1f),
             ) {
                 when(menu){
-                    Parameters.Main -> {
+                    R.string.parameters -> {
                         ParametersColumn(
-                            parametersSet = Parameters.values() as Array<Param>,
+                            resIds = listOf(R.string.pseudo, R.string.theme, R.string.langue, R.string.advanced_parameters),
                             updateMenu =
                             {
                                 when(it) {
-                                    Parameters.Pseudo -> {
+                                    R.string.pseudo -> {
                                         Log.i("Parameters", "Pseudo touched")
                                         CoroutineScope(Dispatchers.Default).launch {
                                             settingsRepository.pseudo.collect { pseudo ->
@@ -525,67 +535,80 @@ class TchatView {
                                             }
 
                                         }
-                                        menu = Parameters.Pseudo
+                                        menu = R.string.pseudo
                                     }
-                                    Parameters.Theme -> {
+                                    R.string.theme -> {
                                         Log.i("Parameters", "Theme touched")
-                                        menu = Parameters.Theme
+                                        menu = R.string.theme
                                     }
-                                    Parameters.Language -> {
+                                    R.string.langue -> {
                                         Log.i("Parameters", "Language touched")
-                                        menu = Parameters.Language
+                                        menu = R.string.langue
                                     }
-                                    Parameters.Messages -> {
-                                        Log.i("Parameters", "Messages touched")
-                                        menu = Parameters.Messages
-                                    }
-                                    Parameters.NetworkConnection -> {
-                                        Log.i("Parameters", "Messages touched")
-                                        menu = Parameters.NetworkConnection
+                                    R.string.advanced_parameters -> {
+                                        Log.i("Parameters", "Advanced parameters touched")
+                                        menu = R.string.advanced_parameters
                                     }
                                     else -> {}
                                 }
                             }
                         )
                     }
-                    Parameters.Language -> {
-                        ParametersColumn(
-                            parametersSet = Language.values() as Array<Param>,
-                            updateMenu = {}
-                        )
-                    }
-                    Parameters.Theme -> {
-                        ParametersColumn(
-                            parametersSet = Theme.values() as Array<Param>,
-                            updateMenu = {}
-                        )
-                    }
-                    Parameters.Messages -> {
-                        ParametersColumn(
-                            parametersSet = Messages.values() as Array<Param>,
-                            updateMenu = {}
-                        )
-                    }
-                    Parameters.NetworkConnection -> {
-                        ParametersColumn(
-                            parametersSet = NetworkConnection.values() as Array<Param>,
-                            updateMenu = {}
-                        )
-                    }
-                    Parameters.Pseudo -> {
+                    R.string.pseudo -> {
                         UserParameter(
                             pseudo = community.pseudo,
                             communityId = community.communityId,
                             onClose = {
-                                menu = Parameters.Main
+                                menu = R.string.parameters
                             },
+                        )
+                    }
+                    R.string.langue -> {
+                        ParametersColumn(
+                            resIds = listOf(R.string.french, R.string.english),
+                            updateMenu = {}
+                        )
+                    }
+                    R.string.theme -> {
+                        ParametersColumn(
+                            resIds = listOf(R.string.light, R.string.dark),
+                            updateMenu = {}
+                        )
+                    }
+                    R.string.advanced_parameters -> {
+                        ParametersColumn(
+                            resIds = listOf(R.string.messages, R.string.network_connection),
+                            updateMenu = {
+                                when(it) {
+                                    R.string.messages -> {
+                                        Log.i("Parameters", "Messages touched")
+                                        menu = R.string.messages
+                                    }
+                                    R.string.network_connection -> {
+                                        Log.i("Parameters", "Network connection touched")
+                                        menu = R.string.network_connection
+                                    }
+                                }
+                            }
+                        )
+                    }
+                    R.string.messages -> {
+                        ParametersColumn(
+                            resIds = listOf(R.string.refresh_time, R.string.loading_history, R.string.encoding),
+                            updateMenu = {}
+                        )
+                    }
+                    R.string.network_connection -> {
+                        ParametersColumn(
+                            resIds = listOf(R.string.transaction_type_dns, R.string.protocol_choice),
+                            updateMenu = {}
                         )
                     }
                     else -> {}
                 }
             }
             //Bottom Drawer
-            if(menu == Parameters.Main) {
+            if(menu == R.string.parameters) {
                 Column(
                     verticalArrangement = Arrangement.Bottom
                 ) {
@@ -635,45 +658,43 @@ class TchatView {
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     fun ParametersColumn(
-        parametersSet: Array<Param>,
-        updateMenu: (Param) -> Unit
+        resIds: List<Int>,
+        updateMenu: (Int) -> Unit
     ){
         LazyColumn() {
-            items (parametersSet) { parameter ->
-                if (parameter.getId() !in listOf(R.string.parameters, R.string.notifications, R.string.advanced_parameters)) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .semantics {
-                                testTagsAsResourceId = true
-                            }
-                            .testTag(
-                                UiText
-                                    .StringResource(parameter.getId())
-                                    .toString()
-                            )
-                            .background(MaterialTheme.colors.background),
-                        content = {
-                            TextButton(
-                                content = {
-                                    Text(
-                                        color = MaterialTheme.colors.onBackground,
-                                        text = UiText.StringResource(parameter.getId()).asString(),
-                                        textAlign = TextAlign.Center
-                                    )
-                                },
-                                modifier = Modifier.padding(8.dp),
-                                onClick = { updateMenu(parameter) },
-                            )
-                            Divider(
-                                color = MaterialTheme.colors.onBackground,
-                                thickness = 1.dp,
-                                startIndent = (1 / 5f).dp
-                            )
-
+            items (resIds) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .semantics {
+                            testTagsAsResourceId = true
                         }
-                    )
-                }
+                        .testTag(
+                            UiText
+                                .StringResource(it)
+                                .toString()
+                        )
+                        .background(MaterialTheme.colors.background),
+                    content = {
+                        TextButton(
+                            content = {
+                                Text(
+                                    color = MaterialTheme.colors.onBackground,
+                                    text = UiText.StringResource(it).asString(),
+                                    textAlign = TextAlign.Center
+                                )
+                            },
+                            modifier = Modifier.padding(8.dp),
+                            onClick = { updateMenu(it) },
+                        )
+                        Divider(
+                            color = MaterialTheme.colors.onBackground,
+                            thickness = 1.dp,
+                            startIndent = (1 / 5f).dp
+                        )
+
+                    }
+                )
             }
         }
     }
@@ -702,61 +723,6 @@ class TchatView {
                     .align(Alignment.CenterVertically)
                     .padding(8.dp)
             )
-        }
-    }
-
-    interface Param {
-        fun getId(): Int
-    }
-
-    enum class Parameters(@StringRes val resId: Int) : Param {
-        Main(R.string.parameters),
-        Pseudo(R.string.pseudo),
-        Theme(R.string.theme),
-        Language(R.string.langue),
-        Notifications(R.string.notifications),
-        Advanced(R.string.advanced_parameters),
-        Messages(R.string.messages),
-        NetworkConnection(R.string.network_connection);
-        override fun getId(): Int {
-            return this.resId
-        }
-    }
-
-    enum class Language(@StringRes val resId: Int) : Param{
-        French(R.string.french),
-        English(R.string.english);
-
-        override fun getId(): Int {
-            return this.resId
-        }
-    }
-
-    enum class Theme(@StringRes val resId: Int) : Param{
-        French(R.string.light),
-        English(R.string.dark);
-
-        override fun getId(): Int {
-            return this.resId
-        }
-    }
-
-    enum class Messages(@StringRes val resId: Int) : Param{
-        RefreshTime(R.string.refresh_time),
-        LoadingHistory(R.string.loading_history),
-        Encoding(R.string.encoding);
-
-        override fun getId(): Int {
-            return this.resId
-        }
-    }
-
-    enum class NetworkConnection(@StringRes val resId: Int) : Param{
-        TransactionTypeDNS(R.string.transaction_type_dns),
-        ProtocolChoice(R.string.protocol_choice);
-
-        override fun getId(): Int {
-            return this.resId
         }
     }
 
