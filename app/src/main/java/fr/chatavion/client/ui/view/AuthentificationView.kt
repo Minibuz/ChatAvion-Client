@@ -33,7 +33,6 @@ import fr.chatavion.client.datastore.SettingsRepository
 import fr.chatavion.client.db.entity.Community
 import fr.chatavion.client.ui.PSEUDO_SIZE
 import fr.chatavion.client.ui.theme.Blue
-import fr.chatavion.client.ui.theme.Gray
 import fr.chatavion.client.util.Utils
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
@@ -55,7 +54,7 @@ class AuthentificationView {
         var pseudo by remember { mutableStateOf("") }
         var communityName by remember { mutableStateOf("") }
         var communityAddress by remember { mutableStateOf("") }
-        var enabled by remember { mutableStateOf(true) }
+        var enabled by remember { mutableStateOf(false) }
         var isRegisterOk by remember { mutableStateOf(false) }
         var isConnectionOk by remember { mutableStateOf(false) }
         var idLast by remember { mutableStateOf(0) }
@@ -79,6 +78,7 @@ class AuthentificationView {
                 navController.navigate("tchat_page/${communityName}/${communityAddress}/${id}/${idLast}")
             }
         }
+
         Column(modifier = Modifier.fillMaxSize()) {
             Image(
                 modifier = Modifier
@@ -88,6 +88,15 @@ class AuthentificationView {
                 painter = painterResource(id = R.drawable.chatavion_logo),
                 contentDescription = "Chatavion logo"
             )
+            Text(
+                context.getString(R.string.app_name),
+                fontFamily = FontFamily.Monospace,
+                style = TextStyle(fontWeight = FontWeight.Bold),
+                fontSize= 30.sp,
+                modifier = Modifier
+                    .padding(bottom = 40.dp)
+                    .align(Alignment.CenterHorizontally)
+            )
             Column(
                 modifier = Modifier
                     .weight(2f / 4f)
@@ -96,21 +105,16 @@ class AuthentificationView {
             ) {
 
                 Text(
-                    context.getString(R.string.app_name),
-                    fontFamily = FontFamily.Monospace,
-                    style = TextStyle(fontWeight = FontWeight.Bold),
-                    fontSize= 30.sp,
-                    modifier = Modifier.padding(bottom = 40.dp)
-                        .align(Alignment.CenterHorizontally)
-                )
-                Text(
                     stringResource(R.string.id_community),
                     style = TextStyle(fontWeight = FontWeight.Bold),
                     modifier = Modifier.padding(vertical = 16.dp)
                 )
                 TextField(
                     value = communityId.replace("\n", ""),
-                    onValueChange = { communityId = it },
+                    onValueChange = {
+                        communityId = it
+                        enabled = communityId != "" && pseudo != ""
+                                    },
                     placeholder = { Text(text = stringResource(R.string.communityAtIpServ)) },
                     textStyle = TextStyle(fontSize = 16.sp),
                     modifier = Modifier
@@ -127,7 +131,12 @@ class AuthentificationView {
                 )
                 TextField(
                     value = pseudo.replace("\n", ""),
-                    onValueChange = { if (it.length <= PSEUDO_SIZE) pseudo = it },
+                    onValueChange = {
+                        if (it.length <= PSEUDO_SIZE) {
+                            pseudo = it
+                        }
+                        enabled = communityId != "" && pseudo != ""
+                                    },
                     placeholder = { Text(text = stringResource(R.string.default_pseudo)) },
                     textStyle = TextStyle(fontSize = 16.sp),
                     modifier = Modifier
@@ -198,14 +207,11 @@ class AuthentificationView {
                         enabled = true
                     },
                     colors =
-                        if(enabled) ButtonDefaults.buttonColors(Blue)
-                        else ButtonDefaults.buttonColors(Gray)
+                        ButtonDefaults.buttonColors(backgroundColor = Blue, disabledBackgroundColor = MaterialTheme.colors.primaryVariant)
                 ) {
-                    val color = if (isRegisterOk) MaterialTheme.colors.secondaryVariant
-                    else MaterialTheme.colors.primaryVariant
-                    Text(stringResource(R.string.join_community), color = color)
+                    Text(stringResource(R.string.join_community), color = MaterialTheme.colors.onSecondary)
                 }
-                Card(Modifier.weight(2f / 3f)) {}
+                Card(Modifier.weight(1f / 2f)) {}
             }
         }
     }
