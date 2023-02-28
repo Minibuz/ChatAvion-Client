@@ -59,6 +59,15 @@ class TchatView {
 
     private val communityVM = communityViewModel
 
+    /**
+     * Composable function that displays the TchatView UI.
+     * @param navController Navigation controller for navigating between destinations.
+     * @param communityName Name of the community.
+     * @param communityAddress Address of the community.
+     * @param communityId ID of the community.
+     * @param lastId Last message ID.
+     * @param openDrawer Function that opens the navigation drawer.
+     */
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     @SuppressLint("NotConstructor")
@@ -444,8 +453,12 @@ class TchatView {
         )
     }
 
-
-    @OptIn(ExperimentalMaterialApi::class)
+    /**
+     * This composable function is used to display the content of the drawer.
+     *
+     * @param navController The navController used to navigate between the different screens
+     * @param communityId The id of the community currently selected
+     */
     @Composable
     fun DrawerContentComponent(
         navController: NavController,
@@ -657,6 +670,12 @@ class TchatView {
         }
     }
 
+    /**
+     * Composable function that displays the top drawer with an icon button and a text.
+     * @param onClickedIcon a function that will be called when the icon button is clicked
+     * @param icon the [ImageVector] of the icon button
+     * @param resId the resource ID of the string that will be displayed as text
+     */
     @Composable
     fun TopDrawer(
         onClickedIcon: () -> Unit,
@@ -690,6 +709,11 @@ class TchatView {
         }
     }
 
+    /**
+     * Composable function that displays a lazy column containing a list of parameters as text buttons
+     * @param resIds list of resource IDs representing the parameters to be displayed
+     * @param updateMenu callback function that updates the menu with the selected parameter
+     */
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     fun ParametersColumn(
@@ -734,6 +758,11 @@ class TchatView {
         }
     }
 
+    /**
+     * Composable function that displays a bottom drawer in the chat screen with a Home icon and a text that, when clicked,
+     * navigates the user back to the main screen.
+     * @param navController the NavController object responsible for navigating the user to the desired screen
+     */
     @Composable
     fun BottomDrawer(
         navController: NavController
@@ -761,6 +790,13 @@ class TchatView {
         }
     }
 
+    /**
+     * Composable function that displays a dropdown menu containing a list of available communities.
+     * @param navController NavController to navigate to the chat page when selecting a community.
+     * @param communityId The ID of the currently selected community.
+     * @param displayMenu Boolean to indicate whether or not the menu should be displayed.
+     * @param onDismiss Callback function to be called when the menu is dismissed.
+     */
     @Composable
     fun BurgerMenuCommunity(
         navController: NavController,
@@ -845,6 +881,18 @@ class TchatView {
         }
     }
 
+    /**
+     * Sends a message to a given community and address using either DNS or HTTP depending on the specified [isDns] flag.
+     * @param message the message to send
+     * @param pseudo the pseudo or username of the sender
+     * @param community the name of the community to send the message to
+     * @param address the address of the recipient
+     * @param messages a list of messages to which the sent message will be added
+     * @param senderDns a DNS resolver object used to send the message if [isDns] is true
+     * @param senderHttp an HTTP resolver object used to send the message if [isDns] is false
+     * @param isDns a flag indicating whether to use DNS or HTTP for sending the message
+     * @return true if the message was successfully sent, false otherwise
+     */
     private suspend fun sendMessage(
         message: String,
         pseudo: String,
@@ -879,6 +927,12 @@ class TchatView {
         return returnVal
     }
 
+    /**
+     * Determines whether a community with the specified [communityName] and [communityAddress] is still available.
+     * @param communityName the name of the community to check for availability
+     * @param communityAddress the address of the community to check for availability
+     * @return the ID of the community if it is still available, or -1 if it is not available
+     */
     private fun isCommunityStillAvailable(
         communityName: String,
         communityAddress: String,
