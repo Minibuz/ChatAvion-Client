@@ -770,11 +770,11 @@ class TchatView {
                                         Utils.showInfoToast(context.getString(R.string.commuSwitch) +" "+ community.name, context)
 
 
-                                        isCommunityStillAvailable(
+                                        val id = isCommunityStillAvailable(
                                             communityAddress = community.address,
                                             communityName = community.name
                                         )
-                                        navController.navigate("tchat_page/${community.name}/${community.address}/${community.communityId}")
+                                        navController.navigate("tchat_page/${community.name}/${community.address}/${community.communityId}/${id}")
                                     },
                                 ) {
                                     Row() {
@@ -844,19 +844,21 @@ class TchatView {
     private fun isCommunityStillAvailable(
         communityName: String,
         communityAddress: String,
-
-        ) : Boolean {
+        ) : Int {
         Log.i("Address", communityAddress)
         Log.i("Community", communityName)
+        var id = 0
         var isConnectionOk = false
         CoroutineScope(IO).launch {
-            isConnectionOk = if (testHttp()) {
+            if (testHttp()) {
                 val httpSender = HttpResolver()
-                httpSender.communityChecker(communityAddress, communityName)
+                isConnectionOk = httpSender.communityChecker(communityAddress, communityName)
+                id = httpSender.id
             } else {
                 val dnsSender = DnsResolver()
                 dnsSender.findType(communityAddress)
-                dnsSender.communityDetection(communityAddress, communityName)
+                isConnectionOk = dnsSender.communityDetection(communityAddress, communityName)
+                id = dnsSender.id
             }
 
             if (isConnectionOk) {
@@ -865,6 +867,10 @@ class TchatView {
                 // TODO Toast if false
             }
         }
-        return isConnectionOk
+        return if (isConnectionOk) {
+                id
+            } else {
+                -1
+            }
     }
 }
