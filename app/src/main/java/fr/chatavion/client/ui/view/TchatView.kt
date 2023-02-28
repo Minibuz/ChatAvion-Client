@@ -640,7 +640,7 @@ class TchatView {
     ){
         LazyColumn() {
             items (parametersSet) { parameter ->
-                if (parameter.getId() != R.string.parameters && parameter.getId() != R.string.notifications && parameter.getId() != R.string.advanced_parameters) {
+                if (parameter.getId() !in listOf(R.string.parameters, R.string.notifications, R.string.advanced_parameters)) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
