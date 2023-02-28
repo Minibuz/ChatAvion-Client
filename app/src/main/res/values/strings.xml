@@ -15,7 +15,7 @@
     <string name="messages">Messages</string>
     <string name="network_connection">Connexion réseau</string>
     <string name="back_main_screen">Retour à l\'écran principal</string>
-    <string name="actual_pseudo">Pseuo actuel</string>
+    <string name="actual_pseudo">Pseudo actuel</string>
     <string name="explication_pseudo_community">Il s\'agit du nom qui apparaît en en-tête des messages que vous envoyez sur la communauté</string>
     <string name="transaction_type_dns">Type de transaction DNS</string>
     <string name="protocol_choice">Choix du protocole</string>
