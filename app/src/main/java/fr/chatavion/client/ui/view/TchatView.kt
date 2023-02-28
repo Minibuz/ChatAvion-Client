@@ -77,7 +77,7 @@ class TchatView {
         val httpResolver = HttpResolver()
         val messages = remember { mutableStateListOf<Message>() }
         var msg by remember { mutableStateOf("") }
-        var remainingCharacter by remember { mutableStateOf(35) }
+        var remainingCharacter by remember { mutableStateOf(160) }
         var enableSendingMessage by remember { mutableStateOf(true) }
         var displayBurgerMenu by remember { mutableStateOf(false) }
         var connectionIsDNS by remember { mutableStateOf(true) }

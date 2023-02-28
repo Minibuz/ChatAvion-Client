@@ -79,7 +79,7 @@ fun UserParameter(
                     ""
                 ),
                 onValueChange = {
-                    if (it.length <= 35) current = it
+                    if (it.length <= 20) current = it
                 }
             )
             IconButton(
