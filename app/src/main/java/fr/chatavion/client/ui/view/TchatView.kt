@@ -2,8 +2,6 @@ package fr.chatavion.client.ui.view
 
 import android.annotation.SuppressLint
 import android.util.Log
-import android.widget.Toast
-import android.widget.Toast.LENGTH_SHORT
 import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
@@ -46,6 +44,7 @@ import fr.chatavion.client.datastore.SettingsRepository
 import fr.chatavion.client.db.entity.Community
 import fr.chatavion.client.db.entity.Message
 import fr.chatavion.client.db.entity.MessageStatus
+import fr.chatavion.client.ui.MESSAGE_SIZE
 import fr.chatavion.client.ui.UiText
 import fr.chatavion.client.ui.theme.White
 import fr.chatavion.client.util.Utils
@@ -56,6 +55,7 @@ import java.nio.charset.StandardCharsets
 import java.util.concurrent.CancellationException
 
 class TchatView {
+
     private val communityVM = communityViewModel
 
     @OptIn(ExperimentalComposeUiApi::class)
@@ -77,7 +77,7 @@ class TchatView {
         val httpResolver = HttpResolver()
         val messages = remember { mutableStateListOf<Message>() }
         var msg by remember { mutableStateOf("") }
-        var remainingCharacter by remember { mutableStateOf(160) }
+        var remainingCharacter by remember { mutableStateOf(MESSAGE_SIZE) }
         var enableSendingMessage by remember { mutableStateOf(true) }
         var displayBurgerMenu by remember { mutableStateOf(false) }
         var connectionIsDNS by remember { mutableStateOf(true) }
@@ -229,7 +229,7 @@ class TchatView {
                                 }
                                 .testTag("msgEditField"),
                             onValueChange = {
-                                msg = it
+                                msg = it.trim()
                                 remainingCharacter =
                                     160 - msg.toByteArray(StandardCharsets.UTF_8).size
                             },
@@ -240,7 +240,7 @@ class TchatView {
                     }
                     Column {
                         Text(
-                            text = "$remainingCharacter/160",
+                            text = "$remainingCharacter/${MESSAGE_SIZE}",
                             color = if (remainingCharacter < 0) MaterialTheme.colors.error else MaterialTheme.colors.primaryVariant,
                             textAlign = TextAlign.Center,
                             modifier = Modifier
@@ -280,10 +280,10 @@ class TchatView {
 
                                         if (ret) {
                                             msg = ""
-                                            remainingCharacter = 160
+                                            remainingCharacter = MESSAGE_SIZE
                                         } else {
                                             withContext(Main) {
-                                                Toast.makeText(context, "Test", LENGTH_SHORT).show()
+                                                UiText.StringResource(R.string.messageTooLong).asString(context)
                                             }
                                         }
                                     }

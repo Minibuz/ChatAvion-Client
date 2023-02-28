@@ -12,6 +12,7 @@ class HttpResolver {
 
     private val mapper = jacksonObjectMapper()
     var id: Int = 0
+    var isConnected: Boolean = false
 
     fun requestHistory(
         community: String,
@@ -86,6 +87,7 @@ class HttpResolver {
         val url = URL("http://chat.$address/community/$community")
 
         var result = false
+        isConnected = false
         try {
             with(url.openConnection() as HttpURLConnection) {
                 requestMethod = "GET"  // optional default is GET
@@ -100,6 +102,9 @@ class HttpResolver {
             }
         } catch (e: IOException) {
             Log.e("HTTPResolver", "Server doesn't exist")
+        }
+        if(result) {
+            isConnected = true
         }
         return result
     }

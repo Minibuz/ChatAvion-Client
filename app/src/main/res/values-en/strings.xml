@@ -32,5 +32,6 @@
     <string name ="commuSwitch">Switched to community </string>
     <string name="uNameChanged">Username edited</string>
     <string name="newUNameEmpty">New username cannot be empty</string>
+    <string name="messageTooLong">Message is taking more than 160 characters.</string>
 
 </resources>
