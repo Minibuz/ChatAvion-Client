@@ -44,6 +44,11 @@ class AuthentificationView {
     private val dnsSender = DnsResolver()
     private val httpSender = HttpResolver()
 
+    /**
+     * AuthentificationView is a composable function that displays a login screen
+     * @param navController: NavController - used for navigation between screens
+     * @return a Composable function that displays a login screen and navigates to the chat screen if login is successful
+     */
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     @SuppressLint("NotConstructor")
@@ -78,7 +83,6 @@ class AuthentificationView {
                 navController.navigate("tchat_page/${communityName}/${communityAddress}/${id}/${idLast}")
             }
         }
-
         Column(modifier = Modifier.fillMaxSize()) {
             Image(
                 modifier = Modifier
@@ -92,7 +96,7 @@ class AuthentificationView {
                 context.getString(R.string.app_name),
                 fontFamily = FontFamily.Monospace,
                 style = TextStyle(fontWeight = FontWeight.Bold),
-                fontSize= 30.sp,
+                fontSize = 30.sp,
                 modifier = Modifier
                     .padding(bottom = 40.dp)
                     .align(Alignment.CenterHorizontally)
@@ -114,7 +118,7 @@ class AuthentificationView {
                     onValueChange = {
                         communityId = it
                         enabled = communityId != "" && pseudo != ""
-                                    },
+                    },
                     placeholder = { Text(text = stringResource(R.string.communityAtIpServ)) },
                     textStyle = TextStyle(fontSize = 16.sp),
                     modifier = Modifier
@@ -136,7 +140,7 @@ class AuthentificationView {
                             pseudo = it
                         }
                         enabled = communityId != "" && pseudo != ""
-                                    },
+                    },
                     placeholder = { Text(text = stringResource(R.string.default_pseudo)) },
                     textStyle = TextStyle(fontSize = 16.sp),
                     modifier = Modifier
@@ -171,7 +175,7 @@ class AuthentificationView {
                             if (count == 1) {
                                 val list = communityId.split("@")
                                 communityName = list[0].lowercase().trim()
-                                if(communityName.toByteArray().size > 20) {
+                                if (communityName.toByteArray().size > 20) {
                                     CoroutineScope(IO).launch {
                                         withContext(Main) {
                                             Utils.showErrorToast(
@@ -185,7 +189,8 @@ class AuthentificationView {
                                 Log.i("Community", communityName)
                                 Log.i("Address", communityAddress)
                                 CoroutineScope(IO).launch {
-                                    val isConnected = sendButtonConnexion(communityAddress, communityName)
+                                    val isConnected =
+                                        sendButtonConnexion(communityAddress, communityName)
                                     if (isConnected) {
                                         Log.i("Pseudo", "Setting user pseudo to $pseudo")
                                         settingsRepository.setPseudo(pseudo)
@@ -217,15 +222,27 @@ class AuthentificationView {
                         enabled = true
                     },
                     colors =
-                        ButtonDefaults.buttonColors(backgroundColor = Blue, disabledBackgroundColor = MaterialTheme.colors.primaryVariant)
+                    ButtonDefaults.buttonColors(
+                        backgroundColor = Blue,
+                        disabledBackgroundColor = MaterialTheme.colors.primaryVariant
+                    )
                 ) {
-                    Text(stringResource(R.string.join_community), color = MaterialTheme.colors.onSecondary)
+                    Text(
+                        stringResource(R.string.join_community),
+                        color = MaterialTheme.colors.onSecondary
+                    )
                 }
                 Card(Modifier.weight(1f / 2f)) {}
             }
         }
     }
 
+    /**
+     * A function to establish a connection with a device using the specified address and community.
+     * @param address the address of the device to connect to.
+     * @param community the community name of the device to connect to.
+     * @return true if the connection was established, false otherwise.
+     */
     private suspend fun sendButtonConnexion(
         address: String,
         community: String
@@ -252,6 +269,10 @@ class AuthentificationView {
     }
 }
 
+/**
+ * A function to test the availability of HTTP requests.
+ * @return true if the HTTP request was successful, false otherwise.
+ */
 fun testHttp(): Boolean {
     val url = URL("https://www.google.com")
     try {
@@ -264,7 +285,7 @@ fun testHttp(): Boolean {
             )
             return responseCode == 200
         }
-    } catch (e : IOException) {
+    } catch (e: IOException) {
         Log.i("Test HTTP", "Cannot use HTTP")
         return false
     }

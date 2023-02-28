@@ -7,6 +7,13 @@ import fr.chatavion.client.db.entity.Message
 import fr.chatavion.client.db.entity.MessageStatus
 import kotlin.streams.toList
 
+/**
+ * Retrieves message history using DNS resolver
+ * @param dnsResolver the DNS resolver instance used to request message history
+ * @param community the community to retrieve message history from
+ * @param address the address to retrieve message history from
+ * @param messages the list of messages to update with retrieved message history
+ */
 fun dnsHistoryRetrieval(
     dnsResolver: DnsResolver,
     community: String,
@@ -23,6 +30,13 @@ fun dnsHistoryRetrieval(
     )
 }
 
+/**
+ * Retrieves message history using HTTP resolver
+ * @param httpResolver the HTTP resolver instance used to request message history
+ * @param community the community to retrieve message history from
+ * @param address the address to retrieve message history from
+ * @param messages the list of messages to update with retrieved message history
+ */
 fun httpHistoryRetrieval(
     httpResolver: HttpResolver,
     community: String,
@@ -39,6 +53,12 @@ fun httpHistoryRetrieval(
     )
 }
 
+/**
+ * Retrieves message history and updates the given message list.
+ * @param history the list of messages to update with retrieved message history
+ * @param messages the list of messages to update
+ * @return nothing
+ */
 private fun historyRetrieval(
     history: List<String>,
     messages: SnapshotStateList<Message>
@@ -64,20 +84,18 @@ private fun historyRetrieval(
             }
         }
     }
-
     list.removeAll(listOfChanged)
-    if(list.isNotEmpty()) {
+    if (list.isNotEmpty()) {
         // TODO Toast here to main thread
         // CoroutineScope(Main) {}
-        for(msg in list) {
-            if(msg.sendRetry == 0) {
+        for (msg in list) {
+            if (msg.sendRetry == 0) {
                 listToRemove.remove(msg)
             } else {
-                msg.sendRetry --
+                msg.sendRetry--
             }
         }
     }
-
     messages.removeAll(
         listToRemove
     )
