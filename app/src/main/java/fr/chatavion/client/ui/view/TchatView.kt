@@ -211,7 +211,7 @@ class TchatView {
                                     Icons.Filled.Wifi,
                                     "wifi",
                                 modifier = Modifier.align(CenterHorizontally))
-                                Text(text = if(connectionIsDNS) "DNS" else "HTTP")
+                                Text(text = context.getString(if(connectionIsDNS) R.string.DNS else R.string.HTTP))
                             }
                         }
                     }

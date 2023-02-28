@@ -36,5 +36,8 @@
     <string name="newUNameEmpty">Le nouveau pseudo ne peut pas être vide </string>
     <string name="messageTooLong">Le message fait plus de 160 charactères.</string>
     <string name="back_login_screen">Retour à l\'écran de connexion</string>
+    <string name="communityNameTooLong">Le nom de la communauté ne devrait pas être aussi long</string>
+    <string name="DNS" translatable="false">DNS</string>
+    <string name="HTTP" translatable="false">HTTP</string>
 
 </resources>
