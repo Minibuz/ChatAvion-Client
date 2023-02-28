@@ -30,6 +30,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 
+/**
+ * A Composable function that displays a user parameter screen.
+ *
+ * @param pseudo The current user's pseudo.
+ * @param communityId The ID of the current community.
+ * @param onClose A function that is called when the screen is closed.
+ */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun UserParameter(
@@ -37,15 +44,20 @@ fun UserParameter(
     communityId: Int,
     onClose: () -> Unit,
 ) {
-
     val context = LocalContext.current
-    var current by remember { mutableStateOf(pseudo) }
-    val community by communityViewModel.getById(communityId).observeAsState(Community("","","", 0))
 
-    Column(modifier = Modifier
-        .fillMaxWidth()
-        .background(MaterialTheme.colors.background)
-        .padding(8.dp)
+    // A state variable that stores the current pseudo value.
+    var current by remember { mutableStateOf(pseudo) }
+
+    // Retrieve the community from the ViewModel based on the given ID.
+    val community by communityViewModel.getById(communityId)
+        .observeAsState(Community("", "", "", 0))
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colors.background)
+            .padding(8.dp)
     ) {
         Text(
             color = MaterialTheme.colors.onBackground,
@@ -84,13 +96,13 @@ fun UserParameter(
             )
             IconButton(
                 onClick = {
-                    if(current != "") {
+                    if (current != "") {
                         CoroutineScope(IO).launch {
                             community.pseudo = current
                             communityViewModel.insert(community = community)
                         }
                         onClose()
-                        Utils.showInfoToast(context.getString(R.string.uNameChanged),context)
+                        Utils.showInfoToast(context.getString(R.string.uNameChanged), context)
                     } else {
                         Utils.showInfoToast(context.getString(R.string.newUNameEmpty), context)
                     }
