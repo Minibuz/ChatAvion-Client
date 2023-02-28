@@ -171,6 +171,16 @@ class AuthentificationView {
                             if (count == 1) {
                                 val list = communityId.split("@")
                                 communityName = list[0].lowercase().trim()
+                                if(communityName.toByteArray().size > 20) {
+                                    CoroutineScope(IO).launch {
+                                        withContext(Main) {
+                                            Utils.showErrorToast(
+                                                context.getString(R.string.communityNameTooLong),
+                                                context
+                                            )
+                                        }
+                                    }
+                                }
                                 communityAddress = list[1].lowercase().trim()
                                 Log.i("Community", communityName)
                                 Log.i("Address", communityAddress)
