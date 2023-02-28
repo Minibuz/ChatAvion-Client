@@ -165,7 +165,7 @@ public class DnsResolver {
      */
     public Boolean sendMessage(String community, String address, String pseudo, String message) {
         byte[] msgAsBytes = message.getBytes(StandardCharsets.UTF_8);
-        if (msgAsBytes.length > ConstantKt.getMESSAGE_SIZE()) {
+        if (msgAsBytes.length > ConstantKt.MESSAGE_SIZE) {
             logger.warning("Message cannot be more than 160 character as UTF_8 byte array.");
             return false;
         }
