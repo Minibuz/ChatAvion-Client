@@ -31,6 +31,8 @@ import fr.chatavion.client.connection.http.HttpResolver
 import fr.chatavion.client.datastore.SettingsRepository
 import fr.chatavion.client.db.entity.Community
 import fr.chatavion.client.ui.PSEUDO_SIZE
+import fr.chatavion.client.ui.theme.Blue
+import fr.chatavion.client.ui.theme.Gray
 import fr.chatavion.client.util.Utils
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
@@ -185,7 +187,9 @@ class AuthentificationView {
                         }
                         enabled = true
                     },
-                    colors = ButtonDefaults.buttonColors(MaterialTheme.colors.secondary)
+                    colors =
+                        if(enabled) ButtonDefaults.buttonColors(Blue)
+                        else ButtonDefaults.buttonColors(Gray)
                 ) {
                     val color = if (isRegisterOk) MaterialTheme.colors.secondaryVariant
                     else MaterialTheme.colors.primaryVariant

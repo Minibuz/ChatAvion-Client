@@ -90,11 +90,9 @@ fun UserParameter(
                             communityViewModel.insert(community = community)
                         }
                         onClose()
-                        // TODO Toast username changed
                         Utils.showInfoToast(context.getString(R.string.uNameChanged),context)
                     } else {
                         Utils.showInfoToast(context.getString(R.string.newUNameEmpty), context)
-                        // TODO Toast username cannot be empty
                     }
                 },
                 modifier = Modifier
@@ -114,7 +112,7 @@ fun UserParameter(
         }
         Text(
             color = MaterialTheme.colors.onBackground,
-            text = stringResource(id = R.string.explication_pseudo_community)
+            text = stringResource(id = R.string.explication_pseudo_community) + " ${community.name}"
         )
     }
 }
