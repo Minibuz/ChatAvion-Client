@@ -98,7 +98,7 @@ class AuthentificationView {
                     fontFamily = FontFamily.Monospace,
                     style = TextStyle(fontWeight = FontWeight.Bold),
                     fontSize= 30.sp,
-                    modifier = Modifier.padding(vertical = 20.dp)
+                    modifier = Modifier.padding(bottom = 40.dp)
                         .align(Alignment.CenterHorizontally)
                 )
                 Text(
