@@ -8,8 +8,6 @@ import org.minidns.record.A;
 import org.minidns.record.AAAA;
 import org.minidns.record.Data;
 import org.minidns.record.TXT;
-import org.xbill.DNS.Lookup;
-import org.xbill.DNS.Type;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -24,6 +22,9 @@ import java.util.stream.Collectors;
 
 import fr.chatavion.client.ui.ConstantKt;
 
+/**
+ * A DNS resolver for a chat client that uses MiniDNS and XBill DNS libraries for resolving DNS queries.
+ */
 public class DnsResolver {
 
     private static final Logger logger = Logger.getLogger(DnsResolver.class.getName());
@@ -34,13 +35,27 @@ public class DnsResolver {
     private int id = 0;
     private boolean isConnected = false;
 
+    /**
+     * Constructs a new DnsResolver.
+     */
     public DnsResolver() {
     }
 
+    /**
+     * Returns the ID of the DnsResolver instance.
+     *
+     * @return the ID of the DnsResolver instance.
+     */
     public int getId() {
         return id;
     }
 
+    /**
+     * Sets the ID of the DnsResolver instance.
+     * If the provided ID is negative, it will be set to 0.
+     *
+     * @param id the ID to set.
+     */
     public void setId(int id) {
         if (id < 0) {
             this.id = 0;
@@ -50,10 +65,21 @@ public class DnsResolver {
         this.id = id;
     }
 
+    /**
+     * Checks if the current instance is connected to the network.
+     *
+     * @return true if the instance is connected, false otherwise.
+     */
     public boolean isConnected() {
         return isConnected;
     }
 
+    /**
+     * Attempts to find the type of DNS record for a given address.
+     *
+     * @param address The address to resolve.
+     * @return true if the type was found, false otherwise.
+     */
     public boolean findType(String address) {
         ResolverResult<? extends Data> result;
         address = "chat." + address;
@@ -90,6 +116,13 @@ public class DnsResolver {
         return false;
     }
 
+    /**
+     * Attempts to detect if a given community exists on a server at a given address.
+     *
+     * @param address   The address of the server.
+     * @param community The name of the community to search for.
+     * @return true if the community exists, false otherwise.
+     */
     public boolean communityDetection(String address, String community) {
         try {
             ResolverResult<? extends Data> e = ResolverApi.INSTANCE.resolve(community + ".connexion." + address, type);
@@ -121,9 +154,18 @@ public class DnsResolver {
         }
     }
 
+    /**
+     * Sends a message over DNS.
+     *
+     * @param community the community to send the message to
+     * @param address   the DNS server address
+     * @param pseudo    the username of the sender
+     * @param message   the message to send
+     * @return true if the message was sent successfully; false otherwise
+     */
     public Boolean sendMessage(String community, String address, String pseudo, String message) {
         byte[] msgAsBytes = message.getBytes(StandardCharsets.UTF_8);
-        if(msgAsBytes.length > ConstantKt.getMESSAGE_SIZE()) {
+        if (msgAsBytes.length > ConstantKt.MESSAGE_SIZE) {
             logger.warning("Message cannot be more than 160 character as UTF_8 byte array.");
             return false;
         }
@@ -134,15 +176,15 @@ public class DnsResolver {
         // TODO Generate random id for the messages
         Random r = new Random();
         int randomId = r.nextInt(65536);
-        int maxSplit = (short) (msgB32.length()/35);
+        int maxSplit = (short) (msgB32.length() / 35);
 
         int index = 0;
         List<String> listPart = new ArrayList<>();
-        for(int i = 0; i < msgB32.length()-35; i+=35, index++ ) {
+        for (int i = 0; i < msgB32.length() - 35; i += 35, index++) {
             String partSend = randomId + "-" +
                     maxSplit +
                     index + "-" +
-                    msgB32.substring(i, i+35);
+                    msgB32.substring(i, i + 35);
             listPart.add(partSend);
         }
         listPart.add(randomId + "-" +
@@ -150,7 +192,7 @@ public class DnsResolver {
                 maxSplit + "-" +
                 msgB32.substring(35 * index));
 
-        for(String msgPart : listPart) {
+        for (String msgPart : listPart) {
             for (int retries = 0; retries < NUMBER_OF_RETRIES; retries++) {
                 ResolverResult<? extends Data> result;
                 try {
@@ -175,6 +217,14 @@ public class DnsResolver {
         return true;
     }
 
+    /**
+     * Requests the history of messages from a DNS server.
+     *
+     * @param cmt     the community to retrieve messages from
+     * @param address the DNS server address
+     * @param number  the number of messages to retrieve (between 1 and 10, inclusive)
+     * @return a list of messages retrieved
+     */
     public List<String> requestHistory(String cmt, String address, int number) {
         if (number < 1 || number > 10) {
             throw new IllegalArgumentException("Cannot get less than 1 message from history or more than 10.");
@@ -213,7 +263,7 @@ public class DnsResolver {
                     }
                     var fullMessageWithId = new String(converter32.decode(ArrayUtils.toPrimitive(msg.toArray(new Byte[0]))));
                     System.out.println(fullMessageWithId);
-                    if(fullMessageWithId.startsWith("0")) {
+                    if (fullMessageWithId.startsWith("0")) {
                         message += fullMessageWithId.substring(1);
                         if ("".equals(message)) {
                             return list;
@@ -225,7 +275,7 @@ public class DnsResolver {
                         message += fullMessageWithId.substring(1);
                         part++;
                     }
-                } while(doRetrieve);
+                } while (doRetrieve);
             }
         } catch (IOException e) {
             return list;
@@ -233,6 +283,12 @@ public class DnsResolver {
         return list;
     }
 
+    /**
+     * Merges the contents of a Set of A objects into a List of Byte objects.
+     *
+     * @param results a Set of A objects to be merged
+     * @param msg     the List of Byte objects to merge the results into
+     */
     private static void mergeResultTypeA(Set<A> results, List<Byte> msg) {
         // Sort results based on first byte
         HashMap<Integer, List<Byte>> map = new HashMap<>();
@@ -249,6 +305,12 @@ public class DnsResolver {
         }
     }
 
+    /**
+     * Merges the contents of a Set of AAAA objects into a List of Byte objects.
+     *
+     * @param results a Set of AAAA objects to be merged
+     * @param msg     the List of Byte objects to merge the results into
+     */
     private static void mergeResultTypeAAAA(Set<AAAA> results, List<Byte> msg) {
         for (var result : results) {
             var part = result.toString().split(":");
@@ -263,6 +325,12 @@ public class DnsResolver {
         }
     }
 
+    /**
+     * Merges the contents of a Set of TXT objects into a List of Byte objects.
+     *
+     * @param results a Set of TXT objects to be merged
+     * @param msg     the List of Byte objects to merge the results into
+     */
     private static void mergeResultTypeTXT(Set<TXT> results, List<Byte> msg) {
         for (var result : results) {
             var element = result.toString().replace("\"", "");

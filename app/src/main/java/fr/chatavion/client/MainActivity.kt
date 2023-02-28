@@ -19,9 +19,15 @@ import fr.chatavion.client.ui.theme.ChatavionTheme
 import fr.chatavion.client.ui.view.AuthentificationView
 import fr.chatavion.client.ui.view.TchatView
 
-
+/**
+ * The MainActivity class sets the content view to a composed UI using Jetpack Compose
+ */
 class MainActivity : ComponentActivity() {
 
+    /**
+     * Sets the activity's content view to a Composed UI and instantiates the ViewModel.
+     * @param savedInstanceState the saved instance state.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -48,6 +54,11 @@ class MainActivity : ComponentActivity() {
 
 lateinit var communityViewModel: CommunityViewModel
 
+/**
+ * A composable function that defines the basic navigation structure of the app.
+ *
+ * @param navController The NavController that manages app navigation.
+ */
 @Composable
 fun NavigationBasicsApp() {
     val navController = rememberNavController()
@@ -66,7 +77,13 @@ fun NavigationBasicsApp() {
             val id = backStackEntry.arguments?.getString("id")
             val idLast = backStackEntry.arguments?.getString("idLast")
             if (community != null && address != null && id != null && idLast != null) {
-                tchatView.DrawerAppComponent(navController, community, address, id.toInt(), idLast.toInt())
+                tchatView.DrawerAppComponent(
+                    navController,
+                    community,
+                    address,
+                    id.toInt(),
+                    idLast.toInt()
+                )
             }
         }
     }
