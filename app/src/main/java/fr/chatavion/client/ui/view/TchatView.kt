@@ -59,6 +59,15 @@ class TchatView {
 
     private val communityVM = communityViewModel
 
+    /**
+     * Composable function that displays the TchatView UI.
+     * @param navController Navigation controller for navigating between destinations.
+     * @param communityName Name of the community.
+     * @param communityAddress Address of the community.
+     * @param communityId ID of the community.
+     * @param lastId Last message ID.
+     * @param openDrawer Function that opens the navigation drawer.
+     */
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     @SuppressLint("NotConstructor")
@@ -72,7 +81,8 @@ class TchatView {
     ) {
         val context = LocalContext.current
 
-        val community by communityVM.getById(communityId).observeAsState(Community(communityName,communityAddress,"", lastId, communityId))
+        val community by communityVM.getById(communityId)
+            .observeAsState(Community(communityName, communityAddress, "", lastId, communityId))
 
         val dnsResolver = DnsResolver()
         val httpResolver = HttpResolver()
@@ -140,7 +150,7 @@ class TchatView {
                                 colors = ButtonDefaults.outlinedButtonColors(backgroundColor = Color.Transparent),
                                 border = BorderStroke(0.dp, Color.Transparent),
                                 onClick = {
-                                    Log.i("test","test")
+                                    Log.i("test", "test")
                                     showCommunityDetails = true
                                 },
                                 modifier = Modifier
@@ -162,18 +172,18 @@ class TchatView {
                         BurgerMenuCommunity(navController, communityId, displayBurgerMenu) {
                             displayBurgerMenu = !displayBurgerMenu
                         }
-                            IconButton(
-                                modifier = Modifier
-                                    .semantics {
-                                        testTagsAsResourceId = true
-                                    }
-                                    .testTag("commDropDown"),
-                                onClick = {
-                                    Log.i("expandMore", "ExpandMore pushed")
-                                    displayBurgerMenu = !displayBurgerMenu
-                                }) {
-                                Icon(Icons.Filled.ExpandMore, "expandMore")
-                            }
+                        IconButton(
+                            modifier = Modifier
+                                .semantics {
+                                    testTagsAsResourceId = true
+                                }
+                                .testTag("commDropDown"),
+                            onClick = {
+                                Log.i("expandMore", "ExpandMore pushed")
+                                displayBurgerMenu = !displayBurgerMenu
+                            }) {
+                            Icon(Icons.Filled.ExpandMore, "expandMore")
+                        }
                     },
                     navigationIcon = {
                         IconButton(
@@ -199,19 +209,25 @@ class TchatView {
                                 Log.i("wifi", "Wifi pushed")
                                 if (connectionIsDNS) {
                                     connectionIsDNS = false
-                                    Utils.showInfoToast(context.getString(R.string.connectionSwitchHTTP), context)
-                                }
-                                else{
+                                    Utils.showInfoToast(
+                                        context.getString(R.string.connectionSwitchHTTP),
+                                        context
+                                    )
+                                } else {
                                     connectionIsDNS = true
-                                    Utils.showInfoToast(context.getString(R.string.connectionSwitchDNS), context)
+                                    Utils.showInfoToast(
+                                        context.getString(R.string.connectionSwitchDNS),
+                                        context
+                                    )
                                 }
                             }) {
                             Column {
                                 Icon(
                                     Icons.Filled.Wifi,
                                     "wifi",
-                                modifier = Modifier.align(CenterHorizontally))
-                                Text(text = context.getString(if(connectionIsDNS) R.string.DNS else R.string.HTTP))
+                                    modifier = Modifier.align(CenterHorizontally)
+                                )
+                                Text(text = context.getString(if (connectionIsDNS) R.string.DNS else R.string.HTTP))
                             }
                         }
                     }
@@ -291,7 +307,8 @@ class TchatView {
                                             remainingCharacter = MESSAGE_SIZE
                                         } else {
                                             withContext(Main) {
-                                                UiText.StringResource(R.string.messageTooLong).asString(context)
+                                                UiText.StringResource(R.string.messageTooLong)
+                                                    .asString(context)
                                             }
                                         }
                                     }
@@ -358,7 +375,11 @@ class TchatView {
         }
     }
 
-
+    /**
+     * Composable function that displays a message with a centered text layout.
+     * @param message The message to be displayed.
+     * @return A Column composable with centered text layout.
+     */
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     fun DisplayCenterText(message: Message) {
@@ -395,6 +416,15 @@ class TchatView {
         }
     }
 
+    /**
+     * Composable function that displays a drawer component and a TchatView composable content.
+     * @param navController The NavController used for navigation.
+     * @param communityName The name of the community displayed in the TchatView composable content.
+     * @param communityAddress The address of the community displayed in the TchatView composable content.
+     * @param communityId The ID of the community used for the DrawerContentComponent composable content.
+     * @param lastId The last message ID displayed in the TchatView composable content.
+     * @return A ModalDrawer composable with drawer and TchatView composable content.
+     */
     @Composable
     fun DrawerAppComponent(
         navController: NavController,
@@ -423,13 +453,18 @@ class TchatView {
         )
     }
 
-    @OptIn(ExperimentalMaterialApi::class)
+    /**
+     * This composable function is used to display the content of the drawer.
+     *
+     * @param navController The navController used to navigate between the different screens
+     * @param communityId The id of the community currently selected
+     */
     @Composable
     fun DrawerContentComponent(
         navController: NavController,
         communityId: Int
     ) {
-        val community by communityVM.getById(communityId).observeAsState(Community("","","", -1))
+        val community by communityVM.getById(communityId).observeAsState(Community("", "", "", -1))
 
         val context = LocalContext.current
         var pseudoCurrent by remember { mutableStateOf("") }
@@ -521,13 +556,18 @@ class TchatView {
             Box(
                 modifier = Modifier.weight(1f),
             ) {
-                when(menu){
+                when (menu) {
                     R.string.parameters -> {
                         ParametersColumn(
-                            resIds = listOf(R.string.pseudo, R.string.theme, R.string.langue, R.string.advanced_parameters),
+                            resIds = listOf(
+                                R.string.pseudo,
+                                R.string.theme,
+                                R.string.langue,
+                                R.string.advanced_parameters
+                            ),
                             updateMenu =
                             {
-                                when(it) {
+                                when (it) {
                                     R.string.pseudo -> {
                                         Log.i("Parameters", "Pseudo touched")
                                         CoroutineScope(Dispatchers.Default).launch {
@@ -580,7 +620,7 @@ class TchatView {
                         ParametersColumn(
                             resIds = listOf(R.string.messages, R.string.network_connection),
                             updateMenu = {
-                                when(it) {
+                                when (it) {
                                     R.string.messages -> {
                                         Log.i("Parameters", "Messages touched")
                                         menu = R.string.messages
@@ -595,13 +635,20 @@ class TchatView {
                     }
                     R.string.messages -> {
                         ParametersColumn(
-                            resIds = listOf(R.string.refresh_time, R.string.loading_history, R.string.encoding),
+                            resIds = listOf(
+                                R.string.refresh_time,
+                                R.string.loading_history,
+                                R.string.encoding
+                            ),
                             updateMenu = {}
                         )
                     }
                     R.string.network_connection -> {
                         ParametersColumn(
-                            resIds = listOf(R.string.transaction_type_dns, R.string.protocol_choice),
+                            resIds = listOf(
+                                R.string.transaction_type_dns,
+                                R.string.protocol_choice
+                            ),
                             updateMenu = {}
                         )
                     }
@@ -609,7 +656,7 @@ class TchatView {
                 }
             }
             //Bottom Drawer
-            if(menu == R.string.parameters) {
+            if (menu == R.string.parameters) {
                 Column(
                     verticalArrangement = Arrangement.Bottom
                 ) {
@@ -623,12 +670,18 @@ class TchatView {
         }
     }
 
+    /**
+     * Composable function that displays the top drawer with an icon button and a text.
+     * @param onClickedIcon a function that will be called when the icon button is clicked
+     * @param icon the [ImageVector] of the icon button
+     * @param resId the resource ID of the string that will be displayed as text
+     */
     @Composable
     fun TopDrawer(
         onClickedIcon: () -> Unit,
         icon: ImageVector,
         @StringRes resId: Int
-    ){
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -656,14 +709,19 @@ class TchatView {
         }
     }
 
+    /**
+     * Composable function that displays a lazy column containing a list of parameters as text buttons
+     * @param resIds list of resource IDs representing the parameters to be displayed
+     * @param updateMenu callback function that updates the menu with the selected parameter
+     */
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     fun ParametersColumn(
         resIds: List<Int>,
         updateMenu: (Int) -> Unit
-    ){
+    ) {
         LazyColumn() {
-            items (resIds) {
+            items(resIds) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -700,10 +758,15 @@ class TchatView {
         }
     }
 
+    /**
+     * Composable function that displays a bottom drawer in the chat screen with a Home icon and a text that, when clicked,
+     * navigates the user back to the main screen.
+     * @param navController the NavController object responsible for navigating the user to the desired screen
+     */
     @Composable
     fun BottomDrawer(
         navController: NavController
-    ){
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -727,6 +790,13 @@ class TchatView {
         }
     }
 
+    /**
+     * Composable function that displays a dropdown menu containing a list of available communities.
+     * @param navController NavController to navigate to the chat page when selecting a community.
+     * @param communityId The ID of the currently selected community.
+     * @param displayMenu Boolean to indicate whether or not the menu should be displayed.
+     * @param onDismiss Callback function to be called when the menu is dismissed.
+     */
     @Composable
     fun BurgerMenuCommunity(
         navController: NavController,
@@ -752,7 +822,7 @@ class TchatView {
             if (communities.isNotEmpty()) {
                 Box(
                     modifier = Modifier
-                        .size(width = screenWidth, height = screenHeight/4)
+                        .size(width = screenWidth, height = screenHeight / 4)
                 ) {
                     LazyColumn(
                         Modifier
@@ -764,11 +834,14 @@ class TchatView {
                     ) {
                         items(items = communities) { community ->
                             Log.i("test", "${community.communityId} + $communityId")
-                            if(community.communityId != communityId) {
+                            if (community.communityId != communityId) {
                                 DropdownMenuItem(
                                     onClick = {
 
-                                        Utils.showInfoToast(context.getString(R.string.commuSwitch) +" "+ community.name, context)
+                                        Utils.showInfoToast(
+                                            context.getString(R.string.commuSwitch) + " " + community.name,
+                                            context
+                                        )
 
 
                                         val id = isCommunityStillAvailable(
@@ -808,6 +881,18 @@ class TchatView {
         }
     }
 
+    /**
+     * Sends a message to a given community and address using either DNS or HTTP depending on the specified [isDns] flag.
+     * @param message the message to send
+     * @param pseudo the pseudo or username of the sender
+     * @param community the name of the community to send the message to
+     * @param address the address of the recipient
+     * @param messages a list of messages to which the sent message will be added
+     * @param senderDns a DNS resolver object used to send the message if [isDns] is true
+     * @param senderHttp an HTTP resolver object used to send the message if [isDns] is false
+     * @param isDns a flag indicating whether to use DNS or HTTP for sending the message
+     * @return true if the message was successfully sent, false otherwise
+     */
     private suspend fun sendMessage(
         message: String,
         pseudo: String,
@@ -842,10 +927,16 @@ class TchatView {
         return returnVal
     }
 
+    /**
+     * Determines whether a community with the specified [communityName] and [communityAddress] is still available.
+     * @param communityName the name of the community to check for availability
+     * @param communityAddress the address of the community to check for availability
+     * @return the ID of the community if it is still available, or -1 if it is not available
+     */
     private fun isCommunityStillAvailable(
         communityName: String,
         communityAddress: String,
-        ) : Int {
+    ): Int {
         Log.i("Address", communityAddress)
         Log.i("Community", communityName)
         var id = 0
@@ -869,9 +960,9 @@ class TchatView {
             }
         }
         return if (isConnectionOk) {
-                id
-            } else {
-                -1
-            }
+            id
+        } else {
+            -1
+        }
     }
 }
