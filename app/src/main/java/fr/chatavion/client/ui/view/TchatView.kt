@@ -843,12 +843,19 @@ class TchatView {
                                             context
                                         )
 
+                                        CoroutineScope(IO).launch {
+                                            val id = isCommunityStillAvailable(
+                                                communityAddress = community.address,
+                                                communityName = community.name
+                                            )
 
-                                        val id = isCommunityStillAvailable(
-                                            communityAddress = community.address,
-                                            communityName = community.name
-                                        )
-                                        navController.navigate("tchat_page/${community.name}/${community.address}/${community.communityId}/${id}")
+                                            community.idLastMessage = id
+                                            communityVM.insert(community)
+
+                                            CoroutineScope(Main).launch {
+                                                navController.navigate("tchat_page/${community.name}/${community.address}/${community.communityId}/${id}")
+                                            }
+                                        }
                                     },
                                 ) {
                                     Row() {
@@ -933,16 +940,16 @@ class TchatView {
      * @param communityAddress the address of the community to check for availability
      * @return the ID of the community if it is still available, or -1 if it is not available
      */
-    private fun isCommunityStillAvailable(
+    private suspend fun isCommunityStillAvailable(
         communityName: String,
         communityAddress: String,
     ): Int {
         Log.i("Address", communityAddress)
         Log.i("Community", communityName)
-        var id = 0
-        var isConnectionOk = false
-        CoroutineScope(IO).launch {
-            if (testHttp()) {
+        var id: Int
+        var isConnectionOk: Boolean
+        withContext(IO) {
+            if (!testHttp()) {
                 val httpSender = HttpResolver()
                 isConnectionOk = httpSender.communityChecker(communityAddress, communityName)
                 id = httpSender.id
@@ -959,6 +966,7 @@ class TchatView {
                 // TODO Toast if false
             }
         }
+        println(id)
         return if (isConnectionOk) {
             id
         } else {
