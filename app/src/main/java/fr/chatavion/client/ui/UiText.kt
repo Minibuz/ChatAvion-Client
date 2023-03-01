@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
+import fr.chatavion.client.util.LocaleHelper
 
 /**
  * Sealed class for handling different types of UI text.
@@ -49,9 +50,10 @@ sealed class UiText {
      * @return a string representation of this UiText object
      */
     fun asString(context: Context): String {
+        val c = LocaleHelper.getLocale(context)
         return when (this) {
             is DynamicString -> value
-            is StringResource -> context.getString(resId, *args)
+            is StringResource -> c.getString(resId, *args)
         }
     }
 }

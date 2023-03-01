@@ -18,6 +18,7 @@ import fr.chatavion.client.db.viewModel.CommunityViewModel
 import fr.chatavion.client.ui.theme.ChatavionTheme
 import fr.chatavion.client.ui.view.AuthentificationView
 import fr.chatavion.client.ui.view.TchatView
+import fr.chatavion.client.util.LocaleHelper
 
 /**
  * The MainActivity class sets the content view to a composed UI using Jetpack Compose
@@ -44,7 +45,7 @@ class MainActivity : ComponentActivity() {
                             context.applicationContext as Application
                         )
                     )
-
+                    LocaleHelper.setLocale("fr")
                     NavigationBasicsApp()
                 }
             }

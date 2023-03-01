@@ -48,6 +48,7 @@ import fr.chatavion.client.db.entity.MessageStatus
 import fr.chatavion.client.ui.MESSAGE_SIZE
 import fr.chatavion.client.ui.UiText
 import fr.chatavion.client.ui.theme.White
+import fr.chatavion.client.util.LocaleHelper
 import fr.chatavion.client.util.Utils
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
@@ -565,7 +566,7 @@ class TchatView {
                                 R.string.langue,
                                 R.string.advanced_parameters
                             ),
-                            updateMenu =
+                            onClickParameter =
                             {
                                 when (it) {
                                     R.string.pseudo -> {
@@ -607,19 +608,25 @@ class TchatView {
                     R.string.langue -> {
                         ParametersColumn(
                             resIds = listOf(R.string.french, R.string.english),
-                            updateMenu = {}
+                            onClickParameter = {
+                                when(it) {
+                                    R.string.french -> {LocaleHelper.setLocale("fr")}
+                                    R.string.english -> {LocaleHelper.setLocale("en")}
+                                }
+                                menu = R.string.parameters
+                            }
                         )
                     }
                     R.string.theme -> {
                         ParametersColumn(
                             resIds = listOf(R.string.light, R.string.dark),
-                            updateMenu = {}
+                            onClickParameter = {}
                         )
                     }
                     R.string.advanced_parameters -> {
                         ParametersColumn(
                             resIds = listOf(R.string.messages, R.string.network_connection),
-                            updateMenu = {
+                            onClickParameter = {
                                 when (it) {
                                     R.string.messages -> {
                                         Log.i("Parameters", "Messages touched")
@@ -640,7 +647,7 @@ class TchatView {
                                 R.string.loading_history,
                                 R.string.encoding
                             ),
-                            updateMenu = {}
+                            onClickParameter = {}
                         )
                     }
                     R.string.network_connection -> {
@@ -649,7 +656,7 @@ class TchatView {
                                 R.string.transaction_type_dns,
                                 R.string.protocol_choice
                             ),
-                            updateMenu = {}
+                            onClickParameter = {}
                         )
                     }
                     else -> {}
@@ -695,12 +702,12 @@ class TchatView {
             ) {
                 Icon(
                     icon,
-                    UiText.StringResource(resId).asString(),
+                    UiText.StringResource(resId).asString(LocalContext.current),
                     tint = MaterialTheme.colors.onBackground
                 )
             }
             Text(
-                text = UiText.StringResource(resId).asString(),
+                text = UiText.StringResource(resId).asString(LocalContext.current),
                 color = MaterialTheme.colors.onBackground,
                 modifier = Modifier
                     .padding(16.dp)
@@ -712,13 +719,13 @@ class TchatView {
     /**
      * Composable function that displays a lazy column containing a list of parameters as text buttons
      * @param resIds list of resource IDs representing the parameters to be displayed
-     * @param updateMenu callback function that updates the menu with the selected parameter
+     * @param onClickParameter callback function that updates the menu with the selected parameter
      */
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     fun ParametersColumn(
         resIds: List<Int>,
-        updateMenu: (Int) -> Unit
+        onClickParameter: (Int) -> Unit
     ) {
         LazyColumn() {
             items(resIds) {
@@ -739,12 +746,12 @@ class TchatView {
                             content = {
                                 Text(
                                     color = MaterialTheme.colors.onBackground,
-                                    text = UiText.StringResource(it).asString(),
+                                    text = UiText.StringResource(it).asString(LocalContext.current),
                                     textAlign = TextAlign.Center
                                 )
                             },
                             modifier = Modifier.padding(8.dp),
-                            onClick = { updateMenu(it) },
+                            onClick = { onClickParameter(it) },
                         )
                         Divider(
                             color = MaterialTheme.colors.onBackground,
@@ -781,7 +788,7 @@ class TchatView {
                     .align(Alignment.CenterVertically)
             )
             Text(
-                text = stringResource(id = R.string.back_main_screen),
+                text = UiText.StringResource(R.string.back_main_screen).asString(LocalContext.current),
                 color = MaterialTheme.colors.onBackground,
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
