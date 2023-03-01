@@ -48,4 +48,4 @@ If you would like to contribute to the project, please follow these steps:
 
 ## License
 
-This project is licensed under the MIT License. See the LICENSE file for details.
+This project is licensed under the [MIT license](https://opensource.org/license/mit/). See the [LICENSE file](https://github.com/Minibuz/ChatAvion-Client/blob/main/LICENSE) for details.
