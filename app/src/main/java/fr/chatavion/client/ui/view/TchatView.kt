@@ -47,6 +47,7 @@ import fr.chatavion.client.db.entity.Message
 import fr.chatavion.client.db.entity.MessageStatus
 import fr.chatavion.client.ui.MESSAGE_SIZE
 import fr.chatavion.client.ui.UiText
+import fr.chatavion.client.ui.theme.Blue
 import fr.chatavion.client.ui.theme.White
 import fr.chatavion.client.util.Utils
 import kotlinx.coroutines.*
@@ -306,9 +307,8 @@ class TchatView {
                                             msg = ""
                                             remainingCharacter = MESSAGE_SIZE
                                         } else {
-                                            withContext(Main) {
-                                                UiText.StringResource(R.string.messageTooLong)
-                                                    .asString(context)
+                                            CoroutineScope(Main).launch {
+                                                Utils.showErrorToast(context.getString(R.string.messageTooLong), context)
                                             }
                                         }
                                     }
@@ -390,7 +390,7 @@ class TchatView {
         {
             Text(
                 text = message.pseudo.trim(),
-                color = if (message.send) Color.Blue else MaterialTheme.colors.onPrimary,
+                color = if (message.send) Blue else MaterialTheme.colors.onPrimary,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.ExtraBold,
                 modifier = Modifier

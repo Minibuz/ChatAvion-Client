@@ -96,6 +96,7 @@ fun UserParameter(
             )
             IconButton(
                 onClick = {
+                    current = current.trim()
                     if (current != "") {
                         CoroutineScope(IO).launch {
                             community.pseudo = current
