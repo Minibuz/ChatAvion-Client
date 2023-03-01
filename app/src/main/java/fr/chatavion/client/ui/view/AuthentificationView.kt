@@ -186,12 +186,14 @@ class AuthentificationView {
                                     }
                                 }
                                 communityAddress = list[1].lowercase().trim()
+                                pseudo = pseudo.trim()
                                 Log.i("Community", communityName)
                                 Log.i("Address", communityAddress)
+                                Log.i("Pseudo", pseudo)
                                 CoroutineScope(IO).launch {
                                     val isConnected =
                                         sendButtonConnexion(communityAddress, communityName)
-                                    if (isConnected) {
+                                    if (isConnected && pseudo != "") {
                                         Log.i("Pseudo", "Setting user pseudo to $pseudo")
                                         settingsRepository.setPseudo(pseudo)
                                         idLast = dnsSender.id
