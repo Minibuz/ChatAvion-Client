@@ -152,7 +152,7 @@ class TchatView {
                                 colors = ButtonDefaults.outlinedButtonColors(backgroundColor = Color.Transparent),
                                 border = BorderStroke(0.dp, Color.Transparent),
                                 onClick = {
-                                    Log.i("test", "test")
+                                    Log.i("CommunityDetails", "Show community details")
                                     showCommunityDetails = true
                                 },
                                 modifier = Modifier
@@ -181,7 +181,7 @@ class TchatView {
                                 }
                                 .testTag("commDropDown"),
                             onClick = {
-                                Log.i("expandMore", "ExpandMore pushed")
+                                Log.i("ExpandCommunity", "Show community registered")
                                 displayBurgerMenu = !displayBurgerMenu
                             }) {
                             Icon(Icons.Filled.ExpandMore, "expandMore")
@@ -195,7 +195,7 @@ class TchatView {
                                 }
                                 .testTag("paramSwitch"),
                             onClick = {
-                                Log.i("menu", "Menu pushed")
+                                Log.i("ParametersMenu", "Parameters menu pushed")
                                 openDrawer()
                             }) {
                             Icon(Icons.Filled.Menu, "menu")
@@ -208,7 +208,7 @@ class TchatView {
                                 }
                                 .testTag("connectionSwitch"),
                             onClick = {
-                                Log.i("wifi", "Wifi pushed")
+                                Log.i("Wifi", "Wifi pushed")
                                 if (connectionIsDNS) {
                                     connectionIsDNS = false
                                     Utils.showInfoToast(
@@ -292,7 +292,7 @@ class TchatView {
 
                                     msg = msg.trim()
                                     if (msg != "") {
-                                        Log.i("test", "${community.pseudo}:$msg")
+                                        Log.i("MessageSender", "${community.pseudo}:$msg")
                                         val ret = sendMessage(
                                             msg,
                                             community.pseudo,
@@ -840,7 +840,6 @@ class TchatView {
                         state = lazyListState
                     ) {
                         items(items = communities) { community ->
-                            Log.i("test", "${community.communityId} + $communityId")
                             if (community.communityId != communityId) {
                                 DropdownMenuItem(
                                     onClick = {
@@ -951,8 +950,6 @@ class TchatView {
         communityName: String,
         communityAddress: String,
     ): Int {
-        Log.i("Address", communityAddress)
-        Log.i("Community", communityName)
         var id: Int
         var isConnectionOk: Boolean
         withContext(IO) {

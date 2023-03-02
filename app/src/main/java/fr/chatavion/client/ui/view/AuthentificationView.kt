@@ -2,6 +2,7 @@ package fr.chatavion.client.ui.view
 
 import android.annotation.SuppressLint
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -91,9 +92,10 @@ class AuthentificationView {
                 val id = withContext(IO) {
                     communityViewModel.getId(communityName, communityAddress)
                 }
-                Log.i("CommunityID", "$id")
                 navController.navigate("tchat_page/${communityName}/${communityAddress}/${id}/${idLast}")
             }
+        }
+        BackHandler(enabled = true) {
         }
         Column(modifier = Modifier.fillMaxSize()) {
             Image(
@@ -151,7 +153,7 @@ class AuthentificationView {
                             }
                             .testTag("commDropDown"),
                         onClick = {
-                            Log.i("expandMore", "ExpandMore pushed")
+                            Log.i("ExpandMore", "ExpandMore pushed")
                             displayBurgerMenu = !displayBurgerMenu
                         }) {
                         Icon(Icons.Filled.ExpandMore, "expandMore")
@@ -197,7 +199,6 @@ class AuthentificationView {
                         .testTag("connectionBtn"),
                     enabled = enabled,
                     onClick = {
-                        Log.d("FullPage", "Button pushed by $pseudo on $communityId")
                         enabled = false
                         if (isRegisterOk) {
                             communityId = communityId.trim()
@@ -214,12 +215,21 @@ class AuthentificationView {
                                             )
                                         }
                                     }
+                                    return@Button
                                 }
                                 communityAddress = list[1].lowercase().trim()
+                                if (communityAddress.toByteArray().size > 100) {
+                                    CoroutineScope(IO).launch {
+                                        withContext(Main) {
+                                            Utils.showErrorToast(
+                                                context.getString(R.string.communityNameTooLong),
+                                                context
+                                            )
+                                        }
+                                    }
+                                    return@Button
+                                }
                                 pseudo = pseudo.trim()
-                                Log.i("Community", communityName)
-                                Log.i("Address", communityAddress)
-                                Log.i("Pseudo", pseudo)
                                 CoroutineScope(IO).launch {
                                     val isConnected =
                                         sendButtonConnexion(communityAddress, communityName)
