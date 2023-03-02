@@ -30,7 +30,7 @@ class SettingsRepository(context: Context) {
 
         // Define other preference keys
         val PSEUDO_KEY = stringPreferencesKey("pseudo")
-        val DNS_TYPE_TRANSACTION_KEY = stringPreferencesKey("dns_type_transaction")
+        val PROTOCOL_CHOICE_TRANSACTION_KEY = stringPreferencesKey("protocol_choice")
         val LANGUAGE_KEY = stringPreferencesKey("language")
         val REFRESH_TIME_KEY = longPreferencesKey("refresh_time")
         val HISTORY_LOADING_KEY = intPreferencesKey("history_loading")
@@ -47,7 +47,7 @@ class SettingsRepository(context: Context) {
      * Enumeration of the available protocols.
      */
     enum class Protocol {
-        Http
+        Http, Dns
     }
 
     /**
@@ -117,36 +117,6 @@ class SettingsRepository(context: Context) {
     }
 
     /**
-     * Flow for retrieving the current DNS transaction type of the app.
-     * @return A flow of `String`.
-     */
-    val dnsTypeTransaction: Flow<String>
-        get() = dataStore.data
-            .catch { exception ->
-                // Catch IOExceptions and emit an empty preferences object if caught.
-                if (exception is IOException) {
-                    emit(emptyPreferences())
-                } else {
-                    throw exception
-                }
-            }
-            .map { preferences ->
-                // Retrieve the DNS transaction type preference and return it.
-                preferences[DNS_TYPE_TRANSACTION_KEY] ?: ""
-            }
-
-    /**
-     * Sets the DNS transaction type preference in the DataStore.
-     *
-     * @param dnsTypeTransaction The DNS transaction type to set
-     */
-    suspend fun setDnsTypeTransaction(dnsTypeTransaction: String) {
-        dataStore.edit { preferences ->
-            preferences[DNS_TYPE_TRANSACTION_KEY] = dnsTypeTransaction
-        }
-    }
-
-    /**
      * Flow for retrieving the current language of the app.
      * @return A flow of `Language`.
      */
@@ -185,7 +155,7 @@ class SettingsRepository(context: Context) {
                 throw exception
             }
         }.map { preferences ->
-            preferences[REFRESH_TIME_KEY] ?: 0L
+            preferences[REFRESH_TIME_KEY] ?: 30L
         }
 
     /**
@@ -211,7 +181,7 @@ class SettingsRepository(context: Context) {
                 throw exception
             }
         }.map { preferences ->
-            preferences[HISTORY_LOADING_KEY] ?: 0
+            preferences[HISTORY_LOADING_KEY] ?: 10
         }
 
     /**

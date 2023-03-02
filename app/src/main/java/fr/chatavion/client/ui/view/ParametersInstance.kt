@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import fr.chatavion.client.R
 import fr.chatavion.client.communityViewModel
+import fr.chatavion.client.datastore.SettingsRepository
 import fr.chatavion.client.db.entity.Community
 import fr.chatavion.client.ui.UiText
 import fr.chatavion.client.util.Utils
@@ -126,6 +127,66 @@ fun UserParameter(
         Text(
             color = MaterialTheme.colors.onBackground,
             text = stringResource(id = R.string.explication_pseudo_community) + " ${community.name}"
+        )
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun SliderParameterRefreshTime(
+    value: Long,
+    onClose: () -> Unit,
+) {
+    val context = LocalContext.current
+    val settingsRepository = SettingsRepository(context = context)
+
+    var sliderPosition by remember { mutableStateOf(value.toFloat()) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colors.background)
+            .padding(8.dp)
+    ) {
+        Text(
+            text = UiText.StringResource(R.string.refresh_time).asString(context),
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+        )
+        Slider(
+            value = sliderPosition,
+            valueRange = 10f..300f,
+            onValueChange = { sliderPosition = it },
+            colors = SliderDefaults.colors(
+                thumbColor = MaterialTheme.colors.onPrimary,
+                activeTrackColor = MaterialTheme.colors.onPrimary
+            ))
+        Text(
+            text = sliderPosition.toLong().toString() + " " + UiText.StringResource(R.string.second).asString(context),
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+        )
+        IconButton(
+            onClick = {
+                CoroutineScope(IO).launch {
+                    settingsRepository.setRefreshTime(sliderPosition.toLong())
+                }
+                onClose()
+                Utils.showInfoToast(UiText.StringResource(R.string.refresh_time_changed).asString(context), context)
+            },
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .semantics {
+                    testTagsAsResourceId = true
+                }
+                .testTag("confirmRefreshTimeChange"),
+            content = {
+                Icon(
+                    Icons.Filled.Done,
+                    "Done",
+                    tint = MaterialTheme.colors.onBackground
+                )
+            }
         )
     }
 }
