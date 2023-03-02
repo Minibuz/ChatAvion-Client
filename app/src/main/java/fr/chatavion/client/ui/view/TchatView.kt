@@ -85,7 +85,7 @@ class TchatView {
         val context = LocalContext.current
         val settingsRepository = SettingsRepository(context = context)
         val refreshTime by settingsRepository.refreshTime.collectAsState(initial = 0L)
-        println("TIME " + refreshTime)
+
         val community by communityVM.getById(communityId)
             .observeAsState(Community(communityName, communityAddress, "", lastId, communityId))
 
