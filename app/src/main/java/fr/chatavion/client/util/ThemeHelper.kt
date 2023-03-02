@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.preference.PreferenceManager
 
 object ThemeHelper {
-    private const val SELECTED_THEME = "Locale.Helper.Selected.Language"
+    private const val SELECTED_THEME = "Locale.Helper.Selected.Theme"
     private const val DARK_THEME = "dark"
     private const val LIGHT_THEME = "light"
 

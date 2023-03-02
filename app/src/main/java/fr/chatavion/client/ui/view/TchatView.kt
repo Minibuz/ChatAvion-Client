@@ -757,18 +757,14 @@ class TchatView {
                                 .StringResource(it)
                                 .toString()
                         )
-                        .background(MaterialTheme.colors.background),
+                        .background(MaterialTheme.colors.background)
+                        .clickable { onClickParameter(it) },
                     content = {
-                        TextButton(
-                            content = {
-                                Text(
-                                    color = MaterialTheme.colors.onBackground,
-                                    text = UiText.StringResource(it).asString(LocalContext.current),
-                                    textAlign = TextAlign.Center
-                                )
-                            },
-                            modifier = Modifier.padding(8.dp),
-                            onClick = { onClickParameter(it) },
+                        Text(
+                            color = MaterialTheme.colors.onBackground,
+                            text = UiText.StringResource(it).asString(LocalContext.current),
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(24.dp)
                         )
                         Divider(
                             color = MaterialTheme.colors.onBackground,
