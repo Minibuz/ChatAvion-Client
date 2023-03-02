@@ -22,6 +22,7 @@
               <option name="preferredColumnWidths">
                 <map>
                   <entry key="Duration" value="90" />
+                  <entry key="Nexus_5_API_31" value="120" />
                   <entry key="Nexus_6P_-_API_33" value="120" />
                   <entry key="Pixel_Pro_-_API_26" value="120" />
                   <entry key="Tests" value="360" />

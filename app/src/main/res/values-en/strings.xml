@@ -37,5 +37,6 @@
     <string name="communityNameTooLong">The community name shouldn\'t be that long</string>
     <string name="communityAddressTooLong">The community address shouldn\'t be over 20 characters</string>
     <string name="message_text">Message Text...</string>
-
+    <string name="refresh_time_changed">Refresh time has been changed</string>
+    <string name="second">seconds</string>
 </resources>

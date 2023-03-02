@@ -54,6 +54,7 @@ import fr.chatavion.client.util.Utils
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.flow.first
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.CancellationException
 
@@ -82,6 +83,8 @@ class TchatView {
         openDrawer: () -> Unit
     ) {
         val context = LocalContext.current
+        val settingsRepository = SettingsRepository(context = context)
+        val refreshTime by settingsRepository.refreshTime.collectAsState(initial = 0L)
 
         val community by communityVM.getById(communityId)
             .observeAsState(Community(communityName, communityAddress, "", lastId, communityId))
@@ -209,7 +212,7 @@ class TchatView {
                                 .testTag("connectionSwitch"),
                             onClick = {
                                 Log.i("Wifi", "Wifi pushed")
-                                if (connectionIsDNS) {
+                                if (connectionIsDNS && testHttp()) {
                                     connectionIsDNS = false
                                     Utils.showInfoToast(
                                         UiText.StringResource(R.string.connectionSwitchHTTP).asString(context),
@@ -366,7 +369,7 @@ class TchatView {
                             )
                             dnsResolver.id = httpResolver.id
                         }
-                        delay(10_000L)
+                        delay(refreshTime * 1000)
                     }
                 } catch (e: CancellationException) {
                     e.message?.let { Log.i("History", it) }
@@ -651,19 +654,23 @@ class TchatView {
                         )
                     }
                     R.string.messages -> {
-                        ParametersColumn(
-                            resIds = listOf(
-                                R.string.refresh_time,
-                                R.string.loading_history,
-                                R.string.encoding
-                            ),
-                            onClickParameter = {}
+                        SliderParameterRefreshTime(
+                            value = runBlocking { settingsRepository.refreshTime.first() },
+                            onClose = {
+                                menu = R.string.parameters
+                            },
                         )
+//                        ParametersColumn(
+//                            resIds = listOf(
+//                                R.string.refresh_time,
+//                                R.string.loading_history
+//                            ),
+//                            onClickParameter = {}
+//                        )
                     }
                     R.string.network_connection -> {
                         ParametersColumn(
                             resIds = listOf(
-                                R.string.transaction_type_dns,
                                 R.string.protocol_choice
                             ),
                             onClickParameter = {}
