@@ -49,6 +49,7 @@ import fr.chatavion.client.ui.UiText
 import fr.chatavion.client.ui.theme.Blue
 import fr.chatavion.client.ui.theme.White
 import fr.chatavion.client.util.LocaleHelper
+import fr.chatavion.client.util.ThemeHelper
 import fr.chatavion.client.util.Utils
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
@@ -432,7 +433,7 @@ class TchatView {
         communityAddress: String,
         communityId: Int,
         lastId: Int,
-        changeTheme: (Boolean) -> Unit,
+        enableDarkTheme: (Boolean) -> Unit,
     ) {
         val drawerState = rememberDrawerState(DrawerValue.Closed)
         val coroutineScope = rememberCoroutineScope()
@@ -444,7 +445,7 @@ class TchatView {
                 DrawerContentComponent(
                     navController,
                     communityId,
-                    changeTheme
+                    enableDarkTheme
                 )
             },
             content = {
@@ -465,7 +466,7 @@ class TchatView {
     fun DrawerContentComponent(
         navController: NavController,
         communityId: Int,
-        changeTheme: (Boolean) -> Unit
+        enableDarkTheme: (Boolean) -> Unit
     ) {
         val community by communityVM.getById(communityId).observeAsState(Community("", "", "", -1))
 
@@ -625,9 +626,10 @@ class TchatView {
                             onClickParameter = {
                                 Log.i("Theme", "$it")
                                 when(it){
-                                    R.string.light -> {changeTheme(false)}
-                                    R.string.dark -> {changeTheme(true)}
+                                    R.string.light -> {ThemeHelper.enableDarkTheme(context, false)}
+                                    R.string.dark -> {ThemeHelper.enableDarkTheme(context, true)}
                                 }
+                                enableDarkTheme(ThemeHelper.isDarkThemeEnabled(context))
                             }
                         )
                     }

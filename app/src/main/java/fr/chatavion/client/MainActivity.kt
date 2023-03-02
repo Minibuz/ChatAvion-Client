@@ -2,7 +2,6 @@ package fr.chatavion.client
 
 import android.app.Application
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,12 +21,13 @@ import fr.chatavion.client.ui.theme.ChatavionTheme
 import fr.chatavion.client.ui.view.AuthentificationView
 import fr.chatavion.client.ui.view.TchatView
 import androidx.compose.runtime.setValue
+import fr.chatavion.client.util.ThemeHelper
 
 /**
  * The MainActivity class sets the content view to a composed UI using Jetpack Compose
  */
 class MainActivity : ComponentActivity() {
-    private var darkMode by mutableStateOf(true)
+    private var darkModeEnabled by mutableStateOf(true)
     /**
      * Sets the activity's content view to a Composed UI and instantiates the ViewModel.
      * @param savedInstanceState the saved instance state.
@@ -36,12 +36,13 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            ChatavionTheme(darkTheme = darkMode) {
+            val context = LocalContext.current
+            darkModeEnabled = ThemeHelper.isDarkThemeEnabled(context)
+            ChatavionTheme(darkThemeEnabled = darkModeEnabled) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    val context = LocalContext.current
 
                     // Instantiation of ViewModels
                     communityViewModel = viewModel(
@@ -49,16 +50,12 @@ class MainActivity : ComponentActivity() {
                             context.applicationContext as Application
                         )
                     )
-                    NavigationBasicsApp{changeTheme(it)}
+                    NavigationBasicsApp{darkModeEnabled=it}
                 }
             }
         }
     }
 
-    fun changeTheme(dark: Boolean){
-        Log.i("Changing dark theme ", "$dark")
-        darkMode = dark
-    }
 }
 
 lateinit var communityViewModel: CommunityViewModel
@@ -69,7 +66,7 @@ lateinit var communityViewModel: CommunityViewModel
  * @param navController The NavController that manages app navigation.
  */
 @Composable
-fun NavigationBasicsApp(changeTheme: (Boolean) -> Unit) {
+fun NavigationBasicsApp(enableDarkTheme: (Boolean) -> Unit) {
     val navController = rememberNavController()
 
     val authView = AuthentificationView()
@@ -92,7 +89,7 @@ fun NavigationBasicsApp(changeTheme: (Boolean) -> Unit) {
                     address,
                     id.toInt(),
                     idLast.toInt(),
-                    changeTheme
+                    enableDarkTheme
                 )
             }
         }
