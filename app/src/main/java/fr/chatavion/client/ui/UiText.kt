@@ -50,7 +50,7 @@ sealed class UiText {
      * @return a string representation of this UiText object
      */
     fun asString(context: Context): String {
-        val c = LocaleHelper.getLocale(context)
+        val c = LocaleHelper.getContext(context)
         return when (this) {
             is DynamicString -> value
             is StringResource -> c.getString(resId, *args)

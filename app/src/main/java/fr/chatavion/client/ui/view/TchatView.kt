@@ -616,11 +616,12 @@ class TchatView {
                             resIds = listOf(R.string.french, R.string.english),
                             onClickParameter = {
                                 when(it) {
-                                    R.string.french -> {LocaleHelper.setLocale(context,"fr")}
-                                    R.string.english -> {LocaleHelper.setLocale(context,"en")}
+                                    R.string.french -> {LocaleHelper.setLocale(context,LocaleHelper.FRENCH)}
+                                    R.string.english -> {LocaleHelper.setLocale(context,LocaleHelper.ENGLISH)}
                                 }
                                 menu = R.string.parameters
-                            }
+                            },
+                            selectedParameter = if (LocaleHelper.getLanguage(context) == LocaleHelper.FRENCH) R.string.french else R.string.english
                         )
                     }
                     R.string.theme -> {
@@ -633,7 +634,8 @@ class TchatView {
                                     R.string.dark -> {ThemeHelper.enableDarkTheme(context, true)}
                                 }
                                 enableDarkTheme(ThemeHelper.isDarkThemeEnabled(context))
-                            }
+                            },
+                            selectedParameter = if (ThemeHelper.isDarkThemeEnabled(context)) R.string.dark else R.string.light
                         )
                     }
                     R.string.advanced_parameters -> {
@@ -742,7 +744,8 @@ class TchatView {
     @Composable
     fun ParametersColumn(
         resIds: List<Int>,
-        onClickParameter: (Int) -> Unit
+        onClickParameter: (Int) -> Unit,
+        selectedParameter: Int? = null
     ) {
         LazyColumn() {
             items(resIds) {
@@ -761,10 +764,11 @@ class TchatView {
                         .clickable { onClickParameter(it) },
                     content = {
                         Text(
-                            color = MaterialTheme.colors.onBackground,
+                            color = if (it == selectedParameter) Blue else MaterialTheme.colors.onBackground,
                             text = UiText.StringResource(it).asString(LocalContext.current),
                             textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(24.dp)
+                            modifier = Modifier.padding(24.dp),
+                            fontWeight = if (it == selectedParameter) FontWeight.Bold else FontWeight.Normal
                         )
                         Divider(
                             color = MaterialTheme.colors.onBackground,
