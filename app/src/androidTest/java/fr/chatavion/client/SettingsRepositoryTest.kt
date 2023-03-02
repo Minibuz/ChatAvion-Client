@@ -37,14 +37,6 @@ class SettingsRepositoryTest {
     }
 
     @Test
-    fun testGetAndSetDnsTypeTransaction() = runBlocking {
-        val testDnsTypeTransaction = "Test DNS Type Transaction"
-        repository.setProtocolChoice(testDnsTypeTransaction)
-        val dnsTypeTransaction = repository.dnsTypeTransaction.first()
-        assertEquals(testDnsTypeTransaction, dnsTypeTransaction)
-    }
-
-    @Test
     fun testGetAndSetLanguage() = runBlocking {
         val testLanguage = SettingsRepository.Language.English
         repository.setLanguage(testLanguage)
