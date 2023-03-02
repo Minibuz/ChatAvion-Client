@@ -28,7 +28,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.TextStyle
@@ -433,6 +432,7 @@ class TchatView {
         communityAddress: String,
         communityId: Int,
         lastId: Int,
+        changeTheme: (Boolean) -> Unit,
     ) {
         val drawerState = rememberDrawerState(DrawerValue.Closed)
         val coroutineScope = rememberCoroutineScope()
@@ -443,7 +443,8 @@ class TchatView {
             drawerContent = {
                 DrawerContentComponent(
                     navController,
-                    communityId
+                    communityId,
+                    changeTheme
                 )
             },
             content = {
@@ -463,7 +464,8 @@ class TchatView {
     @Composable
     fun DrawerContentComponent(
         navController: NavController,
-        communityId: Int
+        communityId: Int,
+        changeTheme: (Boolean) -> Unit
     ) {
         val community by communityVM.getById(communityId).observeAsState(Community("", "", "", -1))
 
@@ -620,7 +622,13 @@ class TchatView {
                     R.string.theme -> {
                         ParametersColumn(
                             resIds = listOf(R.string.light, R.string.dark),
-                            onClickParameter = {}
+                            onClickParameter = {
+                                Log.i("Theme", "$it")
+                                when(it){
+                                    R.string.light -> {changeTheme(false)}
+                                    R.string.dark -> {changeTheme(true)}
+                                }
+                            }
                         )
                     }
                     R.string.advanced_parameters -> {
