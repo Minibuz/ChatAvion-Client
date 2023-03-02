@@ -612,8 +612,8 @@ class TchatView {
                             resIds = listOf(R.string.french, R.string.english),
                             onClickParameter = {
                                 when(it) {
-                                    R.string.french -> {LocaleHelper.setLocale("fr")}
-                                    R.string.english -> {LocaleHelper.setLocale("en")}
+                                    R.string.french -> {LocaleHelper.setLocale(context,"fr")}
+                                    R.string.english -> {LocaleHelper.setLocale(context,"en")}
                                 }
                                 menu = R.string.parameters
                             }

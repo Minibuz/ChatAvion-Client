@@ -6,19 +6,15 @@ import java.util.*
 
 object LocaleHelper {
     private const val SELECTED_LANGUAGE = "Locale.Helper.Selected.Language"
-    private var lang = "en"
 
     fun getLocale(context: Context): Context{
+        val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+        val lang = preferences.getString(SELECTED_LANGUAGE, "en")?: "en"
         return setLocale(context, lang)
     }
 
-    fun setLocale(language: String) {
-        lang = language
-    }
-
-    private fun setLocale(context: Context, language: String): Context {
+    fun setLocale(context: Context, language: String): Context {
         persist(context, language)
-
         return updateResources(context, language)
     }
 
