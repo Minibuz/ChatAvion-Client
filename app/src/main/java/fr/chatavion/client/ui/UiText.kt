@@ -2,8 +2,6 @@ package fr.chatavion.client.ui
 
 import android.content.Context
 import androidx.annotation.StringRes
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
 import fr.chatavion.client.util.LocaleHelper
 
 /**
@@ -27,19 +25,6 @@ sealed class UiText {
         @StringRes val resId: Int,
         vararg val args: Any
     ) : UiText()
-
-    /**
-     * Returns a string representation of the UiText object for use inside a Composable.
-     *
-     * @return The string value of the UiText object.
-     */
-    @Composable
-    fun asString(): String {
-        return when (this) {
-            is DynamicString -> value
-            is StringResource -> stringResource(resId, *args)
-        }
-    }
 
     /**
      * Returns a string representation of this UiText object.
