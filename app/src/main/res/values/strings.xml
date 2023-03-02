@@ -39,6 +39,6 @@
     <string name="communityNameTooLong">Le nom de la communauté ne devrait pas être aussi long</string>
     <string name="DNS" translatable="false">DNS</string>
     <string name="HTTP" translatable="false">HTTP</string>
-    <string name="communityAddressTooLong">L\'addresse de la communauté ne devrait pas être aussi longue</string>
+    <string name="communityAddressTooLong">L\'addresse de la communauté ne devrait pas dépasser 20 caractères</string>
 
 </resources>
