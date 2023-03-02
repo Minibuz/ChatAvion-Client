@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -18,26 +20,29 @@ import fr.chatavion.client.db.viewModel.CommunityViewModel
 import fr.chatavion.client.ui.theme.ChatavionTheme
 import fr.chatavion.client.ui.view.AuthentificationView
 import fr.chatavion.client.ui.view.TchatView
-import fr.chatavion.client.util.LocaleHelper
+import androidx.compose.runtime.setValue
+import fr.chatavion.client.util.ThemeHelper
 
 /**
  * The MainActivity class sets the content view to a composed UI using Jetpack Compose
  */
 class MainActivity : ComponentActivity() {
-
+    private var darkModeEnabled by mutableStateOf(true)
     /**
      * Sets the activity's content view to a Composed UI and instantiates the ViewModel.
      * @param savedInstanceState the saved instance state.
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
-            ChatavionTheme {
+            val context = LocalContext.current
+            darkModeEnabled = ThemeHelper.isDarkThemeEnabled(context)
+            ChatavionTheme(darkThemeEnabled = darkModeEnabled) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    val context = LocalContext.current
 
                     // Instantiation of ViewModels
                     communityViewModel = viewModel(
@@ -45,12 +50,12 @@ class MainActivity : ComponentActivity() {
                             context.applicationContext as Application
                         )
                     )
-                    LocaleHelper.setLocale("fr")
-                    NavigationBasicsApp()
+                    NavigationBasicsApp{darkModeEnabled=it}
                 }
             }
         }
     }
+
 }
 
 lateinit var communityViewModel: CommunityViewModel
@@ -61,7 +66,7 @@ lateinit var communityViewModel: CommunityViewModel
  * @param navController The NavController that manages app navigation.
  */
 @Composable
-fun NavigationBasicsApp() {
+fun NavigationBasicsApp(enableDarkTheme: (Boolean) -> Unit) {
     val navController = rememberNavController()
 
     val authView = AuthentificationView()
@@ -83,7 +88,8 @@ fun NavigationBasicsApp() {
                     community,
                     address,
                     id.toInt(),
-                    idLast.toInt()
+                    idLast.toInt(),
+                    enableDarkTheme
                 )
             }
         }

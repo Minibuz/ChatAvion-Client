@@ -49,10 +49,10 @@ private val LightColorPalette = Colors(
 
 @Composable
 fun ChatavionTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkThemeEnabled: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val colors = if (darkTheme) {
+    val colors = if (darkThemeEnabled) {
         DarkColorPalette
     } else {
         LightColorPalette

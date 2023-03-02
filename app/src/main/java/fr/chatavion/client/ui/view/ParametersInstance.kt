@@ -62,7 +62,7 @@ fun UserParameter(
     ) {
         Text(
             color = MaterialTheme.colors.onBackground,
-            text = UiText.StringResource(R.string.actual_pseudo).asString()
+            text = UiText.StringResource(R.string.actual_pseudo).asString(context)
         )
         Row(
             modifier = Modifier
@@ -104,9 +104,9 @@ fun UserParameter(
                             communityViewModel.insert(community = community)
                         }
                         onClose()
-                        Utils.showInfoToast(context.getString(R.string.uNameChanged), context)
+                        Utils.showInfoToast(UiText.StringResource(R.string.uNameChanged).asString(context), context)
                     } else {
-                        Utils.showInfoToast(context.getString(R.string.newUNameEmpty), context)
+                        Utils.showInfoToast(UiText.StringResource(R.string.newUNameEmpty).asString(context), context)
                     }
                 },
                 modifier = Modifier
@@ -126,7 +126,7 @@ fun UserParameter(
         }
         Text(
             color = MaterialTheme.colors.onBackground,
-            text = stringResource(id = R.string.explication_pseudo_community) + " ${community.name}"
+            text = UiText.StringResource(R.string.explication_pseudo_community).asString(context) + " ${community.name}"
         )
     }
 }

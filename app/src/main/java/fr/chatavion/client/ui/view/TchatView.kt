@@ -28,7 +28,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.TextStyle
@@ -50,6 +49,7 @@ import fr.chatavion.client.ui.UiText
 import fr.chatavion.client.ui.theme.Blue
 import fr.chatavion.client.ui.theme.White
 import fr.chatavion.client.util.LocaleHelper
+import fr.chatavion.client.util.ThemeHelper
 import fr.chatavion.client.util.Utils
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
@@ -215,13 +215,13 @@ class TchatView {
                                 if (connectionIsDNS && testHttp()) {
                                     connectionIsDNS = false
                                     Utils.showInfoToast(
-                                        context.getString(R.string.connectionSwitchHTTP),
+                                        UiText.StringResource(R.string.connectionSwitchHTTP).asString(context),
                                         context
                                     )
                                 } else {
                                     connectionIsDNS = true
                                     Utils.showInfoToast(
-                                        context.getString(R.string.connectionSwitchDNS),
+                                        UiText.StringResource(R.string.connectionSwitchDNS).asString(context),
                                         context
                                     )
                                 }
@@ -232,7 +232,7 @@ class TchatView {
                                     "wifi",
                                     modifier = Modifier.align(CenterHorizontally)
                                 )
-                                Text(text = context.getString(if (connectionIsDNS) R.string.DNS else R.string.HTTP))
+                                Text(text = UiText.StringResource(if (connectionIsDNS) R.string.DNS else R.string.HTTP).asString(context))
                             }
                         }
                     }
@@ -261,7 +261,7 @@ class TchatView {
                                 remainingCharacter =
                                     160 - msg.toByteArray(StandardCharsets.UTF_8).size
                             },
-                            placeholder = { Text(text = stringResource(R.string.message_text)) },
+                            placeholder = { Text(text = UiText.StringResource(R.string.message_text).asString(context)) },
                             textStyle = TextStyle(fontSize = 16.sp),
                             colors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.background)
                         )
@@ -312,7 +312,7 @@ class TchatView {
                                             remainingCharacter = MESSAGE_SIZE
                                         } else {
                                             CoroutineScope(Main).launch {
-                                                Utils.showErrorToast(context.getString(R.string.messageTooLong), context)
+                                                Utils.showErrorToast(UiText.StringResource(R.string.messageTooLong).asString(context), context)
                                             }
                                         }
                                     }
@@ -436,6 +436,7 @@ class TchatView {
         communityAddress: String,
         communityId: Int,
         lastId: Int,
+        enableDarkTheme: (Boolean) -> Unit,
     ) {
         val drawerState = rememberDrawerState(DrawerValue.Closed)
         val coroutineScope = rememberCoroutineScope()
@@ -446,7 +447,8 @@ class TchatView {
             drawerContent = {
                 DrawerContentComponent(
                     navController,
-                    communityId
+                    communityId,
+                    enableDarkTheme
                 )
             },
             content = {
@@ -466,7 +468,8 @@ class TchatView {
     @Composable
     fun DrawerContentComponent(
         navController: NavController,
-        communityId: Int
+        communityId: Int,
+        enableDarkTheme: (Boolean) -> Unit
     ) {
         val community by communityVM.getById(communityId).observeAsState(Community("", "", "", -1))
 
@@ -613,17 +616,26 @@ class TchatView {
                             resIds = listOf(R.string.french, R.string.english),
                             onClickParameter = {
                                 when(it) {
-                                    R.string.french -> {LocaleHelper.setLocale("fr")}
-                                    R.string.english -> {LocaleHelper.setLocale("en")}
+                                    R.string.french -> {LocaleHelper.setLocale(context,LocaleHelper.FRENCH)}
+                                    R.string.english -> {LocaleHelper.setLocale(context,LocaleHelper.ENGLISH)}
                                 }
                                 menu = R.string.parameters
-                            }
+                            },
+                            selectedParameter = if (LocaleHelper.getLanguage(context) == LocaleHelper.FRENCH) R.string.french else R.string.english
                         )
                     }
                     R.string.theme -> {
                         ParametersColumn(
                             resIds = listOf(R.string.light, R.string.dark),
-                            onClickParameter = {}
+                            onClickParameter = {
+                                Log.i("Theme", "$it")
+                                when(it){
+                                    R.string.light -> {ThemeHelper.enableDarkTheme(context, false)}
+                                    R.string.dark -> {ThemeHelper.enableDarkTheme(context, true)}
+                                }
+                                enableDarkTheme(ThemeHelper.isDarkThemeEnabled(context))
+                            },
+                            selectedParameter = if (ThemeHelper.isDarkThemeEnabled(context)) R.string.dark else R.string.light
                         )
                     }
                     R.string.advanced_parameters -> {
@@ -732,7 +744,8 @@ class TchatView {
     @Composable
     fun ParametersColumn(
         resIds: List<Int>,
-        onClickParameter: (Int) -> Unit
+        onClickParameter: (Int) -> Unit,
+        selectedParameter: Int? = null
     ) {
         LazyColumn() {
             items(resIds) {
@@ -747,18 +760,15 @@ class TchatView {
                                 .StringResource(it)
                                 .toString()
                         )
-                        .background(MaterialTheme.colors.background),
+                        .background(MaterialTheme.colors.background)
+                        .clickable { onClickParameter(it) },
                     content = {
-                        TextButton(
-                            content = {
-                                Text(
-                                    color = MaterialTheme.colors.onBackground,
-                                    text = UiText.StringResource(it).asString(LocalContext.current),
-                                    textAlign = TextAlign.Center
-                                )
-                            },
-                            modifier = Modifier.padding(8.dp),
-                            onClick = { onClickParameter(it) },
+                        Text(
+                            color = if (it == selectedParameter) Blue else MaterialTheme.colors.onBackground,
+                            text = UiText.StringResource(it).asString(LocalContext.current),
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(24.dp),
+                            fontWeight = if (it == selectedParameter) FontWeight.Bold else FontWeight.Normal
                         )
                         Divider(
                             color = MaterialTheme.colors.onBackground,
@@ -852,7 +862,7 @@ class TchatView {
                                     onClick = {
 
                                         Utils.showInfoToast(
-                                            context.getString(R.string.commuSwitch) + " " + community.name,
+                                            UiText.StringResource(R.string.commuSwitch).asString(context) + " " + community.name,
                                             context
                                         )
 
