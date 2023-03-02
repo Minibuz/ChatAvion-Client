@@ -40,5 +40,7 @@
     <string name="DNS" translatable="false">DNS</string>
     <string name="HTTP" translatable="false">HTTP</string>
     <string name="communityAddressTooLong">L\'addresse de la communauté ne devrait pas dépasser 20 caractères</string>
+    <string name="refresh_time_changed">Le temps de rafraîchisement a été changé</string>
+    <string name="second">secondes</string>
 
 </resources>
