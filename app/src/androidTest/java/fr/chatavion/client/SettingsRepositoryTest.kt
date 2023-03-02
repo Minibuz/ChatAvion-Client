@@ -39,7 +39,7 @@ class SettingsRepositoryTest {
     @Test
     fun testGetAndSetDnsTypeTransaction() = runBlocking {
         val testDnsTypeTransaction = "Test DNS Type Transaction"
-        repository.setDnsTypeTransaction(testDnsTypeTransaction)
+        repository.setProtocolChoice(testDnsTypeTransaction)
         val dnsTypeTransaction = repository.dnsTypeTransaction.first()
         assertEquals(testDnsTypeTransaction, dnsTypeTransaction)
     }
