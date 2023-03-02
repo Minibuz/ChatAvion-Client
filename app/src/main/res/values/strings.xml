@@ -6,7 +6,7 @@
     <string name="default_pseudo" translatable="false">chienJet</string>
     <string name="community_id_must_have_one_At">L\'id de communauté doit contenir un "@"</string>
     <string name="join_community">Rejoindre</string>
-    <string name="message_text" translatable="false">Message text...</string>
+    <string name="message_text" translatable="false">Texte du message...</string>
     <string name="parameters">Paramètres</string>
     <string name="theme">Thème</string>
     <string name="langue">Langue</string>

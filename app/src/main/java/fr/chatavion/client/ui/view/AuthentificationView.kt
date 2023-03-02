@@ -42,6 +42,7 @@ import fr.chatavion.client.connection.http.HttpResolver
 import fr.chatavion.client.datastore.SettingsRepository
 import fr.chatavion.client.db.entity.Community
 import fr.chatavion.client.ui.PSEUDO_SIZE
+import fr.chatavion.client.ui.UiText
 import fr.chatavion.client.ui.theme.Blue
 import fr.chatavion.client.util.Utils
 import kotlinx.coroutines.*
@@ -107,7 +108,7 @@ class AuthentificationView {
                 contentDescription = "Chatavion logo"
             )
             Text(
-                context.getString(R.string.app_name),
+                UiText.StringResource(R.string.app_name).asString(LocalContext.current),
                 fontFamily = FontFamily.Monospace,
                 style = TextStyle(fontWeight = FontWeight.Bold),
                 fontSize = 30.sp,
@@ -123,7 +124,7 @@ class AuthentificationView {
             ) {
 
                 Text(
-                    stringResource(R.string.id_community),
+                    UiText.StringResource(R.string.id_community).asString(LocalContext.current),
                     style = TextStyle(fontWeight = FontWeight.Bold),
                     modifier = Modifier.padding(vertical = 16.dp)
                 )
@@ -134,7 +135,7 @@ class AuthentificationView {
                             communityId = it
                             enabled = communityId != "" && pseudo != ""
                         },
-                        placeholder = { Text(text = stringResource(R.string.communityAtIpServ)) },
+                        placeholder = { Text(text = UiText.StringResource(R.string.communityAtIpServ).asString(LocalContext.current)) },
                         textStyle = TextStyle(fontSize = 16.sp),
                         modifier = Modifier
                             .semantics {
@@ -161,7 +162,7 @@ class AuthentificationView {
                 }
                 Spacer(modifier = Modifier.padding(vertical = 10.dp))
                 Text(
-                    stringResource(R.string.pseudo),
+                    UiText.StringResource(R.string.pseudo).asString(LocalContext.current),
                     style = TextStyle(fontWeight = FontWeight.Bold),
                     modifier = Modifier.padding(vertical = 16.dp)
                 )
@@ -173,7 +174,7 @@ class AuthentificationView {
                         }
                         enabled = communityId != "" && pseudo != ""
                     },
-                    placeholder = { Text(text = stringResource(R.string.default_pseudo)) },
+                    placeholder = { Text(text = UiText.StringResource(R.string.default_pseudo).asString(LocalContext.current)) },
                     textStyle = TextStyle(fontSize = 16.sp),
                     modifier = Modifier
                         .semantics {
@@ -210,7 +211,7 @@ class AuthentificationView {
                                     CoroutineScope(IO).launch {
                                         withContext(Main) {
                                             Utils.showErrorToast(
-                                                context.getString(R.string.communityNameTooLong),
+                                                UiText.StringResource(R.string.communityNameTooLong).asString(context),
                                                 context
                                             )
                                         }
@@ -222,7 +223,7 @@ class AuthentificationView {
                                     CoroutineScope(IO).launch {
                                         withContext(Main) {
                                             Utils.showErrorToast(
-                                                context.getString(R.string.communityNameTooLong),
+                                                UiText.StringResource(R.string.communityNameTooLong).asString(context),
                                                 context
                                             )
                                         }
@@ -239,7 +240,7 @@ class AuthentificationView {
                                         idLast = dnsSender.id
                                         withContext(Main) {
                                             Utils.showInfoToast(
-                                                context.getString(R.string.commuConnection),
+                                                UiText.StringResource(R.string.commuConnection).asString(context),
                                                 context
                                             )
                                         }
@@ -247,7 +248,7 @@ class AuthentificationView {
                                     } else {
                                         withContext(Main) {
                                             Utils.showErrorToast(
-                                                context.getString(R.string.commuConnectionFailed),
+                                                UiText.StringResource(R.string.commuConnectionFailed).asString(context),
                                                 context
                                             )
                                         }
@@ -255,7 +256,7 @@ class AuthentificationView {
                                 }
                             } else {
                                 Utils.showErrorToast(
-                                    context.getString(R.string.community_id_must_have_one_At),
+                                    UiText.StringResource(R.string.community_id_must_have_one_At).asString(context),
                                     context
                                 )
 
@@ -270,7 +271,7 @@ class AuthentificationView {
                     )
                 ) {
                     Text(
-                        stringResource(R.string.join_community),
+                        UiText.StringResource(R.string.join_community).asString(context),
                         color = MaterialTheme.colors.onSecondary
                     )
                 }
@@ -353,7 +354,7 @@ class AuthentificationView {
                                     onClick = {
 
                                         Utils.showInfoToast(
-                                            context.getString(R.string.commuSwitch) + " " + community.name,
+                                            UiText.StringResource(R.string.commuSwitch).asString(context) + " " + community.name,
                                             context
                                         )
 

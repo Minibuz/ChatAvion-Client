@@ -212,13 +212,13 @@ class TchatView {
                                 if (connectionIsDNS) {
                                     connectionIsDNS = false
                                     Utils.showInfoToast(
-                                        context.getString(R.string.connectionSwitchHTTP),
+                                        UiText.StringResource(R.string.connectionSwitchHTTP).asString(context),
                                         context
                                     )
                                 } else {
                                     connectionIsDNS = true
                                     Utils.showInfoToast(
-                                        context.getString(R.string.connectionSwitchDNS),
+                                        UiText.StringResource(R.string.connectionSwitchDNS).asString(context),
                                         context
                                     )
                                 }
@@ -229,7 +229,7 @@ class TchatView {
                                     "wifi",
                                     modifier = Modifier.align(CenterHorizontally)
                                 )
-                                Text(text = context.getString(if (connectionIsDNS) R.string.DNS else R.string.HTTP))
+                                Text(text = UiText.StringResource(if (connectionIsDNS) R.string.DNS else R.string.HTTP).asString(context))
                             }
                         }
                     }
@@ -258,7 +258,7 @@ class TchatView {
                                 remainingCharacter =
                                     160 - msg.toByteArray(StandardCharsets.UTF_8).size
                             },
-                            placeholder = { Text(text = stringResource(R.string.message_text)) },
+                            placeholder = { Text(text = UiText.StringResource(R.string.message_text).asString(context)) },
                             textStyle = TextStyle(fontSize = 16.sp),
                             colors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.background)
                         )
@@ -309,7 +309,7 @@ class TchatView {
                                             remainingCharacter = MESSAGE_SIZE
                                         } else {
                                             CoroutineScope(Main).launch {
-                                                Utils.showErrorToast(context.getString(R.string.messageTooLong), context)
+                                                Utils.showErrorToast(UiText.StringResource(R.string.messageTooLong).asString(context), context)
                                             }
                                         }
                                     }
@@ -845,7 +845,7 @@ class TchatView {
                                     onClick = {
 
                                         Utils.showInfoToast(
-                                            context.getString(R.string.commuSwitch) + " " + community.name,
+                                            UiText.StringResource(R.string.commuSwitch).asString(context) + " " + community.name,
                                             context
                                         )
 

@@ -45,7 +45,7 @@ class MainActivity : ComponentActivity() {
                             context.applicationContext as Application
                         )
                     )
-                    LocaleHelper.setLocale("en")
+                    LocaleHelper.setLocale("fr")
                     NavigationBasicsApp()
                 }
             }
