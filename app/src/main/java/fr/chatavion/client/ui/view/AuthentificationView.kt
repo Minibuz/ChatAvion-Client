@@ -15,6 +15,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -143,7 +144,6 @@ class AuthentificationView {
                             }
                             .testTag("textEditCommu")
                     )
-
                     BurgerMenuCommunity(navController, 0, displayBurgerMenu) {
                         displayBurgerMenu = !displayBurgerMenu
                     }
@@ -157,7 +157,11 @@ class AuthentificationView {
                             Log.i("ExpandMore", "ExpandMore pushed")
                             displayBurgerMenu = !displayBurgerMenu
                         }) {
-                        Icon(Icons.Filled.ExpandMore, "expandMore")
+                        if(displayBurgerMenu) {
+                            Icon(Icons.Filled.ExpandLess, "expandLess")
+                        } else {
+                            Icon(Icons.Filled.ExpandMore, "expandMore")
+                        }
                     }
                 }
                 Spacer(modifier = Modifier.padding(vertical = 10.dp))

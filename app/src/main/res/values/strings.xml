@@ -48,4 +48,7 @@
     <string name="language_chosen">Application en Français</string>
     <string name="drop_down_commu_conn_first">Accès à la communauté </string>
     <string name="drop_down_commu_conn_second">en tant que</string>
+    <string name="history">Nombre de messages par récupération dans l\'historique</string>
+    <string name="history_message" translatable="false">messages</string>
+    <string name="history_amount">Le nombre de messages a été changé</string>
 </resources>

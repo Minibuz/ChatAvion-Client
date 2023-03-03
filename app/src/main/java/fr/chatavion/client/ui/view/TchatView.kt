@@ -86,8 +86,9 @@ class TchatView {
         val settingsRepository = SettingsRepository(context = context)
         val refreshTime by settingsRepository.refreshTime.collectAsState(initial = 0L)
         val protocol by settingsRepository.protocol.collectAsState(initial = SettingsRepository.Protocol.Http)
+        val amountMessage by settingsRepository.historyLoading.collectAsState(initial = 10)
 
-        Log.i("test",  protocol.name)
+        Log.i("am", amountMessage.toString())
 
         val community by communityVM.getById(communityId)
             .observeAsState(Community(communityName, communityAddress, "", lastId, communityId))
@@ -353,7 +354,8 @@ class TchatView {
                                 httpResolver,
                                 communityName,
                                 communityAddress,
-                                messages
+                                messages,
+                                amountMessage
                             )
                             dnsResolver.id = httpResolver.id
                         } else {
@@ -361,7 +363,8 @@ class TchatView {
                                 dnsResolver,
                                 communityName,
                                 communityAddress,
-                                messages
+                                messages,
+                                amountMessage
                             )
                             httpResolver.id = dnsResolver.id
                         }
@@ -692,11 +695,11 @@ class TchatView {
                         )
                     }
                     R.string.loading_history -> {
-                        ParametersColumn(
-                            resIds = listOf(
-                                R.string.loading_history
-                            ),
-                            onClickParameter = {}
+                        SliderParameterAmountMessage(
+                            value = runBlocking { settingsRepository.historyLoading.first() },
+                            onClose = {
+                                menu = R.string.parameters
+                            },
                         )
                     }
                     R.string.protocol_choice -> {
@@ -718,7 +721,7 @@ class TchatView {
                                         Utils.showInfoToast(UiText.StringResource(R.string.protocol_http_chosen).asString(context), context)
                                     }
                                 }
-                                menu = R.string.advanced_parameters
+                                menu = R.string.parameters
                             },
                             selectedParameter = if ( protocol == SettingsRepository.Protocol.Dns) R.string.DNS else R.string.HTTP
                         )

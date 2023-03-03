@@ -15,7 +15,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.TextStyle
@@ -190,6 +189,76 @@ fun SliderParameterRefreshTime(
         )
         Text(
             text =UiText.StringResource(R.string.delay_slider_parameter).asString(context),
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+        )
+    }
+}
+
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun SliderParameterAmountMessage(
+    value: Int,
+    onClose: () -> Unit,
+) {
+    val context = LocalContext.current
+    val settingsRepository = SettingsRepository(context = context)
+
+    var sliderPosition by remember { mutableStateOf(value.toFloat()) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colors.background)
+            .padding(8.dp)
+    ) {
+        Text(
+            text = UiText.StringResource(R.string.history).asString(context),
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+        )
+        Slider(
+            value = sliderPosition,
+            valueRange = 5f..25f,
+            onValueChange = { sliderPosition = it },
+            colors = SliderDefaults.colors(
+                thumbColor = MaterialTheme.colors.onPrimary,
+                activeTrackColor = MaterialTheme.colors.onPrimary
+            )
+        )
+        Text(
+            text = sliderPosition.toLong().toString() + " " + UiText.StringResource(R.string.history_message)
+                .asString(context),
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+        )
+        IconButton(
+            onClick = {
+                CoroutineScope(IO).launch {
+                    settingsRepository.setHistoryLoading(sliderPosition.toInt())
+                }
+                onClose()
+                Utils.showInfoToast(
+                    UiText.StringResource(R.string.history_amount).asString(context), context
+                )
+            },
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .semantics {
+                    testTagsAsResourceId = true
+                }
+                .testTag("confirmHistoryMessageAmountTimeChange"),
+            content = {
+                Icon(
+                    Icons.Filled.Done,
+                    "Done",
+                    tint = MaterialTheme.colors.onBackground
+                )
+            }
+        )
+        Text(
+            text = "Le message n'est pas encore fait, Léo Barroux le fera",
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
         )
