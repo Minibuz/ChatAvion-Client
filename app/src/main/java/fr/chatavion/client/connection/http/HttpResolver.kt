@@ -76,8 +76,8 @@ class HttpResolver {
         }
         val url = URL("http://chat.$address/message/$community")
 
-        val pseudoEscaped = pseudo.replace("\"", "\\\"").replace("\\\\", "\\")
-        val messageEscaped = message.replace("\"", "\\\"").replace("\\\\", "\\")
+        val pseudoEscaped = pseudo.replace("\\", "\\\\").replace("\"", "\\\"")
+        val messageEscaped = message.replace("\\", "\\\\").replace("\"", "\\\"")
         val payload = "{\"username\": \"$pseudoEscaped\", \"message\": \"$messageEscaped\"}"
 
         var result = false
