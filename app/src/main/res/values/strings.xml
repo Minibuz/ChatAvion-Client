@@ -40,7 +40,7 @@
     <string name="DNS" translatable="false">DNS</string>
     <string name="HTTP" translatable="false">HTTP</string>
     <string name="communityAddressTooLong">L\'addresse de la communauté ne devrait pas dépasser 20 caractères</string>
-    <string name="refresh_time_changed">Le temps de rafraîchisement a été changé</string>
+    <string name="refresh_time_changed">Le temps de rafraîchisement a été modifié</string>
     <string name="second">secondes</string>
     <string name="delay_slider_parameter">Ce paramètre définit l\'écart entre deux tentatives de récupération de nouveaux messages dans la communauté courante</string>
     <string name="protocol_dns_chosen">Protocole DNS choisi</string>
