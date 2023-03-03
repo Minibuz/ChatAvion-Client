@@ -13,6 +13,8 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -27,11 +29,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -83,6 +87,8 @@ class TchatView {
         openDrawer: () -> Unit
     ) {
         val context = LocalContext.current
+        val keyboardController = LocalSoftwareKeyboardController.current
+
         val settingsRepository = SettingsRepository(context = context)
         val refreshTime by settingsRepository.refreshTime.collectAsState(initial = 0L)
         val protocol by settingsRepository.protocol.collectAsState(initial = SettingsRepository.Protocol.Http)
@@ -261,6 +267,9 @@ class TchatView {
                                         .asString(context)
                                 )
                             },
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                            keyboardActions = KeyboardActions(
+                                onDone = {keyboardController?.hide()}),
                             textStyle = TextStyle(fontSize = 16.sp),
                             colors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.background)
                         )
