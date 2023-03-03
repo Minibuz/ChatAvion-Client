@@ -40,4 +40,6 @@
     <string name="refresh_time_changed">Refresh time has been changed</string>
     <string name="second">seconds</string>
     <string name="delay_slider_parameter">This parameter defines the time interval between attemps to retrieve new messages from the current community (seconds)</string>
+    <string name="drop_down_commu_conn">Accessing community as </string>
+
 </resources>
