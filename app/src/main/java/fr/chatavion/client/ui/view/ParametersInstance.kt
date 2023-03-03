@@ -57,7 +57,7 @@ fun UserParameter(
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colors.background)
-            .padding(8.dp)
+            .padding(horizontal = 15.dp, vertical = 30.dp)
     ) {
         Text(
             color = MaterialTheme.colors.onBackground,
@@ -66,7 +66,7 @@ fun UserParameter(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp)
+                .padding(vertical = 16.dp)
         ) {
             val buttonWeight = 0.2f
             TextField(
@@ -125,7 +125,8 @@ fun UserParameter(
         }
         Text(
             color = MaterialTheme.colors.onBackground,
-            text = UiText.StringResource(R.string.explication_pseudo_community).asString(context) + " ${community.name}"
+            text = UiText.StringResource(R.string.explication_pseudo_community).asString(context) + " ${community.name}",
+            modifier = Modifier.padding(top = 16.dp)
         )
     }
 }
