@@ -188,5 +188,10 @@ fun SliderParameterRefreshTime(
                 )
             }
         )
+        Text(
+            text =UiText.StringResource(R.string.delay_slider_parameter).asString(context),
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+        )
     }
 }
