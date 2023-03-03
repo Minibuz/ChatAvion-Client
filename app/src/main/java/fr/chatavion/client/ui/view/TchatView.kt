@@ -2,6 +2,7 @@ package fr.chatavion.client.ui.view
 
 import android.annotation.SuppressLint
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
@@ -942,12 +943,14 @@ class TchatView {
                             if (community.communityId != communityId) {
                                 DropdownMenuItem(
                                     onClick = {
-
-                                        Utils.showInfoToast(
-                                            UiText.StringResource(R.string.commuSwitch)
-                                                .asString(context) + " " + community.name,
-                                            context
-                                        )
+                                        Toast.makeText(
+                                            context,
+                                            UiText.StringResource(R.string.drop_down_commu_conn_first).asString(context)
+                                                    +" \"" + community.name + "\" "
+                                                    + UiText.StringResource(R.string.drop_down_commu_conn_second).asString(context)
+                                                    + " \"" + community.pseudo + "\"",
+                                            Toast.LENGTH_LONG
+                                        ).show()
 
                                         CoroutineScope(IO).launch {
                                             val id = isCommunityStillAvailable(

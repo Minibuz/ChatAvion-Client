@@ -377,7 +377,6 @@ class AuthentificationView {
                                                     +" \"" + community.name + "\" "
                                                     + UiText.StringResource(R.string.drop_down_commu_conn_second).asString(context)
                                                     + " \"" + community.pseudo + "\"",
-
                                                     Toast.LENGTH_LONG
                                         ).show()
 
