@@ -352,12 +352,6 @@ class AuthentificationView {
                             if (community.communityId != communityId) {
                                 DropdownMenuItem(
                                     onClick = {
-
-                                        Utils.showInfoToast(
-                                            UiText.StringResource(R.string.commuSwitch).asString(context) + " " + community.name,
-                                            context
-                                        )
-
                                         CoroutineScope(IO).launch {
                                             val id = isCommunityStillAvailable(
                                                 communityAddress = community.address,
