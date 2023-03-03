@@ -76,13 +76,14 @@ class HttpResolver {
         }
         val url = URL("http://chat.$address/message/$community")
 
-        val payload = "{\"username\": \"$pseudo\", \"message\": \"$message\"}"
+        val pseudoEscaped = pseudo.replace("\"", "\\\"")
+        val messageEscaped = message.replace("\"", "\\\"")
+        val payload = "{\"username\": \"$pseudoEscaped\", \"message\": \"$messageEscaped\"}"
 
         var result = false
         try {
             with(url.openConnection() as HttpURLConnection) {
                 setRequestProperty("Content-Type", "application/json")
-                setRequestProperty("Content-Length", payload.length.toString())
                 doOutput = true
 
                 val wr = OutputStreamWriter(outputStream)
@@ -97,6 +98,7 @@ class HttpResolver {
             }
         } catch (e: IOException) {
             Log.e("HTTPResolver", "Server doesn't exist")
+            Log.e("HTPPResolver", e.message.toString())
         }
         return result
     }
