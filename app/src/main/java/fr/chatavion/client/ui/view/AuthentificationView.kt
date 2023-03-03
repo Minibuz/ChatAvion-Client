@@ -2,6 +2,7 @@ package fr.chatavion.client.ui.view
 
 import android.annotation.SuppressLint
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -370,13 +371,14 @@ class AuthentificationView {
                                 DropdownMenuItem(
                                     onClick = {
 
-                                        Utils.showInfoToast(
+                                        Toast.makeText(
+                                            context,
                                             UiText.StringResource(R.string.drop_down_commu_conn_first).asString(context)
-                                                    +" " + community.name + " "
+                                                    +" \"" + community.name + "\" "
                                                     + UiText.StringResource(R.string.drop_down_commu_conn_second).asString(context)
-                                                    + " " + community.pseudo,
-                                            context
-                                        )
+                                                    + " \"" + community.pseudo + "\"",
+                                                    Toast.LENGTH_LONG
+                                        ).show()
 
                                         CoroutineScope(IO).launch {
                                             val id = isCommunityStillAvailable(
