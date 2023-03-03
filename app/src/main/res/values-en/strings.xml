@@ -43,4 +43,7 @@
     <string name="protocol_dns_chosen">DNS protocol chosen</string>
     <string name="protocol_http_chosen">HTTP protocol chosen</string>
     <string name="language_chosen">Application in English</string>
+    <string name="drop_down_commu_conn_first">Accessing community</string>
+    <string name="drop_down_commu_conn_second">as</string>
+
 </resources>

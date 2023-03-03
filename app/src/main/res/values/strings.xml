@@ -46,5 +46,6 @@
     <string name="protocol_dns_chosen">Protocole DNS choisi</string>
     <string name="protocol_http_chosen">Protocole HTTP choisi</string>
     <string name="language_chosen">Application en Français</string>
-
+    <string name="drop_down_commu_conn_first">Accès à la communauté </string>
+    <string name="drop_down_commu_conn_second">en tant que</string>
 </resources>
