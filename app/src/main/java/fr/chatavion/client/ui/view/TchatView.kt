@@ -85,6 +85,9 @@ class TchatView {
         val context = LocalContext.current
         val settingsRepository = SettingsRepository(context = context)
         val refreshTime by settingsRepository.refreshTime.collectAsState(initial = 0L)
+        val protocol by settingsRepository.protocol.collectAsState(initial = SettingsRepository.Protocol.Http)
+
+        Log.i("test",  protocol.name)
 
         val community by communityVM.getById(communityId)
             .observeAsState(Community(communityName, communityAddress, "", lastId, communityId))
@@ -96,7 +99,12 @@ class TchatView {
         var remainingCharacter by remember { mutableStateOf(MESSAGE_SIZE) }
         var enableSendingMessage by remember { mutableStateOf(true) }
         var displayBurgerMenu by remember { mutableStateOf(false) }
-        var connectionIsDNS by remember { mutableStateOf(true) }
+        var connectionIsHttp by remember { mutableStateOf(true) }
+        LaunchedEffect("HTTP tester") {
+            withContext(IO) {
+                connectionIsHttp = testHttp()
+            }
+        }
 
         // Popup
         var showCommunityDetails by remember { mutableStateOf(false) }
@@ -208,44 +216,17 @@ class TchatView {
                             Icon(Icons.Filled.Menu, "menu")
                         }
                     }, actions = {
-                        IconButton(
-                            modifier = Modifier
-                                .semantics {
-                                    testTagsAsResourceId = true
-                                }
-                                .testTag("connectionSwitch"),
-                            onClick = {
-                                Log.i("Wifi", "Wifi pushed")
-                                CoroutineScope(IO).launch {
-                                    if (connectionIsDNS && testHttp()) {
-                                        connectionIsDNS = false
-                                        withContext(Main) {
-                                            Utils.showInfoToast(
-                                                UiText.StringResource(R.string.connectionSwitchHTTP)
-                                                    .asString(context),
-                                                context
-                                            )
-                                        }
-                                    } else {
-                                        connectionIsDNS = true
-                                        withContext(Main) {
-                                            Utils.showInfoToast(
-                                                UiText.StringResource(R.string.connectionSwitchDNS)
-                                                    .asString(context),
-                                                context
-                                            )
-                                        }
-                                    }
-                                }
-                            }) {
-                            Column {
-                                Icon(
-                                    Icons.Filled.Wifi,
-                                    "wifi",
-                                    modifier = Modifier.align(CenterHorizontally)
-                                )
-                                Text(text = UiText.StringResource(if (connectionIsDNS) R.string.DNS else R.string.HTTP).asString(context))
-                            }
+                        Column {
+                            Icon(
+                                Icons.Filled.Wifi,
+                                "wifi",
+                                modifier = Modifier.align(CenterHorizontally)
+                            )
+                            Text(
+                                text = UiText.StringResource(
+                                    if ((protocol == SettingsRepository.Protocol.Http) && connectionIsHttp) R.string.HTTP else R.string.DNS
+                                ).asString(context)
+                            )
                         }
                     }
                 )
@@ -316,7 +297,8 @@ class TchatView {
                                             messages,
                                             dnsResolver,
                                             httpResolver,
-                                            connectionIsDNS
+                                            connectionIsHttp,
+                                            protocol
                                         )
 
                                         if (ret) {
@@ -359,20 +341,14 @@ class TchatView {
             withContext(IO) {
                 try {
                     dnsResolver.id = community.idLastMessage - 9
+                    dnsResolver.id = if(dnsResolver.id < 0) 0 else dnsResolver.id
                     httpResolver.id = community.idLastMessage - 9
+                    httpResolver.id = if(httpResolver.id < 0) 0 else httpResolver.id
 
                     while (true) {
                         Log.i("History", "Retrieve the history")
 
-                        if (connectionIsDNS) {
-                            dnsHistoryRetrieval(
-                                dnsResolver,
-                                communityName,
-                                communityAddress,
-                                messages
-                            )
-                            httpResolver.id = dnsResolver.id
-                        } else {
+                        if(protocol == SettingsRepository.Protocol.Http && connectionIsHttp) {
                             httpHistoryRetrieval(
                                 httpResolver,
                                 communityName,
@@ -380,6 +356,14 @@ class TchatView {
                                 messages
                             )
                             dnsResolver.id = httpResolver.id
+                        } else {
+                            dnsHistoryRetrieval(
+                                dnsResolver,
+                                communityName,
+                                communityAddress,
+                                messages
+                            )
+                            httpResolver.id = dnsResolver.id
                         }
                         delay(refreshTime * 1000)
                     }
@@ -492,6 +476,7 @@ class TchatView {
         var pseudoCurrent by remember { mutableStateOf("") }
         var menu by remember { mutableStateOf(R.string.parameters) }
         val settingsRepository = SettingsRepository(context = context)
+        val protocol by settingsRepository.protocol.collectAsState(SettingsRepository.Protocol.Http)
 
         Column(
             modifier = Modifier
@@ -551,24 +536,34 @@ class TchatView {
                         resId = R.string.advanced_parameters
                     )
                 }
-                R.string.messages -> {
+                R.string.refresh_time -> {
                     TopDrawer(
                         onClickedIcon = {
                             Log.i("Top drawer", "Touched")
                             menu = R.string.advanced_parameters
                         },
                         icon = Icons.Filled.ArrowBack,
-                        resId = R.string.messages
+                        resId = R.string.refresh_time
                     )
                 }
-                R.string.network_connection -> {
+                R.string.loading_history -> {
                     TopDrawer(
                         onClickedIcon = {
                             Log.i("Top drawer", "Touched")
                             menu = R.string.advanced_parameters
                         },
                         icon = Icons.Filled.ArrowBack,
-                        resId = R.string.network_connection
+                        resId = R.string.loading_history
+                    )
+                }
+                R.string.protocol_choice -> {
+                    TopDrawer(
+                        onClickedIcon = {
+                            Log.i("Top drawer", "Touched")
+                            menu = R.string.advanced_parameters
+                        },
+                        icon = Icons.Filled.ArrowBack,
+                        resId = R.string.protocol_choice
                     )
                 }
                 else -> {}
@@ -634,8 +629,14 @@ class TchatView {
                             resIds = listOf(R.string.french, R.string.english),
                             onClickParameter = {
                                 when(it) {
-                                    R.string.french -> {LocaleHelper.setLocale(context,LocaleHelper.FRENCH)}
-                                    R.string.english -> {LocaleHelper.setLocale(context,LocaleHelper.ENGLISH)}
+                                    R.string.french -> {
+                                        LocaleHelper.setLocale(context,LocaleHelper.FRENCH)
+                                        Utils.showInfoToast(UiText.StringResource(R.string.language_chosen).asString(context), context)
+                                    }
+                                    R.string.english -> {
+                                        LocaleHelper.setLocale(context,LocaleHelper.ENGLISH)
+                                        Utils.showInfoToast(UiText.StringResource(R.string.language_chosen).asString(context), context)
+                                    }
                                 }
                                 menu = R.string.parameters
                             },
@@ -652,48 +653,74 @@ class TchatView {
                                     R.string.dark -> {ThemeHelper.enableDarkTheme(context, true)}
                                 }
                                 enableDarkTheme(ThemeHelper.isDarkThemeEnabled(context))
+                                menu = R.string.parameters
                             },
                             selectedParameter = if (ThemeHelper.isDarkThemeEnabled(context)) R.string.dark else R.string.light
                         )
                     }
                     R.string.advanced_parameters -> {
                         ParametersColumn(
-                            resIds = listOf(R.string.messages, R.string.network_connection),
+                            resIds = listOf(
+                                R.string.refresh_time,
+                                R.string.loading_history,
+                                R.string.protocol_choice
+                            ),
                             onClickParameter = {
                                 when (it) {
-                                    R.string.messages -> {
-                                        Log.i("Parameters", "Messages touched")
-                                        menu = R.string.messages
+                                    R.string.refresh_time -> {
+                                        Log.i("Parameters", "Refresh time touched")
+                                        menu = R.string.refresh_time
                                     }
-                                    R.string.network_connection -> {
-                                        Log.i("Parameters", "Network connection touched")
-                                        menu = R.string.network_connection
+                                    R.string.loading_history -> {
+                                        Log.i("Parameters", "Loading history touched")
+                                        menu = R.string.loading_history
+                                    }
+                                    R.string.protocol_choice -> {
+                                        Log.i("Parameters", "Protocol choice touched")
+                                        menu = R.string.protocol_choice
                                     }
                                 }
                             }
                         )
                     }
-                    R.string.messages -> {
+                    R.string.refresh_time -> {
                         SliderParameterRefreshTime(
                             value = runBlocking { settingsRepository.refreshTime.first() },
                             onClose = {
                                 menu = R.string.parameters
                             },
                         )
-//                        ParametersColumn(
-//                            resIds = listOf(
-//                                R.string.refresh_time,
-//                                R.string.loading_history
-//                            ),
-//                            onClickParameter = {}
-//                        )
                     }
-                    R.string.network_connection -> {
+                    R.string.loading_history -> {
                         ParametersColumn(
                             resIds = listOf(
-                                R.string.protocol_choice
+                                R.string.loading_history
                             ),
                             onClickParameter = {}
+                        )
+                    }
+                    R.string.protocol_choice -> {
+                        ParametersColumn(
+                            resIds = listOf(R.string.DNS, R.string.HTTP),
+                            onClickParameter = {
+                                Log.i("Theme", "$it")
+                                when(it){
+                                    R.string.DNS -> {
+                                        CoroutineScope(IO).launch {
+                                            settingsRepository.setProtocol(SettingsRepository.Protocol.Dns)
+                                        }
+                                        Utils.showInfoToast(UiText.StringResource(R.string.protocol_dns_chosen).asString(context), context)
+                                    }
+                                    R.string.HTTP -> {
+                                        CoroutineScope(IO).launch {
+                                            settingsRepository.setProtocol(SettingsRepository.Protocol.Http)
+                                        }
+                                        Utils.showInfoToast(UiText.StringResource(R.string.protocol_http_chosen).asString(context), context)
+                                    }
+                                }
+                                menu = R.string.advanced_parameters
+                            },
+                            selectedParameter = if ( protocol == SettingsRepository.Protocol.Dns) R.string.DNS else R.string.HTTP
                         )
                     }
                     else -> {}
@@ -930,15 +957,15 @@ class TchatView {
     }
 
     /**
-     * Sends a message to a given community and address using either DNS or HTTP depending on the specified [isDns] flag.
+     * Sends a message to a given community and address using either DNS or HTTP depending on the specified [isHttp] flag.
      * @param message the message to send
      * @param pseudo the pseudo or username of the sender
      * @param community the name of the community to send the message to
      * @param address the address of the recipient
      * @param messages a list of messages to which the sent message will be added
-     * @param senderDns a DNS resolver object used to send the message if [isDns] is true
-     * @param senderHttp an HTTP resolver object used to send the message if [isDns] is false
-     * @param isDns a flag indicating whether to use DNS or HTTP for sending the message
+     * @param senderDns a DNS resolver object used to send the message if [isHttp] is false
+     * @param senderHttp an HTTP resolver object used to send the message if [isHttp] is true
+     * @param isHttp a flag indicating whether to use DNS or HTTP for sending the message
      * @return true if the message was successfully sent, false otherwise
      */
     private suspend fun sendMessage(
@@ -949,14 +976,15 @@ class TchatView {
         messages: SnapshotStateList<Message>,
         senderDns: DnsResolver,
         senderHttp: HttpResolver,
-        isDns: Boolean
+        isHttp: Boolean,
+        protocol: SettingsRepository.Protocol
     ): Boolean {
         var returnVal: Boolean
         withContext(IO) {
-            returnVal = if (isDns) {
-                senderDns.sendMessage(community, address, pseudo, message)
-            } else {
+            returnVal = if (isHttp && protocol == SettingsRepository.Protocol.Http) {
                 senderHttp.sendMessage(community, address, pseudo, message)
+            } else {
+                senderDns.sendMessage(community, address, pseudo, message)
             }
         }
         if (returnVal) {
@@ -988,7 +1016,7 @@ class TchatView {
         var id: Int
         var isConnectionOk: Boolean
         withContext(IO) {
-            if (!testHttp()) {
+            if (testHttp()) {
                 val httpSender = HttpResolver()
                 isConnectionOk = httpSender.communityChecker(communityAddress, communityName)
                 id = httpSender.id
