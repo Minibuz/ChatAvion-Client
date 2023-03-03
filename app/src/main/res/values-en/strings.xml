@@ -45,5 +45,6 @@
     <string name="language_chosen">Application in English</string>
     <string name="drop_down_commu_conn_first">Accessing community</string>
     <string name="drop_down_commu_conn_second">as</string>
-
+    <string name="history">Amount of message per history retrieve</string>
+    <string name="history_amount">Message amount has been changed</string>
 </resources>

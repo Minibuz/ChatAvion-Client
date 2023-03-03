@@ -226,7 +226,7 @@ public class DnsResolver {
      * @return a list of messages retrieved
      */
     public List<String> requestHistory(String cmt, String address, int number) {
-        if (number < 1 || number > 10) {
+        if (number < 5 || number > 25) {
             throw new IllegalArgumentException("Cannot get less than 1 message from history or more than 10.");
         }
         String cmtB32 = this.converter32.encodeAsString(cmt.getBytes(StandardCharsets.UTF_8));

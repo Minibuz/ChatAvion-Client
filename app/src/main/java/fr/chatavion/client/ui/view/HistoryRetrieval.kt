@@ -18,13 +18,14 @@ fun dnsHistoryRetrieval(
     dnsResolver: DnsResolver,
     community: String,
     address: String,
-    messages: SnapshotStateList<Message>
+    messages: SnapshotStateList<Message>,
+    nbMessage: Int
 ) {
     historyRetrieval(
         dnsResolver.requestHistory(
             community,
             address,
-            10
+            nbMessage
         ),
         messages
     )
@@ -41,13 +42,14 @@ fun httpHistoryRetrieval(
     httpResolver: HttpResolver,
     community: String,
     address: String,
-    messages: SnapshotStateList<Message>
+    messages: SnapshotStateList<Message>,
+    nbMessage: Int
 ) {
     historyRetrieval(
         httpResolver.requestHistory(
             community,
             address,
-            10
+            nbMessage
         ),
         messages
     )
