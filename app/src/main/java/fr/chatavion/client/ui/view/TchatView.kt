@@ -196,7 +196,7 @@ class TchatView {
                                 Log.i("ExpandCommunity", "Show community registered")
                                 displayBurgerMenu = !displayBurgerMenu
                             }) {
-                            if(displayBurgerMenu) {
+                            if (displayBurgerMenu) {
                                 Icon(Icons.Filled.ExpandLess, "expandLess")
                             } else {
                                 Icon(Icons.Filled.ExpandMore, "expandMore")
@@ -255,7 +255,12 @@ class TchatView {
                                 remainingCharacter =
                                     160 - msg.toByteArray(StandardCharsets.UTF_8).size
                             },
-                            placeholder = { Text(text = UiText.StringResource(R.string.message_text).asString(context)) },
+                            placeholder = {
+                                Text(
+                                    text = UiText.StringResource(R.string.message_text)
+                                        .asString(context)
+                                )
+                            },
                             textStyle = TextStyle(fontSize = 16.sp),
                             colors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.background)
                         )
@@ -307,7 +312,10 @@ class TchatView {
                                             remainingCharacter = MESSAGE_SIZE
                                         } else {
                                             CoroutineScope(Main).launch {
-                                                Utils.showErrorToast(UiText.StringResource(R.string.messageTooLong).asString(context), context)
+                                                Utils.showErrorToast(
+                                                    UiText.StringResource(R.string.messageTooLong)
+                                                        .asString(context), context
+                                                )
                                             }
                                         }
                                     }
@@ -341,15 +349,15 @@ class TchatView {
         LaunchedEffect(true) {
             withContext(IO) {
                 try {
-                    dnsResolver.id = community.idLastMessage - 9
-                    dnsResolver.id = if(dnsResolver.id < 0) 0 else dnsResolver.id
-                    httpResolver.id = community.idLastMessage - 9
-                    httpResolver.id = if(httpResolver.id < 0) 0 else httpResolver.id
+                    dnsResolver.id = community.idLastMessage - (amountMessage - 1)
+                    dnsResolver.id = if (dnsResolver.id < 0) 0 else dnsResolver.id
+                    httpResolver.id = community.idLastMessage - (amountMessage - 1)
+                    httpResolver.id = if (httpResolver.id < 0) 0 else httpResolver.id
 
                     while (true) {
                         Log.i("History", "Retrieve the history")
 
-                        if(protocol == SettingsRepository.Protocol.Http && connectionIsHttp) {
+                        if (protocol == SettingsRepository.Protocol.Http && connectionIsHttp) {
                             httpHistoryRetrieval(
                                 httpResolver,
                                 communityName,
@@ -631,14 +639,20 @@ class TchatView {
                         ParametersColumn(
                             resIds = listOf(R.string.french, R.string.english),
                             onClickParameter = {
-                                when(it) {
+                                when (it) {
                                     R.string.french -> {
-                                        LocaleHelper.setLocale(context,LocaleHelper.FRENCH)
-                                        Utils.showInfoToast(UiText.StringResource(R.string.language_chosen).asString(context), context)
+                                        LocaleHelper.setLocale(context, LocaleHelper.FRENCH)
+                                        Utils.showInfoToast(
+                                            UiText.StringResource(R.string.language_chosen)
+                                                .asString(context), context
+                                        )
                                     }
                                     R.string.english -> {
-                                        LocaleHelper.setLocale(context,LocaleHelper.ENGLISH)
-                                        Utils.showInfoToast(UiText.StringResource(R.string.language_chosen).asString(context), context)
+                                        LocaleHelper.setLocale(context, LocaleHelper.ENGLISH)
+                                        Utils.showInfoToast(
+                                            UiText.StringResource(R.string.language_chosen)
+                                                .asString(context), context
+                                        )
                                     }
                                 }
                                 menu = R.string.parameters
@@ -651,9 +665,13 @@ class TchatView {
                             resIds = listOf(R.string.light, R.string.dark),
                             onClickParameter = {
                                 Log.i("Theme", "$it")
-                                when(it){
-                                    R.string.light -> {ThemeHelper.enableDarkTheme(context, false)}
-                                    R.string.dark -> {ThemeHelper.enableDarkTheme(context, true)}
+                                when (it) {
+                                    R.string.light -> {
+                                        ThemeHelper.enableDarkTheme(context, false)
+                                    }
+                                    R.string.dark -> {
+                                        ThemeHelper.enableDarkTheme(context, true)
+                                    }
                                 }
                                 enableDarkTheme(ThemeHelper.isDarkThemeEnabled(context))
                                 menu = R.string.parameters
@@ -707,23 +725,29 @@ class TchatView {
                             resIds = listOf(R.string.DNS, R.string.HTTP),
                             onClickParameter = {
                                 Log.i("Theme", "$it")
-                                when(it){
+                                when (it) {
                                     R.string.DNS -> {
                                         CoroutineScope(IO).launch {
                                             settingsRepository.setProtocol(SettingsRepository.Protocol.Dns)
                                         }
-                                        Utils.showInfoToast(UiText.StringResource(R.string.protocol_dns_chosen).asString(context), context)
+                                        Utils.showInfoToast(
+                                            UiText.StringResource(R.string.protocol_dns_chosen)
+                                                .asString(context), context
+                                        )
                                     }
                                     R.string.HTTP -> {
                                         CoroutineScope(IO).launch {
                                             settingsRepository.setProtocol(SettingsRepository.Protocol.Http)
                                         }
-                                        Utils.showInfoToast(UiText.StringResource(R.string.protocol_http_chosen).asString(context), context)
+                                        Utils.showInfoToast(
+                                            UiText.StringResource(R.string.protocol_http_chosen)
+                                                .asString(context), context
+                                        )
                                     }
                                 }
                                 menu = R.string.parameters
                             },
-                            selectedParameter = if ( protocol == SettingsRepository.Protocol.Dns) R.string.DNS else R.string.HTTP
+                            selectedParameter = if (protocol == SettingsRepository.Protocol.Dns) R.string.DNS else R.string.HTTP
                         )
                     }
                     else -> {}
@@ -853,7 +877,8 @@ class TchatView {
                     .align(Alignment.CenterVertically)
             )
             Text(
-                text = UiText.StringResource(R.string.back_main_screen).asString(LocalContext.current),
+                text = UiText.StringResource(R.string.back_main_screen)
+                    .asString(LocalContext.current),
                 color = MaterialTheme.colors.onBackground,
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
@@ -910,7 +935,8 @@ class TchatView {
                                     onClick = {
 
                                         Utils.showInfoToast(
-                                            UiText.StringResource(R.string.commuSwitch).asString(context) + " " + community.name,
+                                            UiText.StringResource(R.string.commuSwitch)
+                                                .asString(context) + " " + community.name,
                                             context
                                         )
 
