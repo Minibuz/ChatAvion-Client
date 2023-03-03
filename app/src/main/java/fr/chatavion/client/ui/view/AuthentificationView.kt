@@ -354,7 +354,10 @@ class AuthentificationView {
                                     onClick = {
 
                                         Utils.showInfoToast(
-                                            UiText.StringResource(R.string.drop_down_commu_conn).asString(context) +" "+ community.name,
+                                            UiText.StringResource(R.string.drop_down_commu_conn_first).asString(context)
+                                                    +" " + community.name + " "
+                                                    + UiText.StringResource(R.string.drop_down_commu_conn_second).asString(context)
+                                                    + " " + community.pseudo,
                                             context
                                         )
 
