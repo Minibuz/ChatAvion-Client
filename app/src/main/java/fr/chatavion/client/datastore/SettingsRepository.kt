@@ -194,4 +194,31 @@ class SettingsRepository(context: Context) {
             preferences[HISTORY_LOADING_KEY] = historyLoading
         }
     }
+
+    /**
+     * Flow for retrieving the current protocol of the app.
+     * @return A flow of `Protocol`.
+     */
+    val protocol: Flow<Protocol>
+        get() = dataStore.data.catch { exception ->
+            if (exception is IOException) {
+                emit(emptyPreferences())
+            } else {
+                throw exception
+            }
+        }.map { preferences ->
+            val languageName = preferences[PROTOCOL_CHOICE_TRANSACTION_KEY] ?: Protocol.Http.name
+            Protocol.valueOf(languageName)
+        }
+
+    /**
+     * Sets the Protocol type preference in the DataStore.
+     *
+     * @param protocol The Protocol type to set
+     */
+    suspend fun setProtocol(protocol: Protocol) {
+        dataStore.edit { preferences ->
+            preferences[PROTOCOL_CHOICE_TRANSACTION_KEY] = protocol.name
+        }
+    }
 }

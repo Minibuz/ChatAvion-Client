@@ -1,7 +1,7 @@
 package fr.chatavion.client.util
 
 import android.content.Context
-import androidx.preference.PreferenceManager
+import android.preference.PreferenceManager
 
 object ThemeHelper {
     private const val SELECTED_THEME = "Locale.Helper.Selected.Theme"
