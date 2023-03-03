@@ -187,7 +187,11 @@ class TchatView {
                                 Log.i("ExpandCommunity", "Show community registered")
                                 displayBurgerMenu = !displayBurgerMenu
                             }) {
-                            Icon(Icons.Filled.ExpandMore, "expandMore")
+                            if(displayBurgerMenu) {
+                                Icon(Icons.Filled.ExpandLess, "expandLess")
+                            } else {
+                                Icon(Icons.Filled.ExpandMore, "expandMore")
+                            }
                         }
                     },
                     navigationIcon = {
@@ -212,18 +216,26 @@ class TchatView {
                                 .testTag("connectionSwitch"),
                             onClick = {
                                 Log.i("Wifi", "Wifi pushed")
-                                if (connectionIsDNS && testHttp()) {
-                                    connectionIsDNS = false
-                                    Utils.showInfoToast(
-                                        UiText.StringResource(R.string.connectionSwitchHTTP).asString(context),
-                                        context
-                                    )
-                                } else {
-                                    connectionIsDNS = true
-                                    Utils.showInfoToast(
-                                        UiText.StringResource(R.string.connectionSwitchDNS).asString(context),
-                                        context
-                                    )
+                                CoroutineScope(IO).launch {
+                                    if (connectionIsDNS && testHttp()) {
+                                        connectionIsDNS = false
+                                        withContext(Main) {
+                                            Utils.showInfoToast(
+                                                UiText.StringResource(R.string.connectionSwitchHTTP)
+                                                    .asString(context),
+                                                context
+                                            )
+                                        }
+                                    } else {
+                                        connectionIsDNS = true
+                                        withContext(Main) {
+                                            Utils.showInfoToast(
+                                                UiText.StringResource(R.string.connectionSwitchDNS)
+                                                    .asString(context),
+                                                context
+                                            )
+                                        }
+                                    }
                                 }
                             }) {
                             Column {
@@ -449,7 +461,9 @@ class TchatView {
                     navController,
                     communityId,
                     enableDarkTheme
-                )
+                ) {
+                    coroutineScope.launch { drawerState.close() }
+                }
             },
             content = {
                 TchatView(
@@ -469,7 +483,8 @@ class TchatView {
     fun DrawerContentComponent(
         navController: NavController,
         communityId: Int,
-        enableDarkTheme: (Boolean) -> Unit
+        enableDarkTheme: (Boolean) -> Unit,
+        close: () -> Unit
     ) {
         val community by communityVM.getById(communityId).observeAsState(Community("", "", "", -1))
 
@@ -488,7 +503,10 @@ class TchatView {
             when (menu) {
                 R.string.parameters -> {
                     TopDrawer(
-                        onClickedIcon = { Log.i("Top drawer", "Touched") },
+                        onClickedIcon = {
+                            Log.i("Top drawer", "Touched")
+                            close()
+                        },
                         icon = Icons.Filled.Menu,
                         resId = R.string.parameters
                     )
