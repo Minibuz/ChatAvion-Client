@@ -25,7 +25,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.TextStyle
@@ -48,6 +47,7 @@ import fr.chatavion.client.util.Utils
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.flow.first
 import java.io.IOException
 import java.net.*
 
@@ -321,6 +321,7 @@ class AuthentificationView {
     ) {
         val context = LocalContext.current
         val communities by communityVM.getAll().observeAsState(listOf())
+        val settingsRepository = SettingsRepository(context = context)
 
         val configuration = LocalConfiguration.current
         val screenHeight = configuration.screenHeightDp.dp
@@ -364,10 +365,11 @@ class AuthentificationView {
                                         CoroutineScope(IO).launch {
                                             val id = isCommunityStillAvailable(
                                                 communityAddress = community.address,
-                                                communityName = community.name
+                                                communityName = community.name,
+                                                protocol = runBlocking { settingsRepository.protocol.first() }
                                             )
 
-                                            community.idLastMessage = id
+                                            community.idLastMessage = if(id<0) 0 else id
                                             communityVM.insert(community)
 
                                             CoroutineScope(Main).launch {
@@ -436,13 +438,15 @@ fun testHttp(): Boolean {
 private suspend fun isCommunityStillAvailable(
     communityName: String,
     communityAddress: String,
+    protocol: SettingsRepository.Protocol
 ): Int {
     Log.i("Address", communityAddress)
     Log.i("Community", communityName)
     var id: Int
     var isConnectionOk: Boolean
+
     withContext(IO) {
-        if (!testHttp()) {
+        if (protocol==SettingsRepository.Protocol.Http && testHttp()) {
             val httpSender = HttpResolver()
             isConnectionOk = httpSender.communityChecker(communityAddress, communityName)
             id = httpSender.id
@@ -459,7 +463,6 @@ private suspend fun isCommunityStillAvailable(
             // TODO Toast if false
         }
     }
-    println(id)
     return if (isConnectionOk) {
         id
     } else {
