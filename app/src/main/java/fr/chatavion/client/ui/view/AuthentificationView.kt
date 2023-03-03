@@ -11,6 +11,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -24,6 +26,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.semantics
@@ -31,6 +34,7 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -66,6 +70,8 @@ class AuthentificationView {
     @SuppressLint("NotConstructor")
     fun AuthentificationView(navController: NavController) {
         val context = LocalContext.current
+        val keyboardController = LocalSoftwareKeyboardController.current
+
         val settingsRepository = SettingsRepository(context = context)
         var communityId by remember { mutableStateOf("") }
 
@@ -138,6 +144,9 @@ class AuthentificationView {
                         },
                         placeholder = { Text(text = UiText.StringResource(R.string.communityAtIpServ).asString(LocalContext.current)) },
                         textStyle = TextStyle(fontSize = 16.sp),
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                        keyboardActions = KeyboardActions(
+                            onDone = {keyboardController?.hide()}),
                         modifier = Modifier
                             .semantics {
                                 testTagsAsResourceId = true
@@ -180,6 +189,9 @@ class AuthentificationView {
                     },
                     placeholder = { Text(text = UiText.StringResource(R.string.default_pseudo).asString(LocalContext.current)) },
                     textStyle = TextStyle(fontSize = 16.sp),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(
+                        onDone = {keyboardController?.hide()}),
                     modifier = Modifier
                         .semantics {
                             testTagsAsResourceId = true
