@@ -1,14 +1,10 @@
 package fr.chatavion.client.connection.dns;
 
 import android.content.Context;
-import android.util.Log;
 
 import org.apache.commons.codec.binary.Base32;
 import org.apache.commons.lang3.ArrayUtils;
 import org.minidns.DnsClient;
-import org.minidns.dnsqueryresult.DnsQueryResult;
-import org.minidns.dnsserverlookup.AndroidUsingExec;
-import org.minidns.dnsserverlookup.AndroidUsingReflection;
 import org.minidns.dnsserverlookup.android21.AndroidUsingLinkProperties;
 import org.minidns.hla.ResolverApi;
 import org.minidns.hla.ResolverResult;
@@ -19,16 +15,11 @@ import org.minidns.record.Data;
 import org.minidns.record.TXT;
 
 import java.io.IOException;
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.logging.Logger;
