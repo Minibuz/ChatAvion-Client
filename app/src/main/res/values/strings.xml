@@ -51,4 +51,5 @@
     <string name="history">Nombre de messages par récupération dans l\'historique</string>
     <string name="history_message" translatable="false">messages</string>
     <string name="history_amount">Le nombre de messages a été changé</string>
+    <string name="loading_history_text">Le nombre défini ci-dessus correspond au nombre de message à récupérer à chaque chargement des messages du serveur</string>
 </resources>

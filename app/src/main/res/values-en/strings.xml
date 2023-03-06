@@ -47,4 +47,5 @@
     <string name="drop_down_commu_conn_second">as</string>
     <string name="history">Amount of message per history retrieve</string>
     <string name="history_amount">Message amount has been changed</string>
+    <string name="loading_history_text">This number corresponds to the amount of messages retrieve from the server</string>
 </resources>

@@ -267,7 +267,8 @@ fun SliderParameterAmountMessage(
             }
         )
         Text(
-            text = "Le message n'est pas encore fait, Léo Barroux le fera",
+            text = UiText.StringResource(R.string.loading_history_text)
+                .asString(context),
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
         )
