@@ -1,6 +1,7 @@
 package fr.chatavion.client.ui.view
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
@@ -100,7 +101,7 @@ class TchatView {
         val community by communityVM.getById(communityId)
             .observeAsState(Community(communityName, communityAddress, "", lastId, communityId))
 
-        val dnsResolver = DnsResolver()
+        val dnsResolver = DnsResolver(context)
         val httpResolver = HttpResolver()
         val messages = remember { mutableStateListOf<Message>() }
         var msg by remember { mutableStateOf("") }
@@ -955,7 +956,8 @@ class TchatView {
                                         CoroutineScope(IO).launch {
                                             val id = isCommunityStillAvailable(
                                                 communityAddress = community.address,
-                                                communityName = community.name
+                                                communityName = community.name,
+                                                context = context,
                                             )
 
                                             community.idLastMessage = id
@@ -1053,6 +1055,7 @@ class TchatView {
     private suspend fun isCommunityStillAvailable(
         communityName: String,
         communityAddress: String,
+        context: Context
     ): Int {
         var id: Int
         var isConnectionOk: Boolean
@@ -1062,7 +1065,7 @@ class TchatView {
                 isConnectionOk = httpSender.communityChecker(communityAddress, communityName)
                 id = httpSender.id
             } else {
-                val dnsSender = DnsResolver()
+                val dnsSender = DnsResolver(context)
                 dnsSender.findType(communityAddress)
                 isConnectionOk = dnsSender.communityDetection(communityAddress, communityName)
                 id = dnsSender.id

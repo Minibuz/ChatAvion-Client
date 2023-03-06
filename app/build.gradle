@@ -71,6 +71,7 @@ dependencies {
 
     // MiniDns
     implementation("org.minidns:minidns-hla:1.0.4")
+    implementation("org.minidns:minidns-android21:1.0.4")
 
     // DnsJava
     implementation 'commons-codec:commons-codec:1.15'

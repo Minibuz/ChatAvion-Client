@@ -1,20 +1,34 @@
 package fr.chatavion.client.connection.dns;
 
+import android.content.Context;
+import android.util.Log;
+
 import org.apache.commons.codec.binary.Base32;
 import org.apache.commons.lang3.ArrayUtils;
+import org.minidns.DnsClient;
+import org.minidns.dnsqueryresult.DnsQueryResult;
+import org.minidns.dnsserverlookup.AndroidUsingExec;
+import org.minidns.dnsserverlookup.AndroidUsingReflection;
+import org.minidns.dnsserverlookup.android21.AndroidUsingLinkProperties;
 import org.minidns.hla.ResolverApi;
 import org.minidns.hla.ResolverResult;
+import org.minidns.iterative.ReliableDnsClient;
 import org.minidns.record.A;
 import org.minidns.record.AAAA;
 import org.minidns.record.Data;
 import org.minidns.record.TXT;
 
 import java.io.IOException;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -34,11 +48,15 @@ public class DnsResolver {
     private final List<String> list = new ArrayList<>();
     private int id = 0;
     private boolean isConnected = false;
+    private final ResolverApi instance;
 
     /**
      * Constructs a new DnsResolver.
      */
-    public DnsResolver() {
+    public DnsResolver(Context context) {
+        this.instance = ResolverApi.INSTANCE;
+        DnsClient.addDnsServerLookupMechanism(new AndroidUsingLinkProperties(context));
+        ((ReliableDnsClient) instance.getClient()).setUseHardcodedDnsServers(false);
     }
 
     /**
@@ -84,7 +102,7 @@ public class DnsResolver {
         ResolverResult<? extends Data> result;
         address = "chat." + address;
         try {
-            result = ResolverApi.INSTANCE.resolve(address, TXT.class);
+            result = instance.resolve(address, TXT.class);
             if (result.wasSuccessful() && !result.getAnswers().isEmpty()) {
                 logger.info(result.getAnswers().toArray()[0].toString());
                 type = TXT.class;
@@ -94,7 +112,7 @@ public class DnsResolver {
             logger.warning(() -> "TXT bug.");
         }
         try {
-            result = ResolverApi.INSTANCE.resolve(address, AAAA.class);
+            result = instance.resolve(address, AAAA.class);
             if (result.wasSuccessful() && !result.getAnswers().isEmpty()) {
                 logger.info(result.getAnswers().toArray()[0].toString());
                 type = AAAA.class;
@@ -104,7 +122,7 @@ public class DnsResolver {
             logger.warning(() -> "AAAA bug.");
         }
         try {
-            result = ResolverApi.INSTANCE.resolve(address, A.class);
+            result = instance.resolve(address, A.class);
             if (result.wasSuccessful() && !result.getAnswers().isEmpty()) {
                 logger.info(result.getAnswers().toArray()[0].toString());
                 type = A.class;
@@ -125,7 +143,7 @@ public class DnsResolver {
      */
     public boolean communityDetection(String address, String community) {
         try {
-            ResolverResult<? extends Data> e = ResolverApi.INSTANCE.resolve(community + ".connexion." + address, type);
+            ResolverResult<? extends Data> e = instance.resolve(community + ".connexion." + address, type);
             isConnected = false;
             logger.info("After");
             if (!e.wasSuccessful()) {
@@ -196,7 +214,7 @@ public class DnsResolver {
             for (int retries = 0; retries < NUMBER_OF_RETRIES; retries++) {
                 ResolverResult<? extends Data> result;
                 try {
-                    result = ResolverApi.INSTANCE.resolve(
+                    result = instance.resolve(
                             cmtB32 + "." + userB32 + "." + msgPart + ".message." + address, type);
                 } catch (IOException e) {
                     logger.warning(() -> "Error : " + e.getMessage());
@@ -240,7 +258,7 @@ public class DnsResolver {
                 do {
                     String request = type == TXT.class ? "m" + id : type == AAAA.class ? "m" + id + "o" + part : "m" + id + "n" + part;
 
-                    ResolverResult<? extends Data> result = ResolverApi.INSTANCE.resolve(request + "-" + cmtB32 + ".historique." + address, type);
+                    ResolverResult<? extends Data> result = instance.resolve(request + "-" + cmtB32 + ".historique." + address, type);
                     if (!result.wasSuccessful()) {
                         logger.warning(() -> "Problem with recovering history.");
                         return List.of();
