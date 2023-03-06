@@ -17,6 +17,9 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -301,8 +304,17 @@ class TchatView {
                                 .testTag("sendBtn"),
                             onClick = {
                                 CoroutineScope(IO).launch {
-                                    enableSendingMessage = false
+                                    if(remainingCharacter < 0) {
+                                        CoroutineScope(Main).launch {
+                                            Utils.showErrorToast(
+                                                UiText.StringResource(R.string.message_too_long)
+                                                    .asString(context), context
+                                            )
+                                        }
+                                        return@launch
+                                    }
 
+                                    enableSendingMessage = false
                                     msg = msg.trim()
                                     if (msg != "") {
                                         Log.i("MessageSender", "${community.pseudo}:$msg")
@@ -324,7 +336,7 @@ class TchatView {
                                         } else {
                                             CoroutineScope(Main).launch {
                                                 Utils.showErrorToast(
-                                                    UiText.StringResource(R.string.messageTooLong)
+                                                    UiText.StringResource(R.string.message_cannot_be_send)
                                                         .asString(context), context
                                                 )
                                             }
@@ -423,18 +435,28 @@ class TchatView {
                     .testTag("pseudoTag")
             )
             Spacer(modifier = Modifier.size(3.dp))
-            Text(
-                text = message.message.trim(),
-                color = if (message.status == MessageStatus.SEND) MaterialTheme.colors.primaryVariant else MaterialTheme.colors.onPrimary,
-                fontSize = 14.sp,
-                softWrap = true,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .semantics {
-                        testTagsAsResourceId = true
-                    }
-                    .testTag("messageTag")
+
+            val customTextSelectionColors = TextSelectionColors(
+                handleColor = Blue,
+                backgroundColor = Blue.copy(alpha = 0.4f)
             )
+
+            CompositionLocalProvider(LocalTextSelectionColors provides customTextSelectionColors) {
+                SelectionContainer {
+                    Text(
+                        text = message.message.trim(),
+                        color = if (message.status == MessageStatus.SEND) MaterialTheme.colors.primaryVariant else MaterialTheme.colors.onPrimary,
+                        fontSize = 14.sp,
+                        softWrap = true,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .semantics {
+                                testTagsAsResourceId = true
+                            }
+                            .testTag("messageTag")
+                    )
+                }
+            }
         }
     }
 
@@ -538,14 +560,14 @@ class TchatView {
                         resId = R.string.theme
                     )
                 }
-                R.string.langue -> {
+                R.string.language -> {
                     TopDrawer(
                         onClickedIcon = {
                             Log.i("Top drawer", "Touched")
                             menu = R.string.parameters
                         },
                         icon = Icons.Filled.ArrowBack,
-                        resId = R.string.langue
+                        resId = R.string.language
                     )
                 }
                 R.string.advanced_parameters -> {
@@ -604,7 +626,7 @@ class TchatView {
                             resIds = listOf(
                                 R.string.pseudo,
                                 R.string.theme,
-                                R.string.langue,
+                                R.string.language,
                                 R.string.advanced_parameters
                             ),
                             onClickParameter =
@@ -624,9 +646,9 @@ class TchatView {
                                         Log.i("Parameters", "Theme touched")
                                         menu = R.string.theme
                                     }
-                                    R.string.langue -> {
+                                    R.string.language -> {
                                         Log.i("Parameters", "Language touched")
-                                        menu = R.string.langue
+                                        menu = R.string.language
                                     }
                                     R.string.advanced_parameters -> {
                                         Log.i("Parameters", "Advanced parameters touched")
@@ -646,7 +668,7 @@ class TchatView {
                             },
                         )
                     }
-                    R.string.langue -> {
+                    R.string.language -> {
                         ParametersColumn(
                             resIds = listOf(R.string.french, R.string.english),
                             onClickParameter = {

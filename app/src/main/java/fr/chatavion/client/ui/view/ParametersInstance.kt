@@ -22,6 +22,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import fr.chatavion.client.R
@@ -65,8 +66,9 @@ fun UserParameter(
             .padding(horizontal = 15.dp, vertical = 30.dp)
     ) {
         Text(
-            color = MaterialTheme.colors.onBackground,
-            text = UiText.StringResource(R.string.actual_pseudo).asString(context)
+            text = UiText.StringResource(R.string.actual_pseudo).asString(context),
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
         )
         Row(
             modifier = Modifier
@@ -111,9 +113,9 @@ fun UserParameter(
                             communityViewModel.insert(community = community)
                         }
                         onClose()
-                        Utils.showInfoToast(UiText.StringResource(R.string.uNameChanged).asString(context), context)
+                        Utils.showInfoToast(UiText.StringResource(R.string.username_changed).asString(context), context)
                     } else {
-                        Utils.showInfoToast(UiText.StringResource(R.string.newUNameEmpty).asString(context), context)
+                        Utils.showInfoToast(UiText.StringResource(R.string.username_empty).asString(context), context)
                     }
                 },
                 modifier = Modifier
@@ -154,7 +156,7 @@ fun SliderParameterRefreshTime(
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colors.background)
-            .padding(8.dp)
+            .padding(horizontal = 15.dp, vertical = 30.dp)
     ) {
         Text(
             text = UiText.StringResource(R.string.refresh_time).asString(context),
@@ -197,9 +199,8 @@ fun SliderParameterRefreshTime(
             }
         )
         Text(
-            text =UiText.StringResource(R.string.delay_slider_parameter).asString(context),
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
+            text = UiText.StringResource(R.string.delay_slider_parameter).asString(context),
+            modifier = Modifier.padding(top = 16.dp)
         )
     }
 }
@@ -220,12 +221,13 @@ fun SliderParameterAmountMessage(
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colors.background)
-            .padding(8.dp)
+            .padding(horizontal = 15.dp, vertical = 30.dp)
     ) {
         Text(
             text = UiText.StringResource(R.string.history).asString(context),
             modifier = Modifier
-                .align(Alignment.CenterHorizontally)
+                .align(Alignment.CenterHorizontally),
+            textAlign = TextAlign.Center
         )
         Slider(
             value = sliderPosition,
@@ -269,8 +271,7 @@ fun SliderParameterAmountMessage(
         Text(
             text = UiText.StringResource(R.string.loading_history_text)
                 .asString(context),
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
+            modifier = Modifier.padding(top = 16.dp)
         )
     }
 }

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="id_community">Community Id</string>
-    <string name="communityAtIpServ">community@IPserver</string>
+    <string name="community_at_ip_serv">community@IPserver</string>
     <string name="pseudo">Pseudo</string>
     <string name="community_id_must_have_one_At">The community Id must contain one "@"</string>
     <string name="join_community">Join</string>
     <string name="parameters">Parameters</string>
     <string name="theme">Theme</string>
-    <string name="langue">Language</string>
+    <string name="language">Language</string>
     <string name="notifications">Notifications</string>
     <string name="advanced_parameters">Advanced parameters</string>
     <string name="messages">Messages</string>
@@ -24,18 +24,18 @@
     <string name="encoding">Encoding</string>
     <string name="light">Light</string>
     <string name="dark">Dark</string>
-    <string name="msgError">Message could not be sent because of an internal error</string>
-    <string name="commuConnection">Connection success</string>
-    <string name="commuConnectionFailed">Connection failed</string>
-    <string name="connectionSwitchDNS">Switched to DNS</string>
-    <string name="connectionSwitchHTTP">Switched to HTTP</string>
-    <string name ="commuSwitch">Switched to community </string>
-    <string name="uNameChanged">Username edited</string>
-    <string name="newUNameEmpty">New username cannot be empty</string>
-    <string name="messageTooLong">Message is taking more than 160 characters.</string>
+    <string name="error_message">Message could not be sent because of an internal error</string>
+    <string name="community_connection_succesful">Connection success</string>
+    <string name="community_connection_failed">Connection failed</string>
+    <string name="switch_dns_connection">Switched to DNS</string>
+    <string name="switch_http_connection">Switched to HTTP</string>
+    <string name ="community_switch">Switched to community </string>
+    <string name="username_changed">Username edited</string>
+    <string name="username_empty">New username cannot be empty</string>
+    <string name="message_too_long">Message is taking more than 160 characters.</string>
     <string name="back_login_screen">Return to login screen</string>
-    <string name="communityNameTooLong">The community name shouldn\'t be that long</string>
-    <string name="communityAddressTooLong">The community address shouldn\'t be over 20 characters</string>
+    <string name="community_name_too_long">The community name shouldn\'t be that long</string>
+    <string name="community_address_too_long">The community address shouldn\'t be over 20 characters</string>
     <string name="message_text">Message Text...</string>
     <string name="refresh_time_changed">Refresh time has been changed</string>
     <string name="second">seconds</string>
@@ -48,4 +48,8 @@
     <string name="history">Amount of message per history retrieve</string>
     <string name="history_amount">Message amount has been changed</string>
     <string name="loading_history_text">This number corresponds to the amount of messages retrieve from the server</string>
+    <string name="community_address_empty">Serveur address cannot be empty</string>
+    <string name="community_name_empty">Serveur name cannot be empty</string>
+    <string name="community_name_not_exist">This community doesn\'t exist for the given server</string>
+    <string name="message_cannot_be_send">Message couldn\'t be sent due to network problems</string>
 </resources>

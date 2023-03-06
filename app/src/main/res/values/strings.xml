@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name" translatable="false">Chatavion</string>
     <string name="id_community">Id de communauté</string>
-    <string name="communityAtIpServ">communauté@IPserveur</string>
+    <string name="community_at_ip_serv">communauté@IPserveur</string>
     <string name="pseudo">Pseudo</string>
     <string name="default_pseudo" translatable="false">chienJet</string>
     <string name="community_id_must_have_one_At">L\'id de communauté doit contenir un "@"</string>
@@ -9,7 +9,7 @@
     <string name="message_text">Texte du message...</string>
     <string name="parameters">Paramètres</string>
     <string name="theme">Thème</string>
-    <string name="langue">Langue</string>
+    <string name="language">Langue</string>
     <string name="notifications">Notifications</string>
     <string name="advanced_parameters">Paramètres avancés</string>
     <string name="messages">Messages</string>
@@ -26,20 +26,20 @@
     <string name="encoding">Encodage</string>
     <string name="light">Clair</string>
     <string name="dark">Sombre</string>
-    <string name="msgError">Le message n\'a pas pu être envoyé à cause d\'une erreur interne de l\'application</string>
-    <string name="commuConnection">Connexion réussie</string>
-    <string name="commuConnectionFailed">La connexion a echoué</string>
-    <string name="connectionSwitchDNS">Passage en mode DNS</string>
-    <string name="connectionSwitchHTTP">Passage en mode HTTP</string>
-    <string name ="commuSwitch">Connexion a la communauté </string>
-    <string name="uNameChanged">Pseudo modifié</string>
-    <string name="newUNameEmpty">Le nouveau pseudo ne peut pas être vide </string>
-    <string name="messageTooLong">Le message fait plus de 160 charactères.</string>
+    <string name="error_message">Le message n\'a pas pu être envoyé à cause d\'une erreur interne de l\'application</string>
+    <string name="community_connection_succesful">Connexion réussie</string>
+    <string name="community_connection_failed">La connexion a echoué</string>
+    <string name="switch_dns_connection">Passage en mode DNS</string>
+    <string name="switch_http_connection">Passage en mode HTTP</string>
+    <string name ="community_switch">Connexion a la communauté </string>
+    <string name="username_changed">Pseudo modifié</string>
+    <string name="username_empty">Le nouveau pseudo ne peut pas être vide </string>
+    <string name="message_too_long">Le message fait plus de 160 charactères.</string>
     <string name="back_login_screen">Retour à l\'écran de connexion</string>
-    <string name="communityNameTooLong">Le nom de la communauté ne devrait pas être aussi long</string>
+    <string name="community_name_too_long">Le nom de la communauté ne devrait pas être aussi long</string>
     <string name="DNS" translatable="false">DNS</string>
     <string name="HTTP" translatable="false">HTTP</string>
-    <string name="communityAddressTooLong">L\'addresse de la communauté ne devrait pas dépasser 20 caractères</string>
+    <string name="community_address_too_long">L\'addresse de la communauté ne devrait pas dépasser 20 caractères</string>
     <string name="refresh_time_changed">Le temps de rafraîchisement a été modifié</string>
     <string name="second">secondes</string>
     <string name="delay_slider_parameter">Ce paramètre définit l\'écart entre deux tentatives de récupération de nouveaux messages dans la communauté courante</string>
@@ -52,4 +52,8 @@
     <string name="history_message" translatable="false">messages</string>
     <string name="history_amount">Le nombre de messages a été changé</string>
     <string name="loading_history_text">Le nombre défini ci-dessus correspond au nombre de message à récupérer à chaque chargement des messages du serveur</string>
+    <string name="community_address_empty">L\'adresse de la communauté ne peut pas être vide</string>
+    <string name="community_name_empty">Le nom de la communauté ne peut pas être vide</string>
+    <string name="community_name_not_exist">Cette communauté n\'existe pas sur ce serveur</string>
+    <string name="message_cannot_be_send">Le message n\'as pas été envoyé dù à un problème réseau</string>
 </resources>
