@@ -1,6 +1,7 @@
 package fr.chatavion.client.ui.view
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
@@ -58,8 +59,6 @@ import java.io.IOException
 import java.net.*
 
 class AuthentificationView {
-    private val dnsSender = DnsResolver()
-    private val httpSender = HttpResolver()
     private val communityVM = communityViewModel
     /**
      * AuthentificationView is a composable function that displays a login screen
@@ -72,6 +71,9 @@ class AuthentificationView {
     fun AuthentificationView(navController: NavController) {
         val context = LocalContext.current
         val keyboardController = LocalSoftwareKeyboardController.current
+
+        val dnsSender = DnsResolver(context)
+        val httpSender = HttpResolver()
 
         val settingsRepository = SettingsRepository(context = context)
         var communityId by remember { mutableStateOf("") }
@@ -250,7 +252,11 @@ class AuthentificationView {
                                 pseudo = pseudo.trim()
                                 CoroutineScope(IO).launch {
                                     val isConnected =
-                                        sendButtonConnexion(communityAddress, communityName)
+                                        sendButtonConnexion(
+                                            communityAddress,
+                                            communityName,
+                                            dnsSender,
+                                            httpSender)
                                     if (isConnected && pseudo != "") {
                                         Log.i("Pseudo", "Setting user pseudo to $pseudo")
                                         settingsRepository.setPseudo(pseudo)
@@ -305,7 +311,9 @@ class AuthentificationView {
      */
     private suspend fun sendButtonConnexion(
         address: String,
-        community: String
+        community: String,
+        dnsResolver: DnsResolver,
+        httpResolver: HttpResolver
     ): Boolean {
         if (address == "" || community == "") {
             Log.e("Connexion", "Address or community is empty")
@@ -315,14 +323,14 @@ class AuthentificationView {
         var returnVal: Boolean
         withContext(IO) {
             if (!testHttp()) {
-                httpSender.communityChecker(address, community)
-                dnsSender.id = httpSender.id
-                returnVal = httpSender.isConnected
+                httpResolver.communityChecker(address, community)
+                dnsResolver.id = httpResolver.id
+                returnVal = httpResolver.isConnected
             } else {
-                dnsSender.findType(address)
-                dnsSender.communityDetection(address, community)
-                httpSender.id = dnsSender.id
-                returnVal = dnsSender.isConnected
+                dnsResolver.findType(address)
+                dnsResolver.communityDetection(address, community)
+                httpResolver.id = httpResolver.id
+                returnVal = dnsResolver.isConnected
             }
         }
         return returnVal
@@ -384,7 +392,8 @@ class AuthentificationView {
                                             val id = isCommunityStillAvailable(
                                                 communityAddress = community.address,
                                                 communityName = community.name,
-                                                protocol = runBlocking { settingsRepository.protocol.first() }
+                                                protocol = runBlocking { settingsRepository.protocol.first() },
+                                                context = context,
                                             )
 
                                             community.idLastMessage = if(id<0) 0 else id
@@ -456,7 +465,8 @@ fun testHttp(): Boolean {
 private suspend fun isCommunityStillAvailable(
     communityName: String,
     communityAddress: String,
-    protocol: SettingsRepository.Protocol
+    protocol: SettingsRepository.Protocol,
+    context: Context
 ): Int {
     Log.i("Address", communityAddress)
     Log.i("Community", communityName)
@@ -469,7 +479,7 @@ private suspend fun isCommunityStillAvailable(
             isConnectionOk = httpSender.communityChecker(communityAddress, communityName)
             id = httpSender.id
         } else {
-            val dnsSender = DnsResolver()
+            val dnsSender = DnsResolver(context)
             dnsSender.findType(communityAddress)
             isConnectionOk = dnsSender.communityDetection(communityAddress, communityName)
             id = dnsSender.id
