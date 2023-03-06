@@ -145,7 +145,7 @@ class AuthentificationView {
                             communityId = it
                             enabled = communityId != "" && pseudo != ""
                         },
-                        placeholder = { Text(text = UiText.StringResource(R.string.communityAtIpServ).asString(LocalContext.current)) },
+                        placeholder = { Text(text = UiText.StringResource(R.string.community_at_ip_serv).asString(LocalContext.current)) },
                         textStyle = TextStyle(fontSize = 16.sp),
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                         keyboardActions = KeyboardActions(
@@ -230,7 +230,7 @@ class AuthentificationView {
                                     CoroutineScope(IO).launch {
                                         withContext(Main) {
                                             Utils.showErrorToast(
-                                                UiText.StringResource(R.string.communityNameTooLong).asString(context),
+                                                UiText.StringResource(R.string.community_name_too_long).asString(context),
                                                 context
                                             )
                                         }
@@ -242,7 +242,7 @@ class AuthentificationView {
                                     CoroutineScope(IO).launch {
                                         withContext(Main) {
                                             Utils.showErrorToast(
-                                                UiText.StringResource(R.string.communityNameTooLong).asString(context),
+                                                UiText.StringResource(R.string.community_name_too_long).asString(context),
                                                 context
                                             )
                                         }
@@ -251,6 +251,24 @@ class AuthentificationView {
                                 }
                                 pseudo = pseudo.trim()
                                 CoroutineScope(IO).launch {
+                                    if (communityAddress == "") {
+                                        withContext(Main) {
+                                            Utils.showErrorToast(
+                                                UiText.StringResource(R.string.community_address_empty).asString(context),
+                                                context
+                                            )
+                                        }
+                                        return@launch
+                                    }
+                                    if(communityName == "") {
+                                        withContext(Main) {
+                                            Utils.showErrorToast(
+                                                UiText.StringResource(R.string.community_name_empty).asString(context),
+                                                context
+                                            )
+                                        }
+                                        return@launch
+                                    }
                                     val isConnected =
                                         sendButtonConnexion(
                                             communityAddress,
@@ -263,7 +281,7 @@ class AuthentificationView {
                                         idLast = dnsSender.id
                                         withContext(Main) {
                                             Utils.showInfoToast(
-                                                UiText.StringResource(R.string.commuConnection).asString(context),
+                                                UiText.StringResource(R.string.community_connection_succesful).asString(context),
                                                 context
                                             )
                                         }
@@ -271,7 +289,7 @@ class AuthentificationView {
                                     } else {
                                         withContext(Main) {
                                             Utils.showErrorToast(
-                                                UiText.StringResource(R.string.commuConnectionFailed).asString(context),
+                                                UiText.StringResource(R.string.community_name_not_exist).asString(context),
                                                 context
                                             )
                                         }
