@@ -104,8 +104,8 @@ class TchatView {
         val community by communityVM.getById(communityId)
             .observeAsState(Community(communityName, communityAddress, "", lastId, communityId))
 
-        val dnsResolver = DnsResolver(context)
-        val httpResolver = HttpResolver()
+        val dnsResolver = remember { DnsResolver(context) }
+        val httpResolver = remember { HttpResolver() }
         val messages = remember { mutableStateListOf<Message>() }
         var msg by remember { mutableStateOf("") }
         var remainingCharacter by remember { mutableStateOf(MESSAGE_SIZE) }

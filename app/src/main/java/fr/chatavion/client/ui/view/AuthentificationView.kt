@@ -72,8 +72,8 @@ class AuthentificationView {
         val context = LocalContext.current
         val keyboardController = LocalSoftwareKeyboardController.current
 
-        val dnsSender = DnsResolver(context)
-        val httpSender = HttpResolver()
+        val dnsSender = remember { DnsResolver(context) }
+        val httpSender = remember { HttpResolver() }
 
         val settingsRepository = SettingsRepository(context = context)
         var communityId by remember { mutableStateOf("") }
@@ -340,14 +340,14 @@ class AuthentificationView {
 
         var returnVal: Boolean
         withContext(IO) {
-            if (!testHttp()) {
+            if (testHttp()) {
                 httpResolver.communityChecker(address, community)
                 dnsResolver.id = httpResolver.id
                 returnVal = httpResolver.isConnected
             } else {
                 dnsResolver.findType(address)
                 dnsResolver.communityDetection(address, community)
-                httpResolver.id = httpResolver.id
+                httpResolver.id = dnsResolver.id
                 returnVal = dnsResolver.isConnected
             }
         }
