@@ -340,14 +340,14 @@ class AuthentificationView {
 
         var returnVal: Boolean
         withContext(IO) {
-            if (!testHttp()) {
+            if (testHttp()) {
                 httpResolver.communityChecker(address, community)
                 dnsResolver.id = httpResolver.id
                 returnVal = httpResolver.isConnected
             } else {
                 dnsResolver.findType(address)
                 dnsResolver.communityDetection(address, community)
-                httpResolver.id = httpResolver.id
+                httpResolver.id = dnsResolver.id
                 returnVal = dnsResolver.isConnected
             }
         }

@@ -126,7 +126,8 @@ class HttpResolver {
 
                 inputStream.bufferedReader().use {
                     it.lines().forEach { line ->
-                        result = mapper.readValue(line)
+                        result = mapper.readValue<Int>(line) > -2
+                        Log.i("CommunityCheck", result.toString())
                         val tmp: Int = mapper.readValue(line)
                         id = if (tmp < 0) 0 else tmp
                     }
