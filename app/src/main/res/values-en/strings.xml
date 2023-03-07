@@ -13,8 +13,8 @@
     <string name="messages">Messages</string>
     <string name="network_connection">Network Connection</string>
     <string name="back_main_screen">Return to main screen</string>
-    <string name="actual_pseudo">Actual pseudo</string>
-    <string name="explication_pseudo_community">This is the name that appears in the header of messages you send to the community</string>
+    <string name="actual_pseudo">Current pseudo</string>
+    <string name="explication_pseudo_community">This is the name which appears in the header of the messages you send to the community</string>
     <string name="transaction_type_dns">DNS transaction type</string>
     <string name="protocol_choice">Protocol choice</string>
     <string name="french">French</string>
@@ -32,7 +32,7 @@
     <string name ="community_switch">Switched to community </string>
     <string name="username_changed">Username edited</string>
     <string name="username_empty">New username cannot be empty</string>
-    <string name="message_too_long">Message is taking more than 160 characters.</string>
+    <string name="message_too_long">Message is longer than 160 characters.</string>
     <string name="back_login_screen">Return to login screen</string>
     <string name="community_name_too_long">The community name shouldn\'t be that long</string>
     <string name="community_address_too_long">The community address shouldn\'t be over 20 characters</string>
@@ -45,11 +45,11 @@
     <string name="language_chosen">Application in English</string>
     <string name="drop_down_commu_conn_first">Accessing community</string>
     <string name="drop_down_commu_conn_second">as</string>
-    <string name="history">Amount of message per history retrieve</string>
-    <string name="history_amount">Message amount has been changed</string>
-    <string name="loading_history_text">This number corresponds to the amount of messages retrieve from the server</string>
-    <string name="community_address_empty">Serveur address cannot be empty</string>
-    <string name="community_name_empty">Serveur name cannot be empty</string>
+    <string name="history">Amount of message per history retrieval</string>
+    <string name="history_amount">Message amount retrieved per refresh has been changed</string>
+    <string name="loading_history_text">Defines to the amount of messages the app will retrieve from the server on each refresh</string>
+    <string name="community_address_empty">Server address cannot be empty</string>
+    <string name="community_name_empty">Server name cannot be empty</string>
     <string name="community_name_not_exist">This community doesn\'t exist for the given server</string>
     <string name="message_cannot_be_send">Message couldn\'t be sent due to network problems</string>
 </resources>
