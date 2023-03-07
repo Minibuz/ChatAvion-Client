@@ -47,7 +47,10 @@ public class DnsResolver {
     public DnsResolver(Context context) {
         this.instance = ResolverApi.INSTANCE;
         DnsClient.addDnsServerLookupMechanism(new AndroidUsingLinkProperties(context));
-        ((ReliableDnsClient) instance.getClient()).setUseHardcodedDnsServers(false);
+        ((ReliableDnsClient) instance.getClient()).setUseHardcodedDnsServers(true);
+        for(var e: DnsClient.findDNS()) {
+            System.out.println(e);
+        }
     }
 
     /**

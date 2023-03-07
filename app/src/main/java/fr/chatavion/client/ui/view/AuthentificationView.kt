@@ -72,8 +72,8 @@ class AuthentificationView {
         val context = LocalContext.current
         val keyboardController = LocalSoftwareKeyboardController.current
 
-        val dnsSender = DnsResolver(context)
-        val httpSender = HttpResolver()
+        val dnsSender = remember { DnsResolver(context) }
+        val httpSender = remember { HttpResolver() }
 
         val settingsRepository = SettingsRepository(context = context)
         var communityId by remember { mutableStateOf("") }
