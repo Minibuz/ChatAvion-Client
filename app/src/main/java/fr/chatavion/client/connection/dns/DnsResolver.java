@@ -1,6 +1,7 @@
 package fr.chatavion.client.connection.dns;
 
 import android.content.Context;
+import android.util.Log;
 
 import org.apache.commons.codec.binary.Base32;
 import org.apache.commons.lang3.ArrayUtils;
@@ -35,11 +36,12 @@ public class DnsResolver {
     private static final Logger logger = Logger.getLogger(DnsResolver.class.getName());
     private static final int NUMBER_OF_RETRIES = 1;
     private final Base32 converter32 = new Base32();
+    private final ResolverApi instance;
+
     private Class<? extends Data> type = A.class;
     private final List<String> list = new ArrayList<>();
     private int id = 0;
     private boolean isConnected = false;
-    private final ResolverApi instance;
 
     /**
      * Constructs a new DnsResolver.
@@ -49,7 +51,7 @@ public class DnsResolver {
         DnsClient.addDnsServerLookupMechanism(new AndroidUsingLinkProperties(context));
         ((ReliableDnsClient) instance.getClient()).setUseHardcodedDnsServers(true);
         for(var e: DnsClient.findDNS()) {
-            System.out.println(e);
+            Log.i("DNSResolver", e);
         }
     }
 
@@ -137,14 +139,12 @@ public class DnsResolver {
      */
     public boolean communityDetection(String address, String community) {
         try {
-            ResolverResult<? extends Data> e = instance.resolve(community + ".connexion." + address, type);
             isConnected = false;
-            logger.info("After");
+            ResolverResult<? extends Data> e = instance.resolve(community + ".connexion." + address, type);
             if (!e.wasSuccessful()) {
                 logger.warning(() -> "That community doesn't exist for the given server.");
                 return false;
             }
-            // TODO Change the return of server to get the id of the latest message receive based on the server log
             if (e.getAnswers().isEmpty()) {
                 logger.warning(() -> "That community doesn't have any response.");
                 return false;
@@ -185,7 +185,6 @@ public class DnsResolver {
         String cmtB32 = this.converter32.encodeAsString(community.getBytes(StandardCharsets.UTF_8));
         String userB32 = this.converter32.encodeAsString(pseudo.getBytes(StandardCharsets.UTF_8));
 
-        // TODO Generate random id for the messages
         Random r = new Random();
         int randomId = r.nextInt(65536);
         int maxSplit = (short) (msgB32.length() / 35);
@@ -222,7 +221,7 @@ public class DnsResolver {
 
                 if (result.getAnswers().size() == 1) {
                     logger.info(() -> "Server received the message.");
-                    retries = NUMBER_OF_RETRIES;
+                    break;
                 }
             }
         }
@@ -239,7 +238,7 @@ public class DnsResolver {
      */
     public List<String> requestHistory(String cmt, String address, int number) {
         if (number < 5 || number > 25) {
-            throw new IllegalArgumentException("Cannot get less than 5 messages from history or more than 25.");
+            throw new IllegalArgumentException("Cannot get less than 5 or more than 25 messages from history.");
         }
         String cmtB32 = this.converter32.encodeAsString(cmt.getBytes(StandardCharsets.UTF_8));
         list.clear();

@@ -502,12 +502,6 @@ private suspend fun isCommunityStillAvailable(
             isConnectionOk = dnsSender.communityDetection(communityAddress, communityName)
             id = dnsSender.id
         }
-
-        if (isConnectionOk) {
-            // TODO Toast if true
-        } else {
-            // TODO Toast if false
-        }
     }
     return if (isConnectionOk) {
         id

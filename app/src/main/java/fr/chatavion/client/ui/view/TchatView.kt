@@ -99,8 +99,6 @@ class TchatView {
         val protocol by settingsRepository.protocol.collectAsState(initial = SettingsRepository.Protocol.Http)
         val amountMessage by settingsRepository.historyLoading.collectAsState(initial = 10)
 
-        Log.i("am", amountMessage.toString())
-
         val community by communityVM.getById(communityId)
             .observeAsState(Community(communityName, communityAddress, "", lastId, communityId))
 
@@ -1092,14 +1090,7 @@ class TchatView {
                 isConnectionOk = dnsSender.communityDetection(communityAddress, communityName)
                 id = dnsSender.id
             }
-
-            if (isConnectionOk) {
-                // TODO Toast if true
-            } else {
-                // TODO Toast if false
-            }
         }
-        println(id)
         return if (isConnectionOk) {
             id
         } else {
