@@ -97,8 +97,7 @@ class HttpResolver {
                 }
             }
         } catch (e: IOException) {
-            Log.e("HTTPResolver", "Server doesn't exist")
-            Log.e("HTPPResolver", e.message.toString())
+            Log.e("HTTPResolver", "Server doesn't exist.")
         }
         return result
     }
@@ -127,14 +126,13 @@ class HttpResolver {
                 inputStream.bufferedReader().use {
                     it.lines().forEach { line ->
                         result = mapper.readValue<Int>(line) > -2
-                        Log.i("CommunityCheck", result.toString())
                         val tmp: Int = mapper.readValue(line)
                         id = if (tmp < 0) 0 else tmp
                     }
                 }
             }
         } catch (e: IOException) {
-            Log.e("HTTPResolver", "Server doesn't exist")
+            Log.e("HTTPResolver", "Server doesn't exist.")
         }
         if (result) {
             isConnected = true
