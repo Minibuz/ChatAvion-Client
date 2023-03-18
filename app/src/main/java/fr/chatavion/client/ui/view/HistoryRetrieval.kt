@@ -88,8 +88,6 @@ private fun historyRetrieval(
     }
     list.removeAll(listOfChanged)
     if (list.isNotEmpty()) {
-        // TODO Toast here to main thread
-        // CoroutineScope(Main) {}
         for (msg in list) {
             if (msg.sendRetry == 0) {
                 listToRemove.remove(msg)

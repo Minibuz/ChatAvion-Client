@@ -97,8 +97,7 @@ class HttpResolver {
                 }
             }
         } catch (e: IOException) {
-            Log.e("HTTPResolver", "Server doesn't exist")
-            Log.e("HTPPResolver", e.message.toString())
+            Log.e("HTTPResolver", "Server doesn't exist.")
         }
         return result
     }
@@ -135,7 +134,7 @@ class HttpResolver {
                 }
             }
         } catch (e: IOException) {
-            Log.e("HTTPResolver", "Server doesn't exist")
+            Log.e("HTTPResolver", "Server doesn't exist.")
         }
         if (result) {
             isConnected = true

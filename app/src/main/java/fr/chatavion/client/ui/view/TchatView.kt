@@ -99,13 +99,11 @@ class TchatView {
         val protocol by settingsRepository.protocol.collectAsState(initial = SettingsRepository.Protocol.Http)
         val amountMessage by settingsRepository.historyLoading.collectAsState(initial = 10)
 
-        Log.i("am", amountMessage.toString())
-
         val community by communityVM.getById(communityId)
             .observeAsState(Community(communityName, communityAddress, "", lastId, communityId))
 
-        val dnsResolver = DnsResolver(context)
-        val httpResolver = HttpResolver()
+        val dnsResolver = remember { DnsResolver(context) }
+        val httpResolver = remember { HttpResolver() }
         val messages = remember { mutableStateListOf<Message>() }
         var msg by remember { mutableStateOf("") }
         var remainingCharacter by remember { mutableStateOf(MESSAGE_SIZE) }
@@ -1092,14 +1090,7 @@ class TchatView {
                 isConnectionOk = dnsSender.communityDetection(communityAddress, communityName)
                 id = dnsSender.id
             }
-
-            if (isConnectionOk) {
-                // TODO Toast if true
-            } else {
-                // TODO Toast if false
-            }
         }
-        println(id)
         return if (isConnectionOk) {
             id
         } else {
